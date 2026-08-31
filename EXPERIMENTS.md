@@ -12,7 +12,7 @@ The frozen baseline config is
 tasks include `power`, `conjugate`, and `commutator`.
 
 Twenty tasks were deterministically shuffled once.  The first 16 formed the
-training pool and the final four were complete unseen-task holdouts.  Nested
+training pool, and the final four were held out from training.  Nested
 training subsets contained 1, 2, 4, 8, and 16 tasks.  Both architectures were
 trained with three independent parameter/data-order seeds:
 
@@ -60,7 +60,7 @@ encoding without `<NUM_START>` or additional operands.
 
 ### Completed v3 dataset
 
-The formal v3 corpus has been generated and full-verified; this data completion
+The formal v3 corpus has been generated and fully verified; this data completion
 does not imply that any v3 model has been trained.
 
 | Artifact fact | Value |
@@ -125,7 +125,8 @@ The revised nested matrix keeps the old controlled shape:
 5 task subsets x 2 architectures x 3 seeds = 30 planned v3 models
 ```
 
-All runs retain the same optimizer-update budget and training hyperparameters.
+All planned runs will use the same optimizer-update budget and training
+hyperparameters.
 The output directory is separate (`runs/henry-permutation-v3`) so no v2
 checkpoint can be overwritten or mistaken for a revised result.
 
@@ -136,7 +137,7 @@ reviewed: they contain 30 incomplete v3 runs and no training was launched.
 
 ## Matched category comparison
 
-The full categories contain 4 encoding, 12 statistics, and 4 algebra tasks.
+The full categories contain 4 encoding, 12 statistics, and 4 algebraic tasks.
 Comparing all of them directly would confound task family with task count.
 This project operationalizes Henry's representation question as three
 task-count-matched four-task conditions:

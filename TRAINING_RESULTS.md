@@ -15,7 +15,7 @@ Generated from the frozen completion markers in `runs/henry-permutation` on
   launch configuration, data split fingerprints, checkpoint SHA-256, strict
   model state shape/dtype compatibility, optimizer/scheduler/scaler/RNG state,
   marker/checkpoint accounting agreement, finite values, and partial files.
-- Repository test suite: all 127 tests passed.
+- Repository test suite: all 147 tests passed.
 
 The formal configuration SHA-256 is
 `c5d9a0ea7a601588d1e07a520721dfeb3b8f96830d03c8c9f8632c6d37f70dfa`.
@@ -70,8 +70,9 @@ accuracy is -3.90, -9.43, -10.10, -5.31, and -2.77 points.
 
 ## Preliminary zero-shot generalization result
 
-The fixed four-task holdout is the clean comparison because those tasks are
-unseen by every model. Holdout token accuracy rises from 19.18% to 43.75% for
+The fixed four-task holdout is the clean comparison because those tasks were
+excluded from training for every model. Holdout token accuracy rises from
+19.18% to 43.75% for
 the Transformer and from 23.08% to 49.05% for the MLP between the one-task and
 eight-task conditions, then falls modestly at 16 tasks. This is evidence of
 better prefix-conditioned token transfer with greater task diversity, with a
@@ -95,7 +96,7 @@ states; neither has been run yet.
 These are validation diagnostics from shard 098, which was consulted throughout
 training. Token accuracy uses teacher forcing, so every answer token is
 predicted with the gold answer prefix available and copy/formatting tokens can
-inflate it. `sequence_accuracy` requires every answer-token and EOS argmax to
+inflate it. `sequence_accuracy` requires every answer token and EOS argmax to
 be correct. Because the models are strictly causal, that all-token event is
 equivalent to greedy exact generation of the canonical target for the same
 prompt, although a separate decoding harness has not yet been run.

@@ -5,7 +5,7 @@ Two immutable protocol versions are documented:
 - `permutation-20/v2` is the completed baseline used by the existing 30
   models and the accuracy matrices in the README.
 - `permutation-20/v3` is the revised main-study protocol motivated by Henry
-  Kvinge's feedback.  Its dataset has been generated and full-verified.  It
+  Kvinge's feedback.  Its dataset has been generated and fully verified.  It
   replaces three expensive algebraic targets while retaining 20 balanced
   tasks.  No v3 model result may be reported until a corresponding model
   completion marker exists.
@@ -105,8 +105,9 @@ For v3, replace items 16--18 according to the revision table above.
 6. `descents`: the number of indices `i` with `pi_i > pi_(i+1)`.
 7. `fixed_points`: the number of `i` with `pi_i = i`.
 8. `parity`: inversion count modulo 2 (`00` even, `01` odd).
-9. `cycle_type`: all cycle lengths, including 1s, sorted decreasingly.
-10. `rsk_shape`: row lengths of the RSK insertion tableau, decreasingly.
+9. `cycle_type`: all cycle lengths, including 1s, sorted in decreasing order.
+10. `rsk_shape`: row lengths of the RSK insertion tableau, listed in decreasing
+    order.
 11. `lis_length`: longest strictly increasing subsequence length.
 12. `lds_length`: longest strictly decreasing subsequence length.
 13. `pattern_avoidance`: whether `pi` avoids the supplied classical pattern;

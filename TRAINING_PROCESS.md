@@ -1,31 +1,31 @@
-# Permutation 多任务实验：完整数据与训练过程
+# Permutation Multitask Experiments: Complete Data and Training Process
 
-本文档记录 permutation 部分从需求解释、数据生成、编码、模型设计、正式训练、断点恢复、验证、审计到结果发布的完整过程。第 1–14 节描述已经实际执行完成的 v2 baseline；第 0 节记录 Henry 反馈后的 v3：数据已经生成并 full-verified，但 revised 模型仍是尚未训练的冻结方案。
+This document records the complete permutation workflow, from interpreting the requirements through data generation, encoding, model design, formal training, checkpoint recovery, verification, auditing, and publication of results. Sections 1–14 describe the v2 baseline that was actually executed to completion; Section 0 records the v3 revision following Henry's feedback: the data have been generated and fully verified, but the revised models remain a frozen, untrained design.
 
-最后更新：2026-08-30
+Last updated: 2026-08-30
 
-- GitHub：<https://github.com/XuanyuYang223/neurips>
-- 已完成 baseline：数据协议 `permutation-20/v2`，实验协议 `henry-permutation/v1`
-- Baseline 状态：30/30 个 base models 完成，严格审计 30 passed / 0 failed
-- Revised main study：数据协议 `permutation-20/v3`，实验协议 `henry-permutation/v2-revised`
-- Revised data 状态：10,000,000 records，100 shards，full verification passed
-- Revised model 状态：方案已冻结，**尚未训练，0 个 completed models**
-- V2 正式训练使用的 implementation commit：`6a40235`
-- 完训后 audit/results 基线 commit：`32ff22a`
+- GitHub: <https://github.com/XuanyuYang223/neurips>
+- Completed baseline: data protocol `permutation-20/v2`, experiment protocol `henry-permutation/v1`
+- Baseline status: 30/30 base models completed; strict audit: 30 passed / 0 failed
+- Revised main study: data protocol `permutation-20/v3`, experiment protocol `henry-permutation/v2-revised`
+- Revised data status: 10,000,000 records, 100 shards, full verification passed
+- Revised model status: design frozen, **not yet trained; 0 completed models**
+- Implementation commit used for formal v2 training: `6a40235`
+- Post-training audit/results baseline commit: `32ff22a`
 
-## 0. Henry 反馈后的 revised main study（v3）
+## 0. Revised Main Study After Henry's Feedback (v3)
 
-Henry 的意见是保持 architecture 尽量标准，不必复现原始 PermuFormer；同时把学习成本较高的 `power`、`conjugate`、`commutator` 排除出论文主实验，并按任务类别比较 learned representations。Henry 没有指定替代任务；为继续保持 20 个平衡 tasks，本项目选择了 `peaks`、`exceedances`、`recoils`。
+Henry recommended keeping the architecture as standard as possible rather than reproducing the original PermuFormer exactly. He also recommended excluding the costly-to-learn `power`, `conjugate`, and `commutator` tasks from the paper's main experiments and comparing learned representations across task categories. Henry did not prescribe replacements; to retain 20 balanced tasks, this project selected `peaks`, `exceedances`, and `recoils`.
 
-因此 v3 保留当前标准 small pre-LN decoder-only Transformer（4 layers、8 heads、`d_model=256`）及 MLP 对照，不引入新的 Transformer modification。任务替换为：
+Accordingly, v3 retains the current standard small pre-LN decoder-only Transformer (4 layers, 8 heads, `d_model=256`) and the MLP control, without introducing new Transformer modifications. The task substitutions are:
 
-| v2 移除 | v3 新增 | 定义 | 新数据量 |
+| Removed from v2 | Added in v3 | Definition | New records |
 |---|---|---|---:|
-| `power` | `peaks` | 内部局部峰值数量 | 500,000 |
-| `conjugate` | `exceedances` | `pi(i) > i` 的位置数量 | 500,000 |
-| `commutator` | `recoils` | `pi^-1` 的 descent 数量 | 500,000 |
+| `power` | `peaks` | Number of interior local peaks | 500,000 |
+| `conjugate` | `exceedances` | Number of positions satisfying `pi(i) > i` | 500,000 |
+| `commutator` | `recoils` | Number of descents of `pi^-1` | 500,000 |
 
-三个新任务都是 `n <= 30` 下的 scalar property；答案用一个 `00`–`99` token，不需要 `<NUM_START>`。正式 v3 数据已经完成：20 tasks × 500,000 records = 10,000,000 条，写入独立目录 `data/permutation-10m-v3`，没有覆盖 v2 数据。
+All three new tasks are scalar properties for `n <= 30`; each answer uses a single `00`–`99` token and does not require `<NUM_START>`. The formal v3 dataset is complete: 20 tasks × 500,000 records = 10,000,000 records, written to the separate directory `data/permutation-10m-v3` without overwriting the v2 data.
 
 | V3 data fact | Value |
 |---|---:|
@@ -36,7 +36,7 @@ Henry 的意见是保持 architecture 尽量标准，不必复现原始 PermuFor
 | Full verification wall time | 34.59 seconds |
 | Parent manifest SHA-256 | `b20a16cee7710cee4a21cc4575c8651ade1bcfca18219d2e6c230d4a3ab0cf6f` |
 
-V3 split：
+V3 split:
 
 | Split | Shards | Records | Manifest SHA-256 |
 |---|---|---:|---|
@@ -44,134 +44,134 @@ V3 split：
 | Validation | `098` | 100,000 | `90e88845f3f58947f317c67144c83bc5e38c27b248227e311632af834d2fd068` |
 | Test | `099` | 100,000 | `3ca12e6b6eeb29fc0ddd441b9c44c80d7a160faaf7e832eb55007f4c6a3ab52b` |
 
-Revised nested matrix 继续使用 `1/2/4/8/16 tasks × 2 architectures × 3 seeds = 30` 个计划模型，并保留与 v2 相同的四个 holdouts：`to_reduced_word`、`compose`、`parity`、`to_lehmer`。相同 holdout identities 便于直接比较 v2 与 v3，且保留一个 algebra holdout。新版 output 独立写到 `runs/henry-permutation-v3`。
+The revised nested matrix continues to use `1/2/4/8/16 tasks × 2 architectures × 3 seeds = 30` planned models and retains the same four holdouts as v2: `to_reduced_word`, `compose`, `parity`, and `to_lehmer`. Keeping the same holdout identities enables direct v2–v3 comparison while preserving one algebra holdout. The revised outputs are configured to be written separately to `runs/henry-permutation-v3`.
 
-为回答 Henry 关于类别表示差异的问题，本项目将其 operationalize 为 task-count-matched 三组：
+To address Henry's question about category-level representational differences, this project operationalizes it as three task-count-matched groups:
 
-| 条件 | 4 个训练任务 |
+| Condition | Four training tasks |
 |---|---|
 | Encoding E4 | `to_cycle`, `to_lehmer`, `to_inversion_vector`, `to_reduced_word` |
 | Statistics S4 | `length`, `cycle_type`, `rsk_shape`, `pattern_avoidance` |
 | Algebra A4 | `inverse`, `compose`, `right_multiply_simple`, `bruhat_leq` |
 
-这避免直接比较完整 `4 vs 12 vs 4` 类别造成 task-count confound。三组使用相同 per-task data、optimizer-update budget、architecture 和三个 seeds，共 `3 categories × 2 architectures × 3 seeds = 18` 个计划模型；在相同 held-out one-line permutation 的 `<ONE_END>` 位置比较 layerwise CKA、frozen linear probes 和 few-shot transfer。
+This avoids the task-count confound that would arise from directly comparing the full `4 vs 12 vs 4` category sets. The three groups use identical per-task data, optimizer-update budgets, architectures, and three seeds, for a total of `3 categories × 2 architectures × 3 seeds = 18` planned models. Layerwise CKA, frozen linear probes, and few-shot transfer are planned to be compared at the `<ONE_END>` position for the same held-out one-line permutations.
 
-权威设计见 [configs/henry_permutation_revised.toml](configs/henry_permutation_revised.toml) 与 [EXPERIMENTS.md](EXPERIMENTS.md)。TOML 中的 category table 当前是 declarative design；现有 nested runner 尚不能调度 E4/S4/A4。V3 数据完成不等于模型完成：这 30+18 个计划模型都没有 `completed.json`，所以本文和 README 不报告任何 v3 accuracy。
+The authoritative design is documented in [configs/henry_permutation_revised.toml](configs/henry_permutation_revised.toml) and [EXPERIMENTS.md](EXPERIMENTS.md). The category table in the TOML file is currently declarative; the existing nested runner cannot yet schedule E4/S4/A4. Completion of the v3 data does not imply completion of the models: none of these 30+18 planned models has a `completed.json`, so neither this document nor the README reports any v3 accuracy.
 
-## 1. V2 baseline 的研究目标与完成范围
+## 1. V2 Baseline Research Objective and Scope of Completion
 
-Henry 提出的核心问题是：随着一个模型训练过的任务种类增加，它的内部表示和 generalization 能力是否系统性增强。V2 permutation baseline 采用嵌套任务集合，并在相同优化步数预算下比较 Transformer 和 MLP。
+Henry's central question is whether a model's internal representations and generalization ability improve systematically as the variety of tasks on which it is trained increases. The v2 permutation baseline uses nested task sets and compares the Transformer and MLP under an identical optimizer-step budget.
 
-V2 baseline 已经完成：
+The v2 baseline completed the following:
 
-1. 定义并实现 20 个 permutation tasks；
-2. 生成 10,000,000 条 Passage Math 训练序列；
-3. 对全部数据逐条重算数学答案并验证编码；
-4. 训练 `1/2/4/8/16 tasks × 2 architectures × 3 seeds = 30` 个 base models；
-5. 保存可恢复 checkpoint、最终 marker 和 validation 指标；
-6. 对全部 30 个 checkpoint 做严格结构、哈希和数值审计；
-7. 汇总初步 zero-shot generalization 结果。
+1. Defined and implemented 20 permutation tasks.
+2. Generated 10,000,000 Passage Math training sequences.
+3. Recomputed the mathematical answer for every record and verified its encoding.
+4. Trained `1/2/4/8/16 tasks × 2 architectures × 3 seeds = 30` base models.
+5. Saved resumable checkpoints, final completion markers, and validation metrics.
+6. Performed strict structural, hash, and numerical audits on all 30 checkpoints.
+7. Summarized preliminary zero-shot generalization results.
 
-V2 baseline 尚未完成：
+The v2 baseline has not yet completed:
 
-- 在从未用于模型评估的 test shard 099 上做冻结测试；
-- holdout tasks 的 few-shot fine-tuning；
-- 与随机初始化模型的 few-shot baseline 比较；
-- linear probing 和 representation geometry；
-- 第二份方案中的完整 `4 representations × 8 tasks` 输入组合实验。
+- A frozen evaluation on test shard 099, which has never been used for model evaluation.
+- Few-shot fine-tuning on the holdout tasks.
+- A comparison against a few-shot baseline trained from random initialization.
+- Linear probing and representation geometry analyses.
+- The full `4 representations × 8 tasks` input-combination experiment from the second proposal.
 
-因此，v2 baseline 完成的是 Henry 方案中的“任务选择、数据生成和 base-model training”阶段，以及一份 validation-set zero-shot 初步结果；还不能称为完整的 generalization study。这句话不描述 v3 模型状态；v3 目前只完成了正式数据和 full verification。
+Thus, the v2 baseline completes the task-selection, data-generation, and base-model-training stages of Henry's proposal, together with a preliminary validation-set zero-shot result; it cannot yet be described as a complete generalization study. This statement does not describe the v3 model status: v3 has currently completed only the formal dataset and full verification.
 
-## 2. 需求解释与冻结决策
+## 2. Requirement Interpretation and Frozen Decisions
 
 ### 2.1 `maximum entries = 30`
 
-所有对象都是标准对称群 `S_n` 中的 permutation：
+Every object is a permutation in the standard symmetric group `S_n`:
 
 ```text
 pi is a permutation of {1, 2, ..., n}, with 2 <= n <= 30.
 ```
 
-因此 permutation 的最大长度为 30，entry 的最大值也自然是 30。没有把它解释为“从 1 到 100 中选 30 个不同数字”的 partial permutation，因为 cycle、Bruhat、Coxeter generators 等操作需要标准 `S_n` 语义。
+Therefore, the maximum permutation length is 30, and the maximum entry is naturally also 30. We did not interpret this as a partial permutation consisting of 30 distinct numbers selected from 1 through 100, because operations involving cycles, Bruhat order, and Coxeter generators require the standard `S_n` semantics.
 
 ### 2.2 `maximum number = 100`
 
-在 v2 baseline 中，100 被实现为用户提供的 base-100 number tokenizer 约定和 power task 的指数上界，而不是 permutation entry 上界：
+In the v2 baseline, 100 was implemented as the user-specified base-100 number-tokenizer convention and the upper bound on the exponent in the power task, rather than as an upper bound on permutation entries:
 
-- `00` 到 `99` 是 atomic number tokens；
-- 100 以上使用 `<NUM_START> ... <NUM_END>`；
-- v2 的 power exponent 取 `0 <= k <= 100`；v3 已移除 power，但 number encoding 不变。
+- `00` through `99` are atomic number tokens.
+- Values of 100 or greater use `<NUM_START> ... <NUM_END>`.
+- The v2 power exponent satisfies `0 <= k <= 100`; v3 removes the power task, but the number encoding is unchanged.
 
-### 2.3 “10M data”的单位
+### 2.3 Unit of “10M data”
 
-10M 指 10,000,000 条最终 causal-LM sequences。每条 sequence 只包含一个 task 和一个 answer。
+10M means 10,000,000 final causal-LM sequences. Each sequence contains exactly one task and one answer.
 
-它不是：
+It does not mean:
 
 ```text
 10M base permutations × 20 labels = 200M model sequences
 ```
 
-V2 最终 20 个 tasks 完全平衡，每个 task 500,000 条。V3 也已按同样总量和平衡约束完成，其中三个新增 properties 各 500,000 条。这一选择避免了约 200M 条富 JSON 记录带来的数百 GB 存储和极长训练时间，同时保留了任务平衡。
+The final v2 dataset is exactly balanced across 20 tasks, with 500,000 records per task. V3 has also been completed under the same total-size and balance constraints, including 500,000 records for each of the three new properties. This choice avoids the hundreds of gigabytes of storage and extremely long training time associated with roughly 200M rich JSON records while preserving task balance.
 
-### 2.4 输入 representation
+### 2.4 Input representation
 
-当前 30 个 Henry base models 的 primary input 始终使用 one-line notation。Cycle、Lehmer、inversion vector 和 reduced Coxeter word 是 translation targets。
+The primary input for all 30 current Henry base models always uses one-line notation. Cycle notation, Lehmer code, inversion vector, and reduced Coxeter word are translation targets.
 
-第二份附件提出的 `4 input representations × 8 tasks = 32 combinations` 是另一套 representation-transfer 实验；本轮没有把它与 20-task Henry nested matrix 混在一起。
+The `4 input representations × 8 tasks = 32 combinations` proposed in the second attachment constitute a separate representation-transfer experiment; they were not mixed with the 20-task Henry nested matrix in this round.
 
-## 3. V2 baseline 的二十个任务
+## 3. The Twenty V2 Baseline Tasks
 
-以下列表属于已经训练完成的 v2。V3 用 `peaks`、`exceedances`、`recoils` 分别替换其中的 `power`、`conjugate`、`commutator`；完整 v3 registry 见第 0 节和 [PROTOCOL.md](PROTOCOL.md)。
+The following list describes the completed v2 training setup. V3 replaces `power`, `conjugate`, and `commutator` with `peaks`, `exceedances`, and `recoils`, respectively; see Section 0 and [PROTOCOL.md](PROTOCOL.md) for the complete v3 registry.
 
-### 3.1 Encoding / translation（4）
+### 3.1 Encoding / translation (4)
 
-1. `to_cycle`：canonical disjoint cycles；包含 singleton cycle，每个 cycle 从最小元素开始，cycles 按最小元素排序。
-2. `to_lehmer`：`L_i = #{j > i : pi_j < pi_i}`。
-3. `to_inversion_vector`：value-indexed，`I_v = #{u > v : position(u) < position(v)}`。
-4. `to_reduced_word`：稳定 bubble-sort 产生的 deterministic reduced adjacent-generator word。
+1. `to_cycle`: canonical disjoint cycles, including singleton cycles; each cycle begins with its smallest element, and cycles are ordered by their smallest elements.
+2. `to_lehmer`: `L_i = #{j > i : pi_j < pi_i}`.
+3. `to_inversion_vector`: value-indexed, `I_v = #{u > v : position(u) < position(v)}`.
+4. `to_reduced_word`: a deterministic reduced adjacent-generator word produced by stable bubble sort.
 
-### 3.2 Statistics / properties（9）
+### 3.2 Statistics / properties (9)
 
-5. `length`：Coxeter length / inversion count。
-6. `descents`：descent 数量。
-7. `fixed_points`：fixed point 数量。
-8. `parity`：inversion count modulo 2，`00=even`、`01=odd`。
-9. `cycle_type`：包含 1-cycles 的 cycle lengths，降序排列。
-10. `rsk_shape`：RSK insertion tableau 的 row lengths。
-11. `lis_length`：longest strictly increasing subsequence length。
-12. `lds_length`：longest strictly decreasing subsequence length。
-13. `pattern_avoidance`：是否避免给定 classical pattern，`01=avoids`、`00=contains`。
+5. `length`: Coxeter length / inversion count.
+6. `descents`: number of descents.
+7. `fixed_points`: number of fixed points.
+8. `parity`: inversion count modulo 2, with `00=even` and `01=odd`.
+9. `cycle_type`: cycle lengths, including 1-cycles, in descending order.
+10. `rsk_shape`: row lengths of the RSK insertion tableau.
+11. `lis_length`: longest strictly increasing subsequence length.
+12. `lds_length`: longest strictly decreasing subsequence length.
+13. `pattern_avoidance`: whether the permutation avoids a given classical pattern, with `01=avoids` and `00=contains`.
 
-### 3.3 Algebraic operations / comparisons（7）
+### 3.3 Algebraic operations / comparisons (7)
 
-采用 composition 约定：
+We use the composition convention:
 
 ```text
 (a o b)(i) = a(b(i))
 ```
 
-14. `inverse`：`pi^-1`。
-15. `compose`：`pi o sigma`。
-16. `power`：`pi^k`，`0 <= k <= 100`。
-17. `conjugate`：`g o pi o g^-1`。
-18. `commutator`：`pi o sigma o pi^-1 o sigma^-1`。
-19. `right_multiply_simple`：`pi s_i`，交换 one-line positions `i` 与 `i+1`。
-20. `bruhat_leq`：strong Bruhat comparison。
+14. `inverse`: `pi^-1`.
+15. `compose`: `pi o sigma`.
+16. `power`: `pi^k`, with `0 <= k <= 100`.
+17. `conjugate`: `g o pi o g^-1`.
+18. `commutator`: `pi o sigma o pi^-1 o sigma^-1`.
+19. `right_multiply_simple`: `pi s_i`, which swaps one-line positions `i` and `i+1`.
+20. `bruhat_leq`: strong Bruhat comparison.
 
-数学定义和 convention 的权威版本见 [PROTOCOL.md](PROTOCOL.md) 与 [math_ops.py](src/neurips_permutations/math_ops.py)。
+The authoritative mathematical definitions and conventions are given in [PROTOCOL.md](PROTOCOL.md) and [math_ops.py](src/neurips_permutations/math_ops.py).
 
-## 4. Passage Math encoding
+## 4. Passage Math Encoding
 
 ### 4.1 Vocabulary
 
-V2 正式 vocabulary size 为 163：
+The formal v2 vocabulary size is 163:
 
-- 100 个 number tokens：`00`–`99`；
-- 36 个原始 fixed tokens；
-- 为 20-task 数据新增 27 个 task、operand 和 structured-answer tokens。
+- 100 number tokens: `00`–`99`.
+- 36 original fixed tokens.
+- 27 task, operand, and structured-answer tokens added for the 20-task dataset.
 
-输入 embedding 和输出 LM head 使用同一套 vocabulary，并进行 weight tying。
+The input embedding and output LM head use the same vocabulary and are weight-tied.
 
 ### 4.2 Number encoding
 
@@ -186,9 +186,9 @@ V2 正式 vocabulary size 为 163：
 10000 -> <NUM_START> 01 00 00 <NUM_END>
 ```
 
-这给每个非负整数一个唯一 canonical encoding。
+This gives every nonnegative integer a unique canonical encoding.
 
-### 4.3 通用 sequence grammar
+### 4.3 General sequence grammar
 
 ```text
 <BOS> <SIZE> ENCODE(n)
@@ -198,43 +198,43 @@ V2 正式 vocabulary size 为 163：
 <EOS>
 ```
 
-每条 sequence 恰好有一个 task token 和一个 answer。训练 loss 只监督 answer tokens 与 `<EOS>`；prompt、primary permutation、operands、task token 和 `=` 的 labels 都设为 ignore index。
+Each sequence contains exactly one task token and one answer. The training loss supervises only the answer tokens and `<EOS>`; labels for the prompt, primary permutation, operands, task token, and `=` are all set to the ignore index.
 
-### 4.4 Representation 示例
+### 4.4 Representation example
 
-令 `pi = [3,1,4,2]`。
+Let `pi = [3,1,4,2]`.
 
-One-line：
+One-line:
 
 ```text
 <ONE_START> 03 , 01 , 04 , 02 <ONE_END>
 ```
 
-Canonical cycle：
+Canonical cycle:
 
 ```text
 <CYCLE_START> 01 , 03 , 04 , 02 <CYCLE_END>
 ```
 
-Lehmer code `[2,0,1,0]`：
+Lehmer code `[2,0,1,0]`:
 
 ```text
 <LEHMER_START> 02 , 00 , 01 , 00 <LEHMER_END>
 ```
 
-Inversion vector `[1,2,0,0]`：
+Inversion vector `[1,2,0,0]`:
 
 ```text
 <INVEC_START> 01 , 02 , 00 , 00 <INVEC_END>
 ```
 
-Reduced word `[2,3,1]`：
+Reduced word `[2,3,1]`:
 
 ```text
 <REDUCED_WORD_START> 02 , 03 , 01 <REDUCED_WORD_END>
 ```
 
-完整 translation sequence 示例：
+Complete translation-sequence example:
 
 ```text
 <BOS> <SIZE> 04 <ONE_START> 03 , 01 , 04 , 02 <ONE_END>
@@ -250,11 +250,11 @@ Exponent:           <EXPONENT> ENCODE(k)
 Simple index:       <SIMPLE_INDEX> ENCODE(i)
 ```
 
-编码实现见 [passage.py](src/neurips_permutations/passage.py)。
+The encoding implementation is in [passage.py](src/neurips_permutations/passage.py).
 
 ### 4.6 JSONL record schema
 
-每一行同时保存结构化字段与最终 token sequence：
+Each line stores both structured fields and the final token sequence:
 
 ```json
 {
@@ -270,134 +270,134 @@ Simple index:       <SIMPLE_INDEX> ENCODE(i)
 }
 ```
 
-`answer` 与 `inputs` 会依任务包含 scalar、Boolean、permutation、pattern、exponent 或 nested lists。
+Depending on the task, `answer` and `inputs` contain a scalar, Boolean, permutation, pattern, exponent, or nested lists.
 
-## 5. 数据生成
+## 5. Data Generation
 
-### 5.1 确定性采样
+### 5.1 Deterministic sampling
 
-- 全局 seed：`20260830`；
-- 每条 record 的 RNG 由 global seed 与 record ID 确定；
-- task 按 `record_id mod 20` 精确轮转；
-- 大多数 tasks 的 `n` 从 2–30 采样；
-- pattern avoidance 使用 `n >= 3`；
-- Bruhat 使用 `n >= 4`；
-- duplicates 允许存在，这是带 replacement 的 synthetic sampling。
+- Global seed: `20260830`.
+- The RNG for each record is determined by the global seed and record ID.
+- Tasks rotate exactly according to `record_id mod 20`.
+- For most tasks, `n` is sampled from 2–30.
+- Pattern avoidance uses `n >= 3`.
+- Bruhat order uses `n >= 4`.
+- Duplicates are permitted because this is synthetic sampling with replacement.
 
-Pattern avoidance 正负样本严格平衡。Pattern 长度为 `n-1`：对 label `00`（contains），pattern 从删除 primary 的一个 entry 后得到的 standardized deletion patterns 中选取；对 label `01`（avoids），保证 pattern 不在该集合中。
+Positive and negative pattern-avoidance examples are exactly balanced. Pattern length is `n-1`: for label `00` (contains), the pattern is selected from the standardized deletion patterns obtained by deleting one entry from the primary permutation; for label `01` (avoids), the pattern is guaranteed not to belong to that set.
 
-Bruhat 正负样本也严格平衡，并匹配相同的 permutation size 和正 Coxeter-length gap。Gap 为 1–4（`S_4` 中为 1–2）；正样本沿 strong Bruhat covers 构造，负样本是具有相同 gap 的 incomparable pairs。因此不能只看 inversion-length gap 猜 label。
+Positive and negative Bruhat examples are also exactly balanced and matched for permutation size and positive Coxeter-length gap. The gap is 1–4 (1–2 in `S_4`); positive examples are constructed along strong Bruhat covers, while negative examples are incomparable pairs with the same gap. Therefore, the label cannot be inferred from the inversion-length gap alone.
 
-### 5.2 Streaming 与 sharding
+### 5.2 Streaming and sharding
 
-生成器不会把 10M records 放进内存：
+The generator never loads all 10M records into memory:
 
-- 100 个 shards；
-- 每 shard 100,000 records；
-- deterministic `jsonl.gz`；
-- gzip level 6，header timestamp 固定为 0；
-- 每个 shard 先写 temporary file、flush、`fsync`，再 atomic rename；
-- manifest 保存 record range、byte size、SHA-256 和 task counts；
-- resume 时只有 checksum、count 和 config 全匹配的 shard 才会复用。
+- 100 shards.
+- 100,000 records per shard.
+- deterministic `jsonl.gz`.
+- gzip level 6, with the header timestamp fixed at 0.
+- Each shard is first written to a temporary file, flushed, passed through `fsync`, and then atomically renamed.
+- The manifest stores record ranges, byte sizes, SHA-256 hashes, and task counts.
+- On resume, a shard is reused only if its checksum, count, and configuration all match.
 
-### 5.3 v1 审查与 v2 重生成
+### 5.3 v1 Review and v2 Regeneration
 
-初版数据审查确认 Bruhat label 存在直接 leakage：v1 正例的 inversion-length gap 全为 `+1`，负例全为 `-1`，因此只看方向即可读出 label。早期 verifier 也只检查“存储答案能否重新渲染”，没有从 inputs 重算数学真值。
+Review of the initial dataset identified direct leakage in the Bruhat labels: every positive v1 example had an inversion-length gap of `+1`, while every negative example had a gap of `-1`, so the label could be read directly from the direction. The early verifier also checked only whether the stored answer could be rendered again; it did not recompute the mathematical ground truth from the inputs.
 
-正式训练前做了两项修复：
+Two corrections were made before formal training:
 
-1. 将 Bruhat 改成上述 matched-gap comparable/incomparable 构造；
-2. full verifier 从 inputs 重新调用权威 `math_ops` 计算 20 个 tasks 的 answer，再从该真值重建 tokens；`math_ops` 本身另有 exhaustive small-`n` 和 unit tests 交叉检查。
+1. Bruhat examples were changed to the matched-gap comparable/incomparable construction described above.
+2. The full verifier now calls the authoritative `math_ops` implementation to recompute the answers for all 20 tasks from the inputs and then reconstructs the tokens from that ground truth; `math_ops` is itself cross-checked by exhaustive small-`n` tests and unit tests.
 
-修复后重新生成 `permutation-20/v2`。旧目录 `data/permutation-10m` 没有用于任何正式训练；所有 formal runs 只读取 `data/permutation-10m-v2`。
+After these corrections, `permutation-20/v2` was regenerated. The old directory `data/permutation-10m` was not used for any formal training; all formal runs read only `data/permutation-10m-v2`.
 
-### 5.4 最终数据量
+### 5.4 Final data volume
 
-| Split | Shards | Records | 每 task | Compressed bytes |
+| Split | Shards | Records | Per task | Compressed bytes |
 |---|---:|---:|---:|---:|
-| Train | 98（000–097） | 9,800,000 | 490,000 | 1,263,940,793 |
-| Validation | 1（098） | 100,000 | 5,000 | 12,866,288 |
-| Test | 1（099） | 100,000 | 5,000 | 12,911,897 |
+| Train | 98 (000–097) | 9,800,000 | 490,000 | 1,263,940,793 |
+| Validation | 1 (098) | 100,000 | 5,000 | 12,866,288 |
+| Test | 1 (099) | 100,000 | 5,000 | 12,911,897 |
 | Total | 100 | **10,000,000** | **500,000** | **1,289,718,978** |
 
-总压缩大小为 1.290 GB；gzip 解压后的 JSONL 大小为 8,734,219,058 bytes，即 8.734 GB，平均约 873 bytes/record。
+The total compressed size is 1.290 GB. The gzip-decompressed JSONL occupies 8,734,219,058 bytes, or 8.734 GB, with an average of approximately 873 bytes per record.
 
-Parent manifest SHA-256：
+Parent manifest SHA-256:
 
 ```text
 a9cc873bc82777c50fc2cfced96f54d727e3c3964eff457bd1a03ffabb179e87
 ```
 
-### 5.5 数据验证
+### 5.5 Data verification
 
-最终 full verification 使用 20 workers，完成以下检查：
+The final full verification used 20 workers and performed the following checks:
 
-- 100 个 shard SHA-256 与 byte size；
-- ID、shard index 和 record count 连续性；
-- schema、task balance 和 permutation validity；
-- 10,000,000 条记录的所有 20-task answers 从 inputs 重新计算；
-- stored answer、typed answer kind、tokens 与 canonical text 一致；
-- parent full verification 检查全部 physical shards；split views 的 parent metadata、ranges 和 counts 由 split verifier/tests 与 formal audit 另行检查。
+- SHA-256 hash and byte size of all 100 shards.
+- Continuity of IDs, shard indices, and record counts.
+- Schema, task balance, and permutation validity.
+- Recalculation from the inputs of all 20 task answers for all 10,000,000 records.
+- Consistency among the stored answer, typed answer kind, tokens, and canonical text.
+- The parent full verification checks all physical shards; parent metadata, ranges, and counts for split views are checked separately by the split verifier/tests and formal audit.
 
-结果：10,000,000 / 10,000,000 records passed。实际生成约 41.4 秒，完整数学复核约 32.0 秒。
+Result: 10,000,000 / 10,000,000 records passed. Generation took approximately 41.4 seconds, and the complete mathematical verification took approximately 32.0 seconds.
 
-## 6. 模型 architecture
+## 6. Model Architecture
 
-两种模型都实现相同接口：
+Both models implement the same interface:
 
 ```text
 forward(input_ids, attention_mask) -> logits[B, L, 163]
 ```
 
-共同组件：
+Shared components:
 
-- learned token embedding；
-- learned absolute position embedding；
-- maximum context length 1024；
-- `d_model = 256`；
-- pre-LayerNorm、GELU、residual connections；
-- channel MLP hidden dimension 1024；
-- dropout 0.1；
-- final LayerNorm；
-- bias-free tied LM head；
-- strict prefix causality 和 padding masking。
+- learned token embedding.
+- learned absolute position embedding.
+- maximum context length 1024.
+- `d_model = 256`.
+- pre-LayerNorm, GELU, and residual connections.
+- channel MLP hidden dimension 1024.
+- dropout 0.1.
+- final LayerNorm.
+- bias-free tied LM head.
+- strict prefix causality and padding masking.
 
 | Architecture | Blocks | Attention | Token mixing | Parameters |
 |---|---:|---|---|---:|
-| Causal Transformer | 4 | 8 heads，head dim 32 | causal self-attention | 3,463,424 |
-| Causal MLP | 1 | none | 两个 masked `1024 × 1024` linear maps | 2,930,176 |
+| Causal Transformer | 4 | 8 heads, head dim 32 | causal self-attention | 3,463,424 |
+| Causal MLP | 1 | none | two masked `1024 × 1024` linear maps | 2,930,176 |
 
 ### 6.1 Transformer
 
-每个 block：
+Each block:
 
 ```text
 x = x + CausalSelfAttention(LayerNorm(x))
 x = x + ChannelMLP(LayerNorm(x))
 ```
 
-Attention 使用显式 lower-triangular causal mask 和 padding-key mask。Channel MLP 为 `256 -> 1024 -> 256`。
+Attention uses an explicit lower-triangular causal mask and a padding-key mask. The channel MLP is `256 -> 1024 -> 256`.
 
 ### 6.2 Causal MLP
 
-MLP 没有 attention，也没有 recurrence。每个 block：
+The MLP has neither attention nor recurrence. Each block is:
 
 ```text
 x = x + CausalTokenMixingMLP(LayerNorm(x))
 x = x + ChannelMLP(LayerNorm(x))
 ```
 
-Token-mixing MLP 包含两个 learned `1024 × 1024` matrices；forward 时只使用 lower-triangular entries，并在两层之间使用 GELU。矩阵跨 channel 共享，因此结构类似 causal MLP-Mixer。Prefix-invariance tests 验证了后缀 token 不会改变任何 earlier representation。
+The token-mixing MLP contains two learned `1024 × 1024` matrices; only their lower-triangular entries are used during the forward pass, with GELU between the two layers. The matrices are shared across channels, making the structure similar to a causal MLP-Mixer. Prefix-invariance tests verify that suffix tokens cannot alter any earlier representation.
 
-只使用 1 个 MLP block 是为了在 1024 context 下让 registered parameter count 与 4-layer Transformer 大致匹配，而不是声称“1-layer MLP 与 4-layer Transformer 深度等价”。这里的 2,930,176 是 nominal/registered count：两个 `1024 × 1024` matrices 的 1,047,552 个 strict upper-triangular parameters 会被 causal mask 屏蔽，forward 中不使用，因此 registered count 不等于 active degrees of freedom。
+Only one MLP block is used so that its registered parameter count under a 1024-token context is approximately matched to that of the 4-layer Transformer; this is not a claim that a 1-layer MLP is depth-equivalent to a 4-layer Transformer. The figure 2,930,176 is the nominal/registered count: 1,047,552 strict upper-triangular parameters in the two `1024 × 1024` matrices are masked by causality and are not used in the forward pass, so the registered count is not equal to the active degrees of freedom.
 
-实现见 [models.py](src/neurips_permutations/models.py)。
+See [models.py](src/neurips_permutations/models.py) for the implementation.
 
-## 7. 已完成的 Henry v2 nested-task 实验矩阵
+## 7. Completed Henry v2 Nested-Task Experiment Matrix
 
-### 7.1 冻结 task order
+### 7.1 Frozen task order
 
-任务使用 seed `20260830` 冻结为以下顺序，而不是采用提出任务时的顺序：
+The tasks were frozen in the following order using seed `20260830`, rather than retaining the order in which they were originally proposed:
 
 ```text
  1  power
@@ -432,7 +432,7 @@ Token-mixing MLP 包含两个 learned `1024 × 1024` matrices；forward 时只�
 | 8 | tasks 1–8 |
 | 16 | tasks 1–16 |
 
-最后 4 个 tasks 对所有 base models 都从 training sequences 和 gradient updates 中 hold out；但每 1,000 steps 的 validation diagnostics 会评估它们，所以它们不是未查看的 test set。
+The final four tasks are held out from training sequences and gradient updates for all base models. However, the validation diagnostics evaluate them every 1,000 steps, so they do not constitute an unseen test set.
 
 ### 7.3 Run count
 
@@ -440,15 +440,15 @@ Token-mixing MLP 包含两个 learned `1024 × 1024` matrices；forward 时只�
 5 subset sizes × 2 architectures × 3 seeds = 30 formal runs
 ```
 
-Model seeds：`17`、`42`、`314159`。三个 seeds 改变 initialization 和 streaming shuffle，但 task order 本身只冻结了一次。
+Model seeds: `17`, `42`, and `314159`. The three seeds alter initialization and streaming shuffle, but the task order itself was frozen only once.
 
-完整配置见 [configs/henry_permutation.toml](configs/henry_permutation.toml)，其 SHA-256 为：
+The complete configuration is in [configs/henry_permutation.toml](configs/henry_permutation.toml), whose SHA-256 is:
 
 ```text
 c5d9a0ea7a601588d1e07a520721dfeb3b8f96830d03c8c9f8632c6d37f70dfa
 ```
 
-## 8. Training configuration
+## 8. Training Configuration
 
 | Item | Value |
 |---|---:|
@@ -473,11 +473,11 @@ c5d9a0ea7a601588d1e07a520721dfeb3b8f96830d03c8c9f8632c6d37f70dfa
 
 ### 8.1 Streaming loader
 
-训练 loader 直接流式读取 gzip shards，按当前 run 的 tasks 过滤记录，使用 bounded deterministic shuffle，不把整个 dataset 放入内存。`TokenBudgetBatcher` 同时约束 example count 和 padded-token count，因此 reduced word 等长序列会自动使用更小 micro-batch，而不会截断到错误答案。
+The training loader streams gzip shards directly, filters records by the current run's tasks, and uses a bounded deterministic shuffle without loading the full dataset into memory. `TokenBudgetBatcher` constrains both example count and padded-token count, so long sequences such as reduced words automatically use a smaller micro-batch instead of being truncated into incorrect answers.
 
 ### 8.2 Answer-only objective
 
-模型进行 causal next-token prediction，但 loss 只覆盖 answer 和 `<EOS>`：
+The model performs causal next-token prediction, but the loss covers only the answer and `<EOS>`:
 
 ```text
 prompt labels -> -100 / ignored
@@ -485,11 +485,11 @@ answer labels -> supervised
 EOS label      -> supervised
 ```
 
-Loss 先在每个 example 的 supervised tokens 内求平均，再跨 examples 平均。这样一个可能有数百 tokens 的 reduced word 不会仅因答案更长而比 scalar task 获得几十倍权重。
+The loss is first averaged over the supervised tokens within each example and then averaged across examples. Consequently, a reduced word that may contain hundreds of tokens does not receive tens of times more weight than a scalar task merely because its answer is longer.
 
-### 8.3 固定 update budget
+### 8.3 Fixed update budget
 
-所有 models 都获得相同的 20,000 optimizer updates，而不是每个 task 获得相同步数。这能控制总计算量，但 task 数增加时每个 task 分到的 examples 会减少。
+All models receive the same 20,000 optimizer updates, rather than assigning the same number of steps to each task. This controls total computation, but the number of examples allocated to each task decreases as the number of tasks increases.
 
 | Tasks | Examples / run | Eligible train pool | Approx. pool passes |
 |---:|---:|---:|---:|
@@ -499,55 +499,55 @@ Loss 先在每个 example 的 supervised tokens 内求平均，再跨 examples �
 | 8 | 1,280,000 | 3,920,000 | 0.327 |
 | 16 | 1,280,000 | 7,840,000 | 0.163 |
 
-30 runs 合计：
+Totals across the 30 runs:
 
 ```text
 38,399,232 example exposures
-807,897,938 supervised target tokens（包含每条样本的 EOS）
+807,897,938 supervised target tokens (including the EOS for every example)
 600,000 optimizer steps
 ```
 
-每个 task 的平均 exposure 因而约从 k=1 时的 1.28M 降为 k=16 时的 80k。监督 token budget 也不完全相同：只训练 `power` 的 k=1 runs 约有 43.5M supervised tokens，而其余 task mixtures 每 run 约为 22–23M。这是解释 task-count 曲线时必须保留的混杂因素。
+The average exposure per task therefore falls from approximately 1.28M at k=1 to 80k at k=16. The supervised-token budgets are not identical either: the k=1 runs trained only on `power` contain approximately 43.5M supervised tokens, whereas the other task mixtures contain approximately 22–23M per run. This is a confounding factor that must be retained when interpreting the task-count curves.
 
 ### 8.4 Validation protocol
 
-每 1,000 steps 在 shard 098 上评估全部 20 tasks，不仅是当前训练 tasks。每个 task 最多 5 个 dynamic batches；每个 run 的最终 validation 共 2,924 examples、57,953 supervised tokens。
+Every 1,000 steps, all 20 tasks—not only the current training tasks—are evaluated on shard 098. Each task uses at most five dynamic batches; the final validation for each run contains 2,924 examples and 57,953 supervised tokens.
 
-保存指标：
+The following metrics are saved:
 
-- token-weighted negative log likelihood；
-- supervised token accuracy；
-- exact sequence accuracy；
-- examples 和 supervised-token counts。
+- token-weighted negative log likelihood.
+- supervised token accuracy.
+- exact sequence accuracy.
+- example and supervised-token counts.
 
-`token_accuracy` 是 teacher-forced：每个 token 都看到 gold prefix，所以 copy、punctuation 和 boundary tokens 会抬高数值。
+`token_accuracy` is teacher-forced: every token sees the gold prefix, so copy, punctuation, and boundary tokens inflate the value.
 
-`sequence_accuracy` 要求 answer 和 EOS 的每一个 next-token argmax 都正确。由于模型经过 strict causal tests，这个 all-token event 与在相同 prompt 上进行 greedy decoding 得到完整 canonical target 等价；但是本轮没有单独运行 parser-aware decoding harness。
+`sequence_accuracy` requires every next-token argmax for the answer and EOS to be correct. Because the models passed strict causality tests, this all-token event is equivalent to greedy decoding the complete canonical target from the same prompt; however, a separate parser-aware decoding harness was not run in this round.
 
-Shard 099 在本轮中没有用于模型选择或任何模型评估。
+Shard 099 was not used for model selection or any model evaluation in this round.
 
-## 9. Checkpoint、resume 与完成条件
+## 9. Checkpoints, Resume, and Completion Criteria
 
-每个 run 的 `checkpoint.pt` 包含：
+Each run's `checkpoint.pt` contains:
 
-- model state；
-- optimizer state；
-- scheduler state；
-- AMP scaler state；
-- Python、CPU Torch 和 CUDA RNG state；
-- epoch、batch offset、global step；
-- per-task examples、tokens 和 accumulated loss；
-- complete `TrainConfig`；
-- training/validation manifest fingerprints；
-- last validation metrics。
+- model state.
+- optimizer state.
+- scheduler state.
+- AMP scaler state.
+- Python, CPU Torch, and CUDA RNG states.
+- epoch, batch offset, and global step.
+- per-task examples, tokens, and accumulated loss.
+- complete `TrainConfig`.
+- training/validation manifest fingerprints.
+- last validation metrics.
 
-Checkpoint 通过 temporary file + atomic replace 写入。Resume 前会严格比较 training config 和 data fingerprints；不允许用不同 task set、shards 或 hyperparameters 静默续训。
+Checkpoints are written through a temporary file followed by atomic replacement. Before resuming, the training configuration and data fingerprints are compared strictly; silently resuming with a different task set, shards, or hyperparameters is not permitted.
 
-Run 只有在 step 20,000 完成、最终 checkpoint 写入并哈希后，才会生成 `completed.json`。Marker 保存 checkpoint SHA-256、config hashes、task accounting 和 validation metrics。任意垃圾 marker 不能被视为完成。
+A run generates `completed.json` only after step 20,000 is complete and the final checkpoint has been written and hashed. The marker stores the checkpoint SHA-256, configuration hashes, task accounting, and validation metrics. An arbitrary invalid marker cannot be treated as evidence of completion.
 
-训练过程中发现并修复了 CUDA resume 问题：checkpoint 以 `map_location=device` 加载时，保存的 CUDA RNG states 会被映射成 CUDA tensors；恢复前需统一转回 CPU `uint8` tensors，再传给 `torch.cuda.set_rng_state_all`。修复后，从正式 run 的 step 7,000 checkpoint 成功恢复并继续完成。
+A CUDA resume issue was discovered and corrected during training: when a checkpoint was loaded with `map_location=device`, the saved CUDA RNG states were mapped to CUDA tensors. Before restoration, they had to be converted uniformly back to CPU `uint8` tensors and then passed to `torch.cuda.set_rng_state_all`. After the fix, a formal run successfully resumed from its step-7,000 checkpoint and continued to completion.
 
-## 10. 实际 GPU 执行过程
+## 10. Actual GPU Execution
 
 ### 10.1 Hardware/software
 
@@ -563,17 +563,17 @@ bf16 support: true
 
 ### 10.2 Pilots
 
-正式矩阵前分别运行了 100-step、16-task Transformer 和 MLP pilots，验证：
+Before the formal matrix, separate 100-step, 16-task Transformer and MLP pilots were run to validate:
 
-- CUDA forward/backward；
-- bf16 AMP；
-- dynamic batching；
-- validation；
-- checkpoint/marker；
-- resume；
-- 显存和吞吐。
+- CUDA forward/backward.
+- bf16 AMP.
+- dynamic batching.
+- validation.
+- checkpoint/marker.
+- resume.
+- VRAM usage and throughput.
 
-Pilot artifacts 位于：
+Pilot artifacts are located at:
 
 ```text
 runs/pilots/transformer-16task-100step-v2/
@@ -582,18 +582,18 @@ runs/pilots/mlp-16task-100step-v2/
 
 ### 10.3 Formal orchestration
 
-初始顺序 controller 在第一个正式 run 运行到 step 7,000 后，为提高单卡利用率被干净停止。完成 CUDA RNG resume 修复并验证后，矩阵被拆成两个互不重叠的 run-ID queues；每个 controller 一次只管理自己队列中的一个 run，因此不会同时写同一目录。
+The initial sequential controller was stopped cleanly after the first formal run reached step 7,000 in order to improve single-GPU utilization. After the CUDA RNG resume fix was completed and validated, the matrix was split into two non-overlapping run-ID queues. Each controller managed only one run from its own queue at a time, so the two controllers never wrote to the same directory concurrently.
 
-双队列共同使用一张 RTX 5070：
+The two queues shared one RTX 5070:
 
-- observed combined VRAM 通常约 3.5–4.2 GB；
-- observed GPU utilization 通常约 60–80%；
-- 没有 OOM；
-- 没有 duplicate run controller；
-- 已完成 marker 的 run 会被跳过；
-- 中断 run 从精确 checkpoint 自动恢复。
+- Observed combined VRAM was typically approximately 3.5–4.2 GB.
+- Observed GPU utilization was typically approximately 60–80%.
+- No OOM occurred.
+- No duplicate controller managed the same run.
+- Runs with completed markers were skipped.
+- Interrupted runs resumed automatically from their exact checkpoints.
 
-第一个 formal completion marker 写于 01:31:32，最后一个写于 05:12:24；两者间隔约 3 小时 41 分钟。两个 controllers 最终均正常退出。
+The first formal completion marker was written at 01:31:32 and the last at 05:12:24, an interval of approximately 3 hours and 41 minutes. Both controllers ultimately exited normally.
 
 ### 10.4 Final artifacts
 
@@ -602,21 +602,22 @@ runs/henry-permutation/<run-id>/checkpoint.pt
 runs/henry-permutation/<run-id>/completed.json
 ```
 
-- Transformer checkpoints：约 41.64 MB × 15；
-- MLP checkpoints：约 35.20 MB × 15；
-- 30 个正式 checkpoints 总计 1,152,516,936 bytes。
+- Transformer checkpoints: approximately 41.64 MB × 15.
+- MLP checkpoints: approximately 35.20 MB × 15.
+- The 30 formal checkpoints total 1,152,516,936 bytes.
 
-`runs/` 和 production `data/` 被 `.gitignore` 排除，不会错误推送到 GitHub。
+`runs/` and production `data/` are excluded by `.gitignore` and therefore cannot be pushed to GitHub accidentally.
 
-## 11. 初步 generalization 结果
+## 11. Preliminary Generalization Results
 
-最干净的跨 task-count 比较是四个对所有模型都未见的 fixed holdouts：
+The cleanest cross-task-count comparison uses the four fixed holdouts that
+were excluded from training for every model:
 
 ```text
 to_reduced_word, compose, parity, to_lehmer
 ```
 
-下表为三个 seeds 的 task-macro mean ± sample standard deviation：
+The following table reports the task-macro mean ± sample standard deviation across three seeds:
 
 | Architecture | Trained tasks | Holdout token accuracy | Holdout exact-sequence accuracy |
 |---|---:|---:|---:|
@@ -631,23 +632,23 @@ to_reduced_word, compose, parity, to_lehmer
 | MLP | 8 | **49.05 ± 0.78%** | 1.06 ± 0.53% |
 | MLP | 16 | 43.80 ± 0.56% | 0.83 ± 1.04% |
 
-观察：
+Observations:
 
-1. 从 1 task 增至 8 tasks，holdout token accuracy 显著上升；16 tasks 时小幅下降。
-2. MLP 在所有 subset sizes 上的 holdout token accuracy 都高于 Transformer。
-3. 这种 token-level transfer 没有转化成可靠的完整答案：macro exact accuracy 最高仅 3.12%。
-4. `to_reduced_word` 与 `to_lehmer` 在所有条件下 exact accuracy 都为 0%。
-5. `compose` 的最佳三-seed exact mean 为 Transformer 1.54%、MLP 2.16%；`parity` 分别为 2.92% 和 12.50%。
+1. Holdout token accuracy rises substantially from 1 to 8 training tasks, then declines slightly at 16 tasks.
+2. The MLP has higher holdout token accuracy than the Transformer at every subset size.
+3. This token-level transfer does not translate into reliable complete answers: the highest macro exact accuracy is only 3.12%.
+4. Exact accuracy for `to_reduced_word` and `to_lehmer` is 0% under every condition.
+5. The best three-seed exact mean for `compose` is 1.54% for the Transformer and 2.16% for the MLP; for `parity`, the corresponding values are 2.92% and 12.50%.
 
-当前最稳妥的结论是：
+The most defensible current conclusion is:
 
-> 增加训练任务多样性改善了 prefix-conditioned token transfer，峰值出现在 8-task 条件；但没有形成可靠的 hard zero-shot complete-answer generalization。
+> Increasing training-task diversity improves prefix-conditioned token transfer, with a peak under the 8-task condition, but does not produce reliable hard zero-shot complete-answer generalization.
 
-一个关键设计限制是四个 holdout 使用 opaque task tokens；这些 tokens 从未作为 base-training sequence 的输入 token 或正确 target 出现，因此没有获得 operation semantics 的 grounding，尽管它们仍属于 163-way vocabulary 并会收到非目标类别梯度。模型没有被教过它们的任务含义，所以 hard zero-shot task identification 本身是 underdetermined。Henry 建议的 few-shot adaptation 和 linear probing 比这个 hard zero-shot 指标更有解释力。
+A key design limitation is that the four holdouts use opaque task tokens. These tokens never appear as input tokens or correct targets in base-training sequences, so their operation semantics are not grounded, even though they remain part of the 163-way vocabulary and receive gradients as nontarget classes. The models were never taught the meaning of these tasks, making hard zero-shot task identification itself underdetermined. Henry's proposed few-shot adaptation and linear probing are more informative than this hard zero-shot metric.
 
-完整 seen、pool-unseen 和 holdout 表见 [TRAINING_RESULTS.md](TRAINING_RESULTS.md)。
+Complete seen, pool-unseen, and holdout tables are provided in [TRAINING_RESULTS.md](TRAINING_RESULTS.md).
 
-k=16 的逐 holdout 结果进一步说明 token accuracy 与数学求解成功不能混为一谈：
+The per-holdout k=16 results further demonstrate that token accuracy must not be conflated with successful mathematical solution:
 
 | Holdout task | Transformer token / exact | MLP token / exact |
 |---|---:|---:|
@@ -656,9 +657,9 @@ k=16 的逐 holdout 结果进一步说明 token accuracy 与数学求解成功�
 | Parity | 40.00 ± 9.85% / 0.00 ± 0.00% | 51.35 ± 2.35% / 2.71 ± 4.69% |
 | Lehmer code | 46.80 ± 3.48% / 0.00 ± 0.00% | 45.27 ± 8.17% / 0.00 ± 0.00% |
 
-例如 composition 有约 60% token accuracy，却只有约 1% exact accuracy，表明局部格式或 copy 规律正确不代表整个运算正确。MLP k=16 parity 的非零均值主要来自一个 seed，另外两个 seeds 为 0，也不能称为稳定 generalization。
+For example, composition achieves approximately 60% token accuracy but only about 1% exact accuracy, showing that correct local formatting or copying patterns do not imply a correct full operation. The nonzero mean for MLP k=16 parity is driven primarily by one seed, while the other two seeds achieve 0, so this result cannot be described as stable generalization.
 
-## 12. 最终验证与审计
+## 12. Final Verification and Audit
 
 ### 12.1 Dataset verifier
 
@@ -672,7 +673,7 @@ shard_count=100
 
 ### 12.2 Formal checkpoint audit
 
-最终只读 audit 结果：
+Final read-only audit results:
 
 ```text
 run_count=30
@@ -683,46 +684,43 @@ global issues=[]
 partial artifacts=[]
 ```
 
-审计器不是只检查“文件存在”，而是：
+The auditor does more than check that files exist. It:
 
-- 从 frozen TOML 和 launch command 重建完整 expected `TrainConfig`；
-- 校验 experiment/manifest/checkpoint SHA、manifest schema、固定 shard ranges、shard 文件存在与 byte size；数据 shard 内容 SHA 与逐条数学复核由前述 full dataset verifier 完成；
-- 使用 `weights_only=True` 安全读取 checkpoint；
-- 按 expected architecture 实例化模型并 strict-check keys、shapes 和 dtypes；
-- 检查 optimizer、scheduler、scaler、RNG、state 和 validation schema；
-- 递归检查 NaN/Inf 和不可能的负统计量；
-- 对比 marker 与 checkpoint accounting/validation；
-- 拒绝 symlink/path escape 和 `.tmp/.partial/.part` 残留；
-- 校验 train/validation/test manifests 和固定 shard ranges。
+- Reconstructs the complete expected `TrainConfig` from the frozen TOML and launch command.
+- Validates experiment/manifest/checkpoint SHA values, manifest schema, frozen shard ranges, shard-file existence, and byte sizes; content SHA values and per-record mathematical recomputation for data shards are handled by the full dataset verifier described above.
+- Safely reads checkpoints with `weights_only=True`.
+- Instantiates the model under the expected architecture and strictly checks keys, shapes, and dtypes.
+- Checks optimizer, scheduler, scaler, RNG, state, and validation schemas.
+- Recursively checks for NaN/Inf values and impossible negative statistics.
+- Compares marker accounting/validation against the checkpoint.
+- Rejects symlinks, path escapes, and residual `.tmp/.partial/.part` files.
+- Validates train/validation/test manifests and frozen shard ranges.
 
 ### 12.3 Tests
 
-全仓库共有 127 tests，最终全部通过。覆盖范围包括：
+The repository contains 147 tests, all of which pass. Coverage includes:
 
-- 20 个数学 operations；
-- Passage Math grammar 和 canonical encodings；
-- deterministic generation、balance、resume 和 corruption；
-- full truth recomputation；
-- split views；
-- Transformer/MLP causality、padding、gradients、serialization 和 CUDA；
-- streaming loader、answer-only collator、training、resume 和 markers；
-- experiment matrix；
-- adversarial completion audit。
+- All 23 task definitions supported across v2 and v3 (20 per protocol).
+- Passage Math grammar and canonical encodings.
+- Deterministic generation, balance, resume, and corruption handling.
+- Full ground-truth recomputation.
+- Split views.
+- Transformer/MLP causality, padding, gradients, serialization, and CUDA.
+- Streaming loader, answer-only collator, training, resume, and markers.
+- Experiment matrix.
+- Adversarial completion audit.
 
-唯一 warnings 是 Python 3.13 multi-threaded process 使用 `fork()` 的 deprecation warnings，不是测试失败或训练数值问题。
+The only warnings are deprecation warnings about using `fork()` from a multithreaded Python 3.13 process; they are neither test failures nor training-numerics issues.
 
-## 13. 从零复现
+## 13. Reproduction from Scratch
 
-以下命令均在 repository root 执行。
+Run all commands below from the repository root.
 
 ### 13.1 Environment
 
 ```bash
 git clone https://github.com/XuanyuYang223/neurips.git
 cd neurips
-
-# Optional: freeze the audited post-training code/results baseline exactly.
-git checkout 32ff22a2e77acdf1d18b634ed431e54d3c1341f0
 
 # Python >=3.11 is recommended because the orchestration code uses tomllib.
 python3.13 -m venv .venv
@@ -732,9 +730,14 @@ python -m pip install -e '.[test,train]'
 python -m pytest -q
 ```
 
-`pyproject.toml` 目前声明 Python ≥3.10，但 `experiments.py` 和 `audit.py` 直接使用标准库 `tomllib`；不安装 backport 时应实际使用 Python ≥3.11。所有冻结路径相对于 repository root，以下命令都应从该目录运行。
+The commands below target the current `main` branch. The historical audited
+post-training baseline is commit
+`32ff22a2e77acdf1d18b634ed431e54d3c1341f0`; its generator predates the
+`--schema-version` option and therefore fixes v2 implicitly.
 
-### 13.2 生成与验证 10M 数据
+`pyproject.toml` currently declares Python ≥3.10, but `experiments.py` and `audit.py` import the standard-library `tomllib` directly; without installing a backport, Python ≥3.11 should be used in practice. All frozen paths are relative to the repository root, and the following commands should be run from that directory.
+
+### 13.2 Generate and verify the 10M-record dataset
 
 ```bash
 python -m neurips_permutations.generate \
@@ -759,9 +762,9 @@ python -m neurips_permutations.splits \
   --test-shards 1
 ```
 
-正式 TOML 有意让 training 和 validation 都引用 parent manifest，再用 `000-097` 与 `098` 的 shard indices 选择数据；不要将这两个路径随意换成 split-manifest 路径，否则 config hash 和严格审计会改变。
+The formal TOML intentionally points both training and validation to the parent manifest, then selects data using shard indices `000-097` and `098`. Do not replace these paths arbitrarily with split-manifest paths, because doing so changes the configuration hash and strict audit.
 
-当前 split-manifest SHA-256：
+Current split-manifest SHA-256 values:
 
 ```text
 train       76e682a8afb217350fbe4454eb473593f2cf53850254f826697faf6fa0349de3
@@ -769,7 +772,7 @@ validation  6bdc14e4363c2b8a0d74d389543d5260ef28597537cb578e8c37b4a0284693ef
 test        9f9822b0dbac51af8c40d57fa5df12237ba1893c788582f5c1898f5ca33ed2da
 ```
 
-### 13.3 检查实验矩阵
+### 13.3 Inspect the experiment matrix
 
 ```bash
 python -m neurips_permutations.experiments \
@@ -782,9 +785,9 @@ python -m neurips_permutations.experiments \
   --dry-run
 ```
 
-### 13.4 训练全部 30 runs
+### 13.4 Train all 30 runs
 
-最安全的复现方式是使用一个 controller 顺序运行：
+The safest reproduction procedure uses a single controller to run the matrix sequentially:
 
 ```bash
 python -m neurips_permutations.experiments \
@@ -792,15 +795,15 @@ python -m neurips_permutations.experiments \
   --run
 ```
 
-重新执行同一命令时：
+When the same command is executed again:
 
-- valid `completed.json` runs 会跳过；
-- incomplete runs 会从 `checkpoint.pt` 自动恢复；
-- config 或 manifest hash 不匹配会立即失败，而不会混合实验。
+- Runs with a valid `completed.json` are skipped.
+- Incomplete runs resume automatically from `checkpoint.pt`.
+- A configuration or manifest hash mismatch fails immediately instead of mixing experiments.
 
-当前 runner 是单进程、单 GPU 训练，不是 DDP；不要直接改成 `torchrun` 后仍把结果视为同一 frozen protocol。正式复现应只暴露一张支持 bf16 的 GPU，例如 `export CUDA_VISIBLE_DEVICES=0`。
+The current runner performs single-process, single-GPU training and is not DDP. Do not switch directly to `torchrun` and still treat the results as belonging to the same frozen protocol. A formal reproduction should expose only one bf16-capable GPU, for example with `export CUDA_VISIBLE_DEVICES=0`.
 
-也可以用一个或多个精确、互不重叠的 run IDs：
+One or more exact, non-overlapping run IDs may also be used:
 
 ```bash
 python -m neurips_permutations.experiments \
@@ -809,11 +812,11 @@ python -m neurips_permutations.experiments \
   --only transformer-tasks16-seed17
 ```
 
-不要让两个 controllers 同时运行同一 run ID，因为 run directory 没有跨进程 lock。
+Do not allow two controllers to execute the same run ID concurrently, because the run directory has no cross-process lock.
 
-每个 run 只保留一个滚动 `checkpoint.pt`；每 1,000 steps 的历史 checkpoint 不会全部保留。因此这套 artifacts 支持恢复和最终审计，但不能事后重建完整 learning curve 或重新选择 best intermediate checkpoint。
+Each run retains only one rolling `checkpoint.pt`; historical checkpoints from every 1,000 steps are not all preserved. These artifacts therefore support recovery and final auditing, but they cannot be used retrospectively to reconstruct the full learning curve or select a different best intermediate checkpoint.
 
-### 13.5 Status 与严格审计
+### 13.5 Status and strict audit
 
 ```bash
 python -m neurips_permutations.experiments \
@@ -824,23 +827,23 @@ python -m neurips_permutations.audit \
   --config configs/henry_permutation.toml
 ```
 
-## 14. Repository 与 artifact policy
+## 14. Repository and Artifact Policy
 
-GitHub public repository 保存：
+The public GitHub repository stores:
 
-- source code；
-- frozen configs；
-- tests 和 CI；
-- protocol、experiment 和 results documents。
+- source code.
+- frozen configs.
+- tests and CI.
+- protocol, experiment, and results documents.
 
-GitHub 不保存：
+GitHub does not store:
 
-- 1.29 GB v2 production dataset；
-- 1,139,175,228-byte v3 production dataset；
-- 1.15 GB formal checkpoints；
-- pilot/checkpoint runtime directories。
+- 1.29 GB v2 production dataset.
+- 1,139,175,228-byte v3 production dataset.
+- 1.15 GB formal checkpoints.
+- pilot/checkpoint runtime directories.
 
-本机路径：
+Local paths:
 
 ```text
 /home/yangx/neurips/data/permutation-10m-v2
@@ -848,40 +851,40 @@ GitHub 不保存：
 /home/yangx/neurips/runs/henry-permutation
 ```
 
-如需共享这些 artifacts，应使用 object storage、dataset hosting、GitHub Release assets 或专门的 model registry，而不是普通 Git blobs。
+To share these artifacts, use object storage, dataset hosting, GitHub Release assets, or a dedicated model registry rather than ordinary Git blobs.
 
-## 15. 已知限制与下一步
+## 15. Known Limitations and Next Steps
 
-`permutation-20/v3` 的 manifest、split manifests 和 full verification 已完成，schema-aware nested runner 的 30-run plan/dry-run 也已复核且没有启动训练。论文主实验的下一优先级是补充 E4/S4/A4 category orchestration，再决定并启动两套 revised matrices。旧 v2 的 30 个模型和下列分析仍作为 baseline/appendix 保留，不会被删除或重命名成 v3 结果。
+The `permutation-20/v3` manifest, split manifests, and full verification are complete. The schema-aware nested runner's 30-run plan/dry-run has also been reviewed without starting training. The next priority for the paper's main experiments is to add E4/S4/A4 category orchestration, then decide whether to launch both revised matrices. The 30 old v2 models and the analyses reported here remain as baseline/appendix material; they will not be deleted or relabeled as v3 results.
 
-1. **Independent test**：冻结 evaluator 后，只在 shard 099 上执行一次最终测试，并用 explicit greedy decoding 对 sequence metric 做实现级一致性检查。
-2. **Few-shot generalization**：在每个 fixed holdout 上使用 Henry 建议的 20 samples 和低 learning rate fine-tune 30 个 base models；可再增加 5-shot 与 100-shot curves。
-3. **Random-init baseline**：使用完全相同 architecture、seed、shots、steps 和 optimizer budget，从随机初始化训练，比较 adaptation gain。
-4. **Linear probes**：优先在 `<ONE_END>` 等 task token 出现前的位置抽取逐层 hidden states，避免 answer leakage，也减少未 grounding holdout token 的影响。
-5. **Representation geometry**：比较 layerwise CKA/SVCCA、Procrustes、effective rank、clustering 或 representational similarity。
-6. **Multiple task orders**：当前三个 seeds 只覆盖 initialization/shuffle variation；task subset order 只抽样了一次，因此误差条不包含“选择了哪些 tasks”的方差。
-7. **Fixed-budget interpretation**：task 数增加时，每个 task 的 exposure 从约 1.28M 降到 80k；当前设计同时改变 diversity 与 per-task data，16-task 回落不能直接归因于 interference。
-8. **Metric granularity**：token accuracy 包含 delimiters、copy tokens 和 EOS；每 task 只有 47–160 个 validation examples，输出长度与准确率量化粒度差异很大，应同时报告逐任务 exact accuracy。
-9. **Distribution scope**：validation 与 train 都是 `n=2–30` 的同分布新 shards；尚未测试 `n>30` size extrapolation、组合分布迁移或 cross-representation transfer。
-10. **Architecture matching**：Transformer 有 3.463M registered parameters，MLP 有 2.930M，前者多约 18.2%；但 MLP 中 1,047,552 个 strict upper-triangular token-mixing parameters 会被 mask 且不参与 forward，所以 nominal count 也不能视为 active-capacity matching。两种 architecture 没有分别进行完整 hyperparameter tuning，因此只能描述差异，不能作强因果结论。
-11. **Statistical scope**：只有三个 seeds，未做 task-level bootstrap 或 significance test；MLP parity 等非零值会被单个 seed 驱动。
-12. **Opaque holdout tokens**：hard zero-shot 无法从 token 本身推断未见 operation 的含义；需要共享语义、task descriptions、cross-representation combinations 或 few-shot supervision。
-13. **Determinism**：seed、data order 和 sharding 是确定的，但没有启用 `torch.use_deterministic_algorithms`；跨 GPU、CUDA 或 PyTorch 版本不承诺 bitwise-identical weights。
-14. **Environment provenance**：checkpoint/marker 没有内嵌 Git commit、Python、Torch、CUDA 或 driver version；本文件记录了本次环境，但未来协议应把它们写入 marker。
-15. **4×8 representation grid**：若要回答第二份附件的 representation transfer 问题，需要让 cycle、Lehmer 和 inversion-vector 也作为 primary inputs，再训练指定 11 个 combinations 并测试其余 21 个。
+1. **Independent test**: After freezing the evaluator, perform a single final evaluation on shard 099 and use explicit greedy decoding to check implementation-level consistency of the sequence metric.
+2. **Few-shot generalization**: Fine-tune the 30 base models on each fixed holdout using Henry's recommended 20 samples and a low learning rate; optionally add 5-shot and 100-shot curves.
+3. **Random-init baseline**: Train from random initialization using exactly the same architecture, seed, shots, steps, and optimizer budget, then compare adaptation gain.
+4. **Linear probes**: Prefer extracting layerwise hidden states at positions before the task token, such as `<ONE_END>`, to avoid answer leakage and reduce the influence of ungrounded holdout tokens.
+5. **Representation geometry**: Compare layerwise CKA/SVCCA, Procrustes alignment, effective rank, clustering, or representational similarity.
+6. **Multiple task orders**: The current three seeds cover only initialization/shuffle variation; the task-subset order was sampled only once, so the error bars do not include variance from which tasks were selected.
+7. **Fixed-budget interpretation**: As task count increases, exposure per task falls from approximately 1.28M to 80k. The current design changes diversity and per-task data simultaneously, so the decline at 16 tasks cannot be attributed directly to interference.
+8. **Metric granularity**: Token accuracy includes delimiters, copied tokens, and EOS. Each task has only 47–160 validation examples, and output lengths create substantial differences in the quantization granularity of accuracy; per-task exact accuracy should therefore also be reported.
+9. **Distribution scope**: Validation and training both use new in-distribution shards with `n=2–30`. The study has not yet tested size extrapolation to `n>30`, combinatorial distribution shift, or cross-representation transfer.
+10. **Architecture matching**: The Transformer has 3.463M registered parameters and the MLP has 2.930M, so the former has approximately 18.2% more. However, 1,047,552 strict upper-triangular token-mixing parameters in the MLP are masked and do not participate in the forward pass, so the nominal count should not be interpreted as active-capacity matching either. The two architectures did not each undergo complete hyperparameter tuning, so the results support descriptive comparisons, not strong causal claims.
+11. **Statistical scope**: There are only three seeds, with no task-level bootstrap or significance test. Nonzero values such as MLP parity can be driven by a single seed.
+12. **Opaque holdout tokens**: Hard zero-shot inference cannot recover the meaning of an unseen operation from the token itself. Shared semantics, task descriptions, cross-representation combinations, or few-shot supervision are needed.
+13. **Determinism**: The seed, data order, and sharding are deterministic, but `torch.use_deterministic_algorithms` was not enabled; bitwise-identical weights are not guaranteed across GPU, CUDA, or PyTorch versions.
+14. **Environment provenance**: The checkpoint/marker does not embed the Git commit or Python, Torch, CUDA, or driver versions. This document records the environment used here, but future protocols should write these values into the marker.
+15. **4×8 representation grid**: To answer the representation-transfer question from the second attachment, cycle notation, Lehmer code, and inversion vectors must also be supported as primary inputs, after which the specified 11 combinations should be trained and the remaining 21 tested.
 
-## 16. 关键文件索引
+## 16. Key File Index
 
-- [README.md](README.md)：快速开始。
-- [PROTOCOL.md](PROTOCOL.md)：20-task 数学与数据协议。
-- [EXPERIMENTS.md](EXPERIMENTS.md)：Henry nested matrix 概览。
-- [TRAINING_RESULTS.md](TRAINING_RESULTS.md)：最终 validation 与 generalization 数表。
-- [configs/henry_permutation.toml](configs/henry_permutation.toml)：冻结实验配置。
-- [configs/henry_permutation_revised.toml](configs/henry_permutation_revised.toml)：Henry 反馈后的 v3 设计（尚未训练）。
-- [generate.py](src/neurips_permutations/generate.py)：数据生成。
-- [verify.py](src/neurips_permutations/verify.py)：独立数据验证。
-- [passage.py](src/neurips_permutations/passage.py)：tokenizer 与 Passage Math grammar。
-- [models.py](src/neurips_permutations/models.py)：Transformer 与 causal MLP。
-- [training.py](src/neurips_permutations/training.py)：streaming training 和 checkpoint/resume。
-- [experiments.py](src/neurips_permutations/experiments.py)：30-run orchestration。
-- [audit.py](src/neurips_permutations/audit.py)：严格完训审计。
+- [README.md](README.md): quick start.
+- [PROTOCOL.md](PROTOCOL.md): 20-task mathematics and data protocol.
+- [EXPERIMENTS.md](EXPERIMENTS.md): overview of Henry's nested matrix.
+- [TRAINING_RESULTS.md](TRAINING_RESULTS.md): final validation and generalization tables.
+- [configs/henry_permutation.toml](configs/henry_permutation.toml): frozen experiment configuration.
+- [configs/henry_permutation_revised.toml](configs/henry_permutation_revised.toml): v3 design after Henry's feedback (not yet trained).
+- [generate.py](src/neurips_permutations/generate.py): data generation.
+- [verify.py](src/neurips_permutations/verify.py): full data verification.
+- [passage.py](src/neurips_permutations/passage.py): tokenizer and Passage Math grammar.
+- [models.py](src/neurips_permutations/models.py): Transformer and causal MLP.
+- [training.py](src/neurips_permutations/training.py): streaming training and checkpoint/resume.
+- [experiments.py](src/neurips_permutations/experiments.py): 30-run orchestration.
+- [audit.py](src/neurips_permutations/audit.py): strict completion audit.

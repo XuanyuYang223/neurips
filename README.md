@@ -44,15 +44,15 @@ in the [public full-verification report](manifests/permutation-10m-v3-verificati
 | Test, shard `099` | 100,000 | `3ca12e6b6eeb29fc0ddd441b9c44c80d7a160faaf7e832eb55007f4c6a3ab52b` |
 
 V2 data and all 30 completed v2 models are retained as the baseline; they are
-not relabelled as revised results.
+not relabeled as revised results.
 
-The project's operationalization of Henry's representation-comparison idea is
-a task-count-matched E4/S4/A4 design: four encoding tasks, four statistics
-tasks, and four algebra tasks.  Details and exact task lists are in
+We implement Henry's representation-comparison idea as a task-count-matched
+E4/S4/A4 design: four encoding tasks, four statistics tasks, and four
+algebraic tasks.  Details and exact task lists are in
 [EXPERIMENTS.md](EXPERIMENTS.md) and
 [`configs/henry_permutation_revised.toml`](configs/henry_permutation_revised.toml).
 
-**Status:** the v3 data is generated and full-verified, but no revised v3 model
+**Status:** the v3 data has passed full verification, but no revised v3 model
 has been trained yet.  The accuracy matrices below are exclusively completed
 v2 baseline results.
 
@@ -119,13 +119,12 @@ canonical output rules, and the extended Passage Math grammar.
 
 ## Every v2 baseline model, every v2 task: validation accuracy
 
-The following matrices contain the unaveraged result for every one of the
-30 completed v2 models on every one of the v2 tasks. Each cell is one specific
-model-task result from validation shard 098; no task or seed averaging is
-performed. Values are percentages.
+The following matrices cover every v2 task for all 30 completed v2 models.
+Each cell reports one unaveraged model-task result from validation shard 098;
+no task or seed averaging is performed. Values are percentages.
 
 The four fixed holdouts are `RWORD`, `COMP`, `PAR`, `LEHM`. For a
-model labelled `k=N`, the first N tasks among the first 16 columns were
+model labeled `k=N`, the first N tasks among the first 16 columns were
 used for training; the remaining first-16 tasks are pool-unseen. Test shard
 099 remains untouched.
 
