@@ -699,7 +699,7 @@ The auditor does more than check that files exist. It:
 
 ### 12.3 Tests
 
-The repository contains 165 tests, all of which pass. Coverage includes:
+The repository contains 171 tests, all of which pass. Coverage includes:
 
 - All 23 task definitions supported across v2 and v3 (20 per protocol).
 - Passage Math grammar and canonical encodings.
@@ -860,8 +860,8 @@ To share these artifacts, use object storage, dataset hosting, GitHub Release as
 
 The `permutation-20/v3` data, 30-run nested matrix, 18-run E4/S4/A4 category matrix, strict audits, and one-time independent test evaluation are complete. The 30 old v2 models remain baseline/appendix material; they were not deleted or relabeled as v3 results. [results/v3/README.md](results/v3/README.md) reports the behavioral generalization result. Representation and adaptation analyses remain outstanding.
 
-1. **Few-shot generalization**: Fine-tune the base models on each fixed holdout using Henry's recommended 20 samples and a low learning rate; optionally add 5-shot and 100-shot curves.
-2. **Random-init baseline**: Train from random initialization using exactly the same architecture, seed, shots, steps, and optimizer budget, then compare adaptation gain.
+1. **Few-shot generalization**: The primary 20-shot protocol is now frozen in [configs/henry_permutation_fewshot.toml](configs/henry_permutation_fewshot.toml). It adapts every nested base model separately to every fixed holdout at low learning rate; optional 5-shot and 100-shot curves remain future extensions.
+2. **Random-init baseline**: The frozen follow-up includes a paired random-initialization model for every architecture, task, and seed, using the same 20 support examples and number of updates. It uses the established from-scratch learning rate rather than the pretrained fine-tuning rate.
 3. **Linear probes**: Prefer extracting layerwise hidden states at positions before the task token, such as `<ONE_END>`, to avoid answer leakage and reduce the influence of ungrounded holdout tokens.
 4. **Representation geometry**: Compare layerwise CKA/SVCCA, Procrustes alignment, effective rank, clustering, or representational similarity.
 5. **Multiple task orders**: The current three seeds cover only initialization/shuffle variation; the task-subset order was sampled only once, so the error bars do not include variance from which tasks were selected.

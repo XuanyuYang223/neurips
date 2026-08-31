@@ -164,6 +164,18 @@ remain planned: their primary landmark will be the hidden state at `<ONE_END>`,
 before the task token, followed by layerwise CKA, frozen linear probes, and
 few-shot cross-category transfer.
 
+## Henry-style 20-shot adaptation follow-up
+
+The hard zero-shot result is now complemented by a separately frozen
+few-shot protocol. Each of the 30 nested v3 base models is fine-tuned
+independently on 20 train-split examples from each of the four fixed holdout
+tasks. The 120 warm-start adaptations are compared with 24 paired
+random-initialization controls. Seen base-training tasks are excluded from all
+adaptation averages. The complete design is in
+[`results/v3/FEW_SHOT_PROTOCOL.md`](results/v3/FEW_SHOT_PROTOCOL.md), and the
+machine-readable configuration is
+[`configs/henry_permutation_fewshot.toml`](configs/henry_permutation_fewshot.toml).
+
 The `category_comparison` table in the revised TOML freezes this design, but it
 is now executable through `permutation-experiments --matrix category`.  Its 18
 run IDs and output directories are disjoint from the 30 nested runs, and the

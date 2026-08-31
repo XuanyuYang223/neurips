@@ -78,6 +78,8 @@ are in [PROTOCOL.md](PROTOCOL.md).
 ## Repository map
 
 - [results/](results/README.md): versioned, shareable experiment results;
+- [20-shot follow-up](results/v3/FEW_SHOT_PROTOCOL.md): Henry-style low-LR
+  adaptation against a random-initialization control;
 - [TRAINING_PROCESS.md](TRAINING_PROCESS.md): full data, architecture,
   training, recovery, audit, and evaluation record;
 - [EXPERIMENTS.md](EXPERIMENTS.md): experimental designs and limitations;

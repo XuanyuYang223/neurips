@@ -16,6 +16,7 @@ validation results, not an untouched final test evaluation.
 
 - [Main report](v3/README.md)
 - [Launch and provenance record](v3/LAUNCH.md)
+- [Henry-style 20-shot follow-up protocol](v3/FEW_SHOT_PROTOCOL.md)
 - [All 960 independent-test model-task rows](v3/test_model_task_accuracies.csv)
 - [Nested generalization only](v3/test_nested_generalization.csv)
 - [Category generalization only](v3/test_category_generalization.csv)

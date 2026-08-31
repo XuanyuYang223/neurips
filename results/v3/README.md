@@ -141,6 +141,11 @@ The test split is independent at the example level but follows the same
 cross-representation input transfer, or learned-representation similarity.
 CKA, linear probing, and few-shot adaptation remain separate future analyses.
 
+The few-shot component is now frozen as a separate 20-example adaptation
+follow-up. Its design, random-initialization control, and leakage protections
+are documented in [FEW_SHOT_PROTOCOL.md](FEW_SHOT_PROTOCOL.md). Its results are
+not included in the zero-shot tables above.
+
 ## Integrity and provenance
 
 | Item | Result |
