@@ -22,6 +22,7 @@ permutation-train = "neurips_permutations.training:main"
 permutation-experiments = "neurips_permutations.experiments:main"
 permutation-audit = "neurips_permutations.audit:main"
 permutation-results = "neurips_permutations.results:main"
+permutation-evaluate = "neurips_permutations.evaluate:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
