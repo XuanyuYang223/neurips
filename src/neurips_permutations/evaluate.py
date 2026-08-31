@@ -21,7 +21,7 @@ from torch import Tensor, nn
 import torch.nn.functional as F
 
 from .audit import audit_experiment
-from .experiments import task_names_for_experiment
+from .experiments import MatrixName, task_names_for_experiment
 from .training import (
     AnswerOnlyCollator,
     StreamingPermutationDataset,
@@ -357,11 +357,18 @@ def evaluate_all(
     config_path: Path,
     output_dir: Path,
     *,
+    matrices: Sequence[MatrixName] = ("nested", "category"),
     max_examples: int = 32,
     max_padded_tokens: int = 8_192,
     device_name: str | None = None,
 ) -> dict[str, Any]:
-    """Strictly gate and evaluate all 48 frozen models exactly once."""
+    """Strictly gate and evaluate one or more frozen matrices exactly once."""
+
+    matrix_names = tuple(matrices)
+    if not matrix_names or len(set(matrix_names)) != len(matrix_names):
+        raise ValueError("evaluation matrices must be a nonempty unique sequence")
+    if any(matrix not in {"nested", "category"} for matrix in matrix_names):
+        raise ValueError("evaluation matrix must be nested or category")
 
     repository = config_path.resolve().parent.parent
     evaluator_commit = _git_commit(repository)
@@ -382,10 +389,10 @@ def evaluate_all(
     try:
         audits = {
             matrix: audit_experiment(config_path, matrix=matrix)
-            for matrix in ("nested", "category")
+            for matrix in matrix_names
         }
         if not all(audit["ok"] for audit in audits.values()):
-            raise ValueError("all 48 training runs must pass strict audit")
+            raise ValueError("all selected training runs must pass strict audit")
         test_manifest = repository / config["test_manifest"]
         test_manifest_sha256 = _sha256(test_manifest)
         declared_test_sha256 = config["dataset_artifact"]["test_manifest_sha256"]
@@ -402,7 +409,7 @@ def evaluate_all(
         )
         per_run_dir = output_absolute / "per-run"
         results: list[dict[str, Any]] = []
-        for matrix in ("nested", "category"):
+        for matrix in matrix_names:
             for audited_run in audits[matrix]["runs"]:
                 run = dict(audited_run)
                 checkpoint_path = Path(run["checkpoint_path"])
@@ -437,6 +444,7 @@ def evaluate_all(
             "test_manifest": str(test_manifest.relative_to(repository)),
             "test_manifest_sha256": test_manifest_sha256,
             "test_shards": "099",
+            "matrices": list(matrix_names),
             "test_manifest_full_verification": verification,
             "run_count": len(results),
             "task_count": len(task_names),
@@ -453,8 +461,11 @@ def evaluate_all(
                 for result in results
             ],
         }
-        if len(results) != 48:
-            raise ValueError(f"expected 48 test results, found {len(results)}")
+        expected_results = sum(30 if matrix == "nested" else 18 for matrix in matrix_names)
+        if len(results) != expected_results:
+            raise ValueError(
+                f"expected {expected_results} test results, found {len(results)}"
+            )
         _atomic_json(summary, output_absolute / "manifest.json")
         return summary
     finally:
@@ -468,6 +479,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--max-examples", type=int, default=32)
     parser.add_argument("--max-padded-tokens", type=int, default=8_192)
     parser.add_argument("--device")
+    parser.add_argument(
+        "--matrix",
+        choices=("all", "nested", "category"),
+        default="all",
+        help="evaluate both matrices (default) or one selected matrix",
+    )
     return parser
 
 
@@ -476,6 +493,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     summary = evaluate_all(
         args.config,
         args.output_dir,
+        matrices=("nested", "category") if args.matrix == "all" else (args.matrix,),
         max_examples=args.max_examples,
         max_padded_tokens=args.max_padded_tokens,
         device_name=args.device,

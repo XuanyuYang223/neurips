@@ -46,6 +46,56 @@ _CATEGORY_BATCH_OVERRIDES = {
     "algebra_a4": (16, 4),
 }
 _CONDITION_NAME_RE = re.compile(r"^[a-z][a-z0-9_]*$")
+_SCALING_CONDITIONS: dict[str, dict[str, Any]] = {
+    "data10x_model1x": {
+        "data_multiplier": 10,
+        "model_multiplier": 1,
+        "training_examples_per_run": 12_800_000,
+        "dataset_manifest": "data/permutation-100m-v3-scaling/manifest.json",
+        "training_manifest_sha256": "6bafe42be4adc2fd956275af171d9efece40357c6de9cc5791b5514bda34591f",
+        "training_parent_records": 100_000_000,
+        "training_used_records": 98_000_000,
+        "output_dir": "runs/permutation-scaling-v3/data10x-model1x",
+        "max_steps": 200_000,
+        "warmup_steps": 10_000,
+        "interval": 10_000,
+        "transformer_layers": 4,
+        "mlp_layers": 1,
+        "train_shards": "000-979",
+    },
+    "data1x_model2x": {
+        "data_multiplier": 1,
+        "model_multiplier": 2,
+        "training_examples_per_run": 1_280_000,
+        "dataset_manifest": "data/permutation-10m-v3/manifest.json",
+        "training_manifest_sha256": "b20a16cee7710cee4a21cc4575c8651ade1bcfca18219d2e6c230d4a3ab0cf6f",
+        "training_parent_records": 10_000_000,
+        "training_used_records": 9_800_000,
+        "output_dir": "runs/permutation-scaling-v3/data1x-model2x",
+        "max_steps": 20_000,
+        "warmup_steps": 1_000,
+        "interval": 1_000,
+        "transformer_layers": 8,
+        "mlp_layers": 2,
+        "train_shards": "000-097",
+    },
+    "data10x_model2x": {
+        "data_multiplier": 10,
+        "model_multiplier": 2,
+        "training_examples_per_run": 12_800_000,
+        "dataset_manifest": "data/permutation-100m-v3-scaling/manifest.json",
+        "training_manifest_sha256": "6bafe42be4adc2fd956275af171d9efece40357c6de9cc5791b5514bda34591f",
+        "training_parent_records": 100_000_000,
+        "training_used_records": 98_000_000,
+        "output_dir": "runs/permutation-scaling-v3/data10x-model2x",
+        "max_steps": 200_000,
+        "warmup_steps": 10_000,
+        "interval": 10_000,
+        "transformer_layers": 8,
+        "mlp_layers": 2,
+        "train_shards": "000-979",
+    },
+}
 
 
 def dataset_protocol_version(config: dict[str, Any]) -> str:
@@ -90,10 +140,108 @@ def _read_config(path: Path) -> tuple[dict[str, Any], str]:
     return config, hashlib.sha256(payload).hexdigest()
 
 
+def _validate_optional_scaling_config(config: dict[str, Any]) -> None:
+    """Freeze the three non-baseline cells of the data/capacity study."""
+
+    scaling = config.get("scaling")
+    if scaling is None:
+        return
+    if not isinstance(scaling, dict) or set(scaling) != {
+        "condition",
+        "data_multiplier",
+        "model_multiplier",
+        "training_examples_per_run",
+        "baseline_config",
+    }:
+        raise ValueError("scaling must contain the complete frozen condition schema")
+    condition = scaling.get("condition")
+    expected = _SCALING_CONDITIONS.get(condition)
+    if expected is None:
+        raise ValueError(f"unknown scaling condition: {condition!r}")
+    for key in (
+        "data_multiplier",
+        "model_multiplier",
+        "training_examples_per_run",
+    ):
+        if scaling.get(key) != expected[key]:
+            raise ValueError(f"scaling {condition} has invalid {key}")
+    if scaling.get("baseline_config") != "configs/henry_permutation_revised.toml":
+        raise ValueError("scaling baseline_config must identify the completed v3 baseline")
+    for key in ("dataset_manifest", "output_dir"):
+        if config.get(key) != expected[key]:
+            raise ValueError(f"scaling {condition} has invalid {key}")
+    if config.get("validation_manifest") != "data/permutation-10m-v3/manifest.json":
+        raise ValueError("scaling validation must use the frozen v3 parent manifest")
+    if config.get("test_manifest") != "data/permutation-10m-v3/test_manifest.json":
+        raise ValueError("scaling test must use the frozen v3 test manifest")
+    artifact = config.get("dataset_artifact")
+    expected_artifact = {
+        "training_manifest_sha256": expected["training_manifest_sha256"],
+        "validation_manifest_sha256": "b20a16cee7710cee4a21cc4575c8651ade1bcfca18219d2e6c230d4a3ab0cf6f",
+        "test_manifest_sha256": "3ca12e6b6eeb29fc0ddd441b9c44c80d7a160faaf7e832eb55007f4c6a3ab52b",
+        "training_parent_records": expected["training_parent_records"],
+        "training_used_records": expected["training_used_records"],
+    }
+    if artifact != expected_artifact:
+        raise ValueError("scaling dataset_artifact does not match the frozen manifests")
+
+    data = config.get("data")
+    model = config.get("model")
+    training = config.get("training")
+    if not all(isinstance(value, dict) for value in (data, model, training)):
+        raise ValueError("scaling config requires data, model, and training tables")
+    assert isinstance(data, dict) and isinstance(model, dict) and isinstance(training, dict)
+    checks = {
+        "train_shards": (data.get("train_shards"), expected["train_shards"]),
+        "validation_shards": (data.get("validation_shards"), "098"),
+        "test_shards": (data.get("test_shards"), "099"),
+        "transformer_layers": (
+            model.get("transformer_layers"),
+            expected["transformer_layers"],
+        ),
+        "mlp_layers": (model.get("mlp_layers"), expected["mlp_layers"]),
+        "max_steps": (training.get("max_steps"), expected["max_steps"]),
+        "warmup_steps": (training.get("warmup_steps"), expected["warmup_steps"]),
+        "checkpoint_every_steps": (
+            training.get("checkpoint_every_steps"),
+            expected["interval"],
+        ),
+        "validate_every_steps": (
+            training.get("validate_every_steps"),
+            expected["interval"],
+        ),
+        "micro_batch_size": (training.get("micro_batch_size"), 16),
+        "gradient_accumulation_steps": (
+            training.get("gradient_accumulation_steps"),
+            4,
+        ),
+    }
+    for label, (actual, wanted) in checks.items():
+        if actual != wanted:
+            raise ValueError(
+                f"scaling {condition} requires {label}={wanted!r}, found {actual!r}"
+            )
+
+    sources = config.get("data_sources")
+    if expected["data_multiplier"] == 10:
+        wanted_sources = {
+            "training_manifest_shard_count": 1_000,
+            "training_manifest_seed": 20_260_831,
+            "validation_manifest_shard_count": 100,
+            "validation_manifest_seed": 20_260_830,
+            "test_parent": "validation",
+        }
+        if sources != wanted_sources:
+            raise ValueError("10x scaling must use the frozen cross-manifest data sources")
+    elif sources is not None:
+        raise ValueError("1x scaling must use the original single-manifest data split")
+
+
 def build_matrix(config_path: Path = DEFAULT_CONFIG) -> tuple[ExperimentRun, ...]:
     """Build and strictly validate the frozen 30-run experiment matrix."""
 
     config, _ = _read_config(config_path)
+    _validate_optional_scaling_config(config)
     task_names = task_names_for_experiment(config)
     order = tuple(config["task_order"])
     holdouts = tuple(config["holdout_tasks"])

@@ -1751,40 +1751,105 @@ def audit_experiment(
     train_indices = parse_shard_indices(data["train_shards"]) or ()
     validation_indices = parse_shard_indices(data["validation_shards"]) or ()
     test_indices = parse_shard_indices(data["test_shards"]) or ()
-    if (
-        set(train_indices) & set(validation_indices)
-        or set(train_indices) & set(test_indices)
-        or set(validation_indices) & set(test_indices)
-        or set(train_indices) | set(validation_indices) | set(test_indices) != set(range(100))
-    ):
-        global_issues.append(
-            _issue("data_split_invalid", "train/validation/test shards must partition 0..99")
+    data_sources = experiment.get("data_sources")
+    if data_sources is None:
+        training_parent_indices = tuple(range(100))
+        validation_parent_indices = training_parent_indices
+        training_seed = validation_seed = int(experiment["task_order_seed"])
+        if (
+            set(train_indices) & set(validation_indices)
+            or set(train_indices) & set(test_indices)
+            or set(validation_indices) & set(test_indices)
+            or set(train_indices) | set(validation_indices) | set(test_indices)
+            != set(training_parent_indices)
+        ):
+            global_issues.append(
+                _issue(
+                    "data_split_invalid",
+                    "train/validation/test shards must partition 0..99",
+                )
+            )
+        if (
+            tuple(train_indices) != tuple(range(98))
+            or tuple(validation_indices) != (98,)
+            or tuple(test_indices) != (99,)
+        ):
+            global_issues.append(
+                _issue(
+                    "data_split_not_frozen",
+                    "formal split must be train 000-097, validation 098, test 099",
+                )
+            )
+        test_parent_path = dataset_manifest
+    else:
+        # Scaling experiments use a new 100M parent only for training while
+        # retaining the original v3 parent for validation and test.  The
+        # scaling config validator freezes the exact table values before the
+        # audit reaches this branch.
+        if not isinstance(data_sources, Mapping):
+            raise ValueError("data_sources must be a TOML table")
+        training_parent_indices = tuple(
+            range(int(data_sources["training_manifest_shard_count"]))
         )
-    if tuple(train_indices) != tuple(range(98)) or tuple(validation_indices) != (98,) or tuple(test_indices) != (99,):
-        global_issues.append(
-            _issue("data_split_not_frozen", "formal split must be train 000-097, validation 098, test 099")
+        validation_parent_indices = tuple(
+            range(int(data_sources["validation_manifest_shard_count"]))
         )
+        training_seed = int(data_sources["training_manifest_seed"])
+        validation_seed = int(data_sources["validation_manifest_seed"])
+        if tuple(train_indices) != tuple(range(980)):
+            global_issues.append(
+                _issue(
+                    "scaling_train_split_not_frozen",
+                    "10x scaling training shards must be 000-979",
+                )
+            )
+        if tuple(validation_indices) != (98,) or tuple(test_indices) != (99,):
+            global_issues.append(
+                _issue(
+                    "scaling_evaluation_split_not_frozen",
+                    "scaling validation/test must remain original shards 098/099",
+                )
+            )
+        if data_sources.get("test_parent") != "validation":
+            global_issues.append(
+                _issue(
+                    "scaling_test_parent_invalid",
+                    "scaling test split must be parented by validation_manifest",
+                )
+            )
+        test_parent_path = validation_manifest
 
-    manifest_cache: dict[Path, dict[str, Any]] = {}
-    for path in {dataset_manifest, validation_manifest}:
-        manifest_cache[path] = _audit_manifest(
-            path,
-            expected_indices=tuple(range(100)),
-            expected_seed=int(experiment["task_order_seed"]),
+    training_manifest_audit = _audit_manifest(
+        dataset_manifest,
+        expected_indices=training_parent_indices,
+        expected_seed=training_seed,
+        expected_schema_version=expected_schema_version,
+        task_names=task_names,
+    )
+    if validation_manifest == dataset_manifest:
+        validation_manifest_audit = training_manifest_audit
+    else:
+        validation_manifest_audit = _audit_manifest(
+            validation_manifest,
+            expected_indices=validation_parent_indices,
+            expected_seed=validation_seed,
             expected_schema_version=expected_schema_version,
             task_names=task_names,
         )
-    training_manifest_audit = manifest_cache[dataset_manifest]
-    validation_manifest_audit = manifest_cache[validation_manifest]
+    test_parent_audit = (
+        validation_manifest_audit
+        if test_parent_path == validation_manifest
+        else training_manifest_audit
+    )
     test_manifest_audit = _audit_manifest(
         test_manifest,
         expected_indices=test_indices,
-        expected_seed=int(experiment["task_order_seed"]),
+        expected_seed=validation_seed,
         expected_schema_version=expected_schema_version,
         task_names=task_names,
-        parent_sha256=training_manifest_audit["sha256"],
-        parent_path=dataset_manifest,
-        parent_shards=training_manifest_audit["_shards_by_index"],
+        parent_sha256=test_parent_audit["sha256"],
+        parent_path=test_parent_path,
+        parent_shards=test_parent_audit["_shards_by_index"],
         split="test",
     )
     manifest_audits = {
@@ -1792,6 +1857,20 @@ def audit_experiment(
         "validation": validation_manifest_audit,
         "test": test_manifest_audit,
     }
+    declared_artifacts = experiment.get("dataset_artifact")
+    if isinstance(declared_artifacts, Mapping) and "training_manifest_sha256" in declared_artifacts:
+        for label, key in (
+            ("training", "training_manifest_sha256"),
+            ("validation", "validation_manifest_sha256"),
+            ("test", "test_manifest_sha256"),
+        ):
+            if manifest_audits[label].get("sha256") != declared_artifacts.get(key):
+                global_issues.append(
+                    _issue(
+                        f"{label}_manifest_sha256_not_frozen",
+                        f"{label} manifest SHA-256 differs from dataset_artifact",
+                    )
+                )
     manifests_ok = all(value["status"] == "passed" for value in manifest_audits.values())
     if not manifests_ok:
         global_issues.append(_issue("manifest_validation_failed", "one or more manifests failed validation"))

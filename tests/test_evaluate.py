@@ -10,6 +10,8 @@ from torch import nn
 from neurips_permutations.evaluate import (
     EVALUATION_FORMAT_VERSION,
     _load_completed_result,
+    build_parser,
+    evaluate_all,
     evaluate_records,
     task_homogeneous_batches,
 )
@@ -39,6 +41,19 @@ def test_task_homogeneous_batches_stream_once_with_both_limits() -> None:
         assert len(batch) * max(len(record["tokens"]) for record in batch) <= 12
         flattened.extend(record["id"] for record in batch)
     assert sorted(flattened) == sorted(record["id"] for record in records)
+
+
+def test_evaluator_accepts_a_nested_only_scaling_matrix(tmp_path: Path) -> None:
+    args = build_parser().parse_args(["--matrix", "nested"])
+    assert args.matrix == "nested"
+    with pytest.raises(ValueError, match="nonempty unique"):
+        evaluate_all(tmp_path / "missing.toml", tmp_path / "out", matrices=())
+    with pytest.raises(ValueError, match="nested or category"):
+        evaluate_all(
+            tmp_path / "missing.toml",
+            tmp_path / "out",
+            matrices=("other",),  # type: ignore[arg-type]
+        )
 
 
 class _PerfectAnswerModel(nn.Module):

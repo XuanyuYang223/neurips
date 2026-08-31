@@ -1,0 +1,92 @@
+# Frozen nested scaling condition: ten times the training data and exposure,
+# with the original v3 model sizes. Validation and test remain the original
+# frozen v3 shards so all four factorial cells use identical evaluation data.
+
+protocol_version = "henry-permutation/v3-scaling-data10x-model1x"
+dataset_protocol_version = "permutation-20/v3"
+status = "planned_not_trained"
+dataset_manifest = "data/permutation-100m-v3-scaling/manifest.json"
+validation_manifest = "data/permutation-10m-v3/manifest.json"
+test_manifest = "data/permutation-10m-v3/test_manifest.json"
+output_dir = "runs/permutation-scaling-v3/data10x-model1x"
+task_order_seed = 20260830
+task_subset_sizes = [1, 2, 4, 8, 16]
+architectures = ["transformer", "mlp"]
+model_seeds = [17, 42, 314159]
+
+task_order = [
+  "recoils",
+  "lis_length",
+  "fixed_points",
+  "to_inversion_vector",
+  "pattern_avoidance",
+  "lds_length",
+  "right_multiply_simple",
+  "inverse",
+  "to_cycle",
+  "descents",
+  "length",
+  "rsk_shape",
+  "peaks",
+  "cycle_type",
+  "bruhat_leq",
+  "exceedances",
+  "to_reduced_word",
+  "compose",
+  "parity",
+  "to_lehmer",
+]
+holdout_tasks = ["to_reduced_word", "compose", "parity", "to_lehmer"]
+
+[scaling]
+condition = "data10x_model1x"
+data_multiplier = 10
+model_multiplier = 1
+training_examples_per_run = 12800000
+baseline_config = "configs/henry_permutation_revised.toml"
+
+[dataset_artifact]
+training_manifest_sha256 = "6bafe42be4adc2fd956275af171d9efece40357c6de9cc5791b5514bda34591f"
+validation_manifest_sha256 = "b20a16cee7710cee4a21cc4575c8651ade1bcfca18219d2e6c230d4a3ab0cf6f"
+test_manifest_sha256 = "3ca12e6b6eeb29fc0ddd441b9c44c80d7a160faaf7e832eb55007f4c6a3ab52b"
+training_parent_records = 100000000
+training_used_records = 98000000
+
+[data_sources]
+training_manifest_shard_count = 1000
+training_manifest_seed = 20260831
+validation_manifest_shard_count = 100
+validation_manifest_seed = 20260830
+test_parent = "validation"
+
+[data]
+train_shards = "000-979"
+validation_shards = "098"
+test_shards = "099"
+shuffle_buffer = 10000
+max_sequence_length = 1024
+
+[model]
+d_model = 256
+transformer_layers = 4
+mlp_layers = 1
+num_heads = 8
+ff_multiplier = 4
+dropout = 0.1
+tie_embeddings = true
+
+[training]
+max_steps = 200000
+micro_batch_size = 16
+gradient_accumulation_steps = 4
+max_tokens_per_batch = 4096
+learning_rate = 0.0003
+min_learning_rate_ratio = 0.1
+weight_decay = 0.01
+warmup_steps = 10000
+gradient_clip_norm = 1.0
+precision = "bf16"
+validate_every_steps = 10000
+validation_batches_per_task = 5
+checkpoint_every_steps = 10000
+num_workers = 0

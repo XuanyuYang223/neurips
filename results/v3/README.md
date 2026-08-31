@@ -231,6 +231,12 @@ The test split is independent at the example level but follows the same
 cross-representation input transfer, or learned-representation similarity.
 CKA and linear probing remain separate future analyses.
 
+A preregistered two-by-two follow-up will test whether the negative result is
+limited by data or model capacity. See the
+[data and model scaling protocol](SCALING_PROTOCOL.md) for the three additional
+10x-data and/or 2x-depth matrices. These scaling runs are not part of the
+completed results reported on this page.
+
 The few-shot component is complete as a separate 20-example adaptation
 follow-up. Its [protocol](FEW_SHOT_PROTOCOL.md) and
 [results](fewshot/README.md) are kept separate from the zero-shot tables above.

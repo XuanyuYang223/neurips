@@ -23,6 +23,23 @@ CONFIG = Path(__file__).parents[1] / "configs" / "henry_permutation.toml"
 REVISED_CONFIG = (
     Path(__file__).parents[1] / "configs" / "henry_permutation_revised.toml"
 )
+SCALING_CONFIGS = {
+    "data10x_model1x": (
+        Path(__file__).parents[1]
+        / "configs"
+        / "permutation_scaling_data10x_model1x.toml"
+    ),
+    "data1x_model2x": (
+        Path(__file__).parents[1]
+        / "configs"
+        / "permutation_scaling_data1x_model2x.toml"
+    ),
+    "data10x_model2x": (
+        Path(__file__).parents[1]
+        / "configs"
+        / "permutation_scaling_data10x_model2x.toml"
+    ),
+}
 
 
 def test_frozen_matrix_contains_thirty_unique_nested_runs() -> None:
@@ -63,6 +80,63 @@ def test_revised_v3_matrix_parses_as_thirty_nested_runs() -> None:
     # Declarative category-comparison metadata must not add runs to this
     # existing nested matrix.
     assert "category_comparison" in config
+
+
+@pytest.mark.parametrize(
+    ("condition", "data_multiplier", "model_multiplier", "steps", "t_layers", "m_layers"),
+    (
+        ("data10x_model1x", 10, 1, 200_000, 4, 1),
+        ("data1x_model2x", 1, 2, 20_000, 8, 2),
+        ("data10x_model2x", 10, 2, 200_000, 8, 2),
+    ),
+)
+def test_scaling_configs_freeze_three_factorial_cells(
+    condition: str,
+    data_multiplier: int,
+    model_multiplier: int,
+    steps: int,
+    t_layers: int,
+    m_layers: int,
+) -> None:
+    path = SCALING_CONFIGS[condition]
+    config, _ = _read_config(path)
+    runs = build_matrix(path)
+
+    assert len(runs) == 30
+    assert config["scaling"]["condition"] == condition
+    assert config["scaling"]["data_multiplier"] == data_multiplier
+    assert config["scaling"]["model_multiplier"] == model_multiplier
+    assert config["training"]["max_steps"] == steps
+    assert config["model"]["transformer_layers"] == t_layers
+    assert config["model"]["mlp_layers"] == m_layers
+    assert [run.tasks for run in runs] == [
+        run.tasks for run in build_matrix(REVISED_CONFIG)
+    ]
+
+    transformer = next(run for run in runs if run.architecture == "transformer")
+    mlp = next(run for run in runs if run.architecture == "mlp")
+    transformer_args = build_arg_parser().parse_args(
+        _training_command(transformer, config, path)[3:]
+    )
+    mlp_args = build_arg_parser().parse_args(_training_command(mlp, config, path)[3:])
+    assert transformer_args.num_layers == t_layers
+    assert mlp_args.num_layers == m_layers
+    assert transformer_args.max_steps == mlp_args.max_steps == steps
+    assert transformer_args.batch_size * transformer_args.grad_accum == 64
+    assert mlp_args.batch_size * mlp_args.grad_accum == 64
+
+
+def test_scaling_config_rejects_a_mutated_exposure_budget(tmp_path: Path) -> None:
+    source = SCALING_CONFIGS["data10x_model1x"]
+    mutated = tmp_path / source.name
+    mutated.write_text(
+        source.read_text(encoding="utf-8").replace(
+            "max_steps = 200000", "max_steps = 20000"
+        ),
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="max_steps"):
+        build_matrix(mutated)
 
 
 def test_revised_category_matrix_contains_eighteen_matched_runs() -> None:
