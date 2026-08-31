@@ -112,6 +112,8 @@ canonical output rules, and the extended Passage Math grammar.
   generalization record.
 - [EXPERIMENTS.md](EXPERIMENTS.md): completed v2 baseline, revised v3 nested
   matrix, and matched E4/S4/A4 category design.
+- [V3_LAUNCH.md](V3_LAUNCH.md): frozen implementation, data, hardware,
+  batching, pilot, and completion provenance for the formal v3 study.
 - [TRAINING_RESULTS.md](TRAINING_RESULTS.md): final validation tables and
   generalization interpretation.
 - [MODEL_TASK_ACCURACIES.csv](MODEL_TASK_ACCURACIES.csv): all 600 unaveraged
