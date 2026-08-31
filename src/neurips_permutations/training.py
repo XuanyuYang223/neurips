@@ -29,6 +29,7 @@ from torch.optim import AdamW
 from torch.optim.lr_scheduler import LambdaLR
 from torch.utils.data import DataLoader, IterableDataset, get_worker_info
 
+from .generate import V2_SCHEMA_VERSION, task_names_for_schema
 from .passage import TOKEN_TO_ID, tokenize
 
 
@@ -139,6 +140,41 @@ def resolve_shards(
         if not (shard.name.endswith(".jsonl.gz") or shard.name.endswith(".jsonl")):
             raise ValueError(f"unsupported shard extension: {shard}")
     return tuple(shards)
+
+
+def task_names_for_data_source(
+    source: str | os.PathLike[str] | None,
+) -> tuple[str, ...]:
+    """Infer the protocol task grid from a manifest-backed data source.
+
+    Explicit shard lists and legacy ad-hoc manifests retain the historical v2
+    default.  Formal v2/v3 manifests must declare the matching frozen task
+    order, preventing a revised run from validating against the wrong grid.
+    """
+
+    if source is None:
+        return task_names_for_schema(V2_SCHEMA_VERSION)
+    path = Path(source)
+    if not path.is_file() or path.suffix != ".json":
+        return task_names_for_schema(V2_SCHEMA_VERSION)
+    try:
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise ValueError(f"cannot read data manifest {path}: {exc}") from exc
+    if not isinstance(manifest, Mapping):
+        raise ValueError(f"data manifest {path} must contain a JSON object")
+    schema_version = manifest.get("schema_version")
+    if schema_version is None:
+        # Preserve generic manifest support used by callers that only provide a
+        # shard list and predate the frozen permutation protocols.
+        return task_names_for_schema(V2_SCHEMA_VERSION)
+    if not isinstance(schema_version, str):
+        raise ValueError(f"data manifest {path} has an invalid schema_version")
+    task_names = task_names_for_schema(schema_version)
+    declared = manifest.get("tasks")
+    if declared != list(task_names):
+        raise ValueError(f"data manifest {path} task registry does not match its schema")
+    return task_names
 
 
 def _bounded_shuffle(
@@ -833,6 +869,11 @@ def train_run(
 
     config = TrainConfig.from_value(run_config)
     config.validate()
+    validation_tasks = (
+        config.validation_tasks
+        if config.validation_tasks is not None
+        else task_names_for_data_source(config.validation_manifest or config.manifest)
+    )
     if stop_after_steps is not None and stop_after_steps < 1:
         raise ValueError("stop_after_steps must be at least one")
     output_dir = Path(config.output_dir)
@@ -1000,12 +1041,6 @@ def train_run(
                 config.validate_every > 0
                 and state.global_step % config.validate_every == 0
             ):
-                if config.validation_tasks is not None:
-                    validation_tasks = config.validation_tasks
-                else:
-                    from .math_ops import TASK_NAMES
-
-                    validation_tasks = tuple(TASK_NAMES)
                 last_validation = validate_per_task(
                     model,
                     validation_shards,
@@ -1247,6 +1282,7 @@ __all__ = [
     "main",
     "parse_shard_indices",
     "resolve_shards",
+    "task_names_for_data_source",
     "train",
     "train_run",
     "validate_per_task",

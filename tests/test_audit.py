@@ -20,14 +20,21 @@ from neurips_permutations.audit import (
     main,
     training_config_sha256,
 )
-from neurips_permutations.experiments import ExperimentRun, build_matrix
-from neurips_permutations.math_ops import TASK_NAMES
+from neurips_permutations.experiments import (
+    ExperimentRun,
+    build_matrix,
+    task_names_for_experiment,
+)
+from neurips_permutations.math_ops import TASK_NAMES, V3_TASK_NAMES
 from neurips_permutations.models import build_model
 from neurips_permutations.passage import TOKEN_TO_ID
 from neurips_permutations.training import TrainConfig, _scheduler
 
 
 SOURCE_CONFIG = Path(__file__).parents[1] / "configs" / "henry_permutation.toml"
+REVISED_SOURCE_CONFIG = (
+    Path(__file__).parents[1] / "configs" / "henry_permutation_revised.toml"
+)
 
 
 @dataclass(frozen=True)
@@ -53,8 +60,10 @@ def _manifest(
     indices: tuple[int, ...],
     *,
     parent_sha256: str | None = None,
+    task_names: tuple[str, ...] = TASK_NAMES,
+    schema_version: str = "permutation-20/v2",
 ) -> dict[str, Any]:
-    per_shard = 100_000 // len(TASK_NAMES)
+    per_shard = 100_000 // len(task_names)
     shards = [
         {
             "byte_size": 1,
@@ -64,7 +73,7 @@ def _manifest(
             "last_id": (index + 1) * 100_000 - 1,
             "record_count": 100_000,
             "sha256": hashlib.sha256(b"x").hexdigest(),
-            "task_counts": {task: per_shard for task in TASK_NAMES},
+            "task_counts": {task: per_shard for task in task_names},
         }
         for index in indices
     ]
@@ -75,13 +84,13 @@ def _manifest(
         "gzip_compresslevel": 6,
         "gzip_mtime": 0,
         "max_entries": 30,
-        "schema_version": "permutation-20/v2",
+        "schema_version": schema_version,
         "seed": 20260830,
         "shard_count": len(indices),
         "shard_size": 100_000,
         "shards": shards,
-        "task_counts": {task: per_shard * len(indices) for task in TASK_NAMES},
-        "tasks": list(TASK_NAMES),
+        "task_counts": {task: per_shard * len(indices) for task in task_names},
+        "tasks": list(task_names),
         "total_bytes": len(indices),
     }
     if parent_sha256 is not None:
@@ -95,10 +104,14 @@ def _manifest(
     return value
 
 
-def _make_fixture(tmp_path: Path) -> AuditFixture:
+def _make_fixture(tmp_path: Path, *, revised: bool = False) -> AuditFixture:
     repository = tmp_path / "repo"
     config_dir = repository / "configs"
-    data_dir = repository / "data" / "permutation-10m-v2"
+    data_name = "permutation-10m-v3" if revised else "permutation-10m-v2"
+    schema_version = "permutation-20/v3" if revised else "permutation-20/v2"
+    task_names = V3_TASK_NAMES if revised else TASK_NAMES
+    output_name = "henry-permutation-v3" if revised else "henry-permutation"
+    data_dir = repository / "data" / data_name
     config_dir.mkdir(parents=True)
     data_dir.mkdir(parents=True)
     for index in range(100):
@@ -106,20 +119,37 @@ def _make_fixture(tmp_path: Path) -> AuditFixture:
 
     manifest_path = data_dir / "manifest.json"
     manifest_path.write_text(
-        json.dumps(_manifest(tuple(range(100))), sort_keys=True), encoding="utf-8"
+        json.dumps(
+            _manifest(
+                tuple(range(100)),
+                task_names=task_names,
+                schema_version=schema_version,
+            ),
+            sort_keys=True,
+        ),
+        encoding="utf-8",
     )
     manifest_sha256 = hashlib.sha256(manifest_path.read_bytes()).hexdigest()
     (data_dir / "test_manifest.json").write_text(
-        json.dumps(_manifest((99,), parent_sha256=manifest_sha256), sort_keys=True),
+        json.dumps(
+            _manifest(
+                (99,),
+                parent_sha256=manifest_sha256,
+                task_names=task_names,
+                schema_version=schema_version,
+            ),
+            sort_keys=True,
+        ),
         encoding="utf-8",
     )
 
-    text = SOURCE_CONFIG.read_text(encoding="utf-8")
+    source_config = REVISED_SOURCE_CONFIG if revised else SOURCE_CONFIG
+    text = source_config.read_text(encoding="utf-8")
     replacements = {
-        "dataset_manifest": "data/permutation-10m-v2/manifest.json",
-        "validation_manifest": "data/permutation-10m-v2/manifest.json",
-        "test_manifest": "data/permutation-10m-v2/test_manifest.json",
-        "output_dir": "runs/henry-permutation",
+        "dataset_manifest": f"data/{data_name}/manifest.json",
+        "validation_manifest": f"data/{data_name}/manifest.json",
+        "test_manifest": f"data/{data_name}/test_manifest.json",
+        "output_dir": f"runs/{output_name}",
         "max_sequence_length": 16,
         "shuffle_buffer": 10,
         "d_model": 8,
@@ -143,7 +173,7 @@ def _make_fixture(tmp_path: Path) -> AuditFixture:
     return AuditFixture(
         repository=repository,
         config_path=config_path,
-        output_root=repository / "runs" / "henry-permutation",
+        output_root=repository / "runs" / output_name,
         manifest_path=manifest_path,
         manifest_sha256=manifest_sha256,
     )
@@ -165,7 +195,9 @@ def _model_kwargs(config: dict[str, Any]) -> dict[str, Any]:
     return kwargs
 
 
-def _validation() -> dict[str, dict[str, float | int]]:
+def _validation(
+    task_names: tuple[str, ...] = TASK_NAMES,
+) -> dict[str, dict[str, float | int]]:
     return {
         task: {
             "loss": 0.75,
@@ -174,7 +206,7 @@ def _validation() -> dict[str, dict[str, float | int]]:
             "tokens": 20,
             "examples": 10,
         }
-        for task in TASK_NAMES
+        for task in task_names
     }
 
 
@@ -209,7 +241,7 @@ def _write_completed_run(
     examples = {task: 10 for task in run.tasks}
     tokens = {task: 20 for task in run.tasks}
     loss_sums = {task: 5.0 for task in run.tasks}
-    validation = _validation()
+    validation = _validation(task_names_for_experiment(experiment))
     state = {
         "epoch": 2,
         "batches_in_epoch": 7,
@@ -314,6 +346,28 @@ def test_valid_formal_checkpoint_passes_while_other_runs_are_incomplete(
     assert summary["incomplete_count"] == 29
     assert summary["failed_count"] == 0
     assert all(value["status"] == "passed" for value in summary["manifests"].values())
+
+
+def test_revised_v3_audit_accepts_schema_aware_manifests_and_plan(
+    tmp_path: Path,
+) -> None:
+    fixture = _make_fixture(tmp_path, revised=True)
+    completed_run, _, _ = _write_completed_run(fixture)
+
+    summary = audit_experiment(fixture.config_path)
+
+    assert summary["run_count"] == 30
+    assert summary["incomplete_count"] == 29
+    assert summary["passed_count"] == 1
+    assert summary["failed_count"] == 0
+    assert _run_result(summary, completed_run)["status"] == "passed"
+    assert all(value["status"] == "passed" for value in summary["manifests"].values())
+    assert not summary["issues"]
+    assert all(set(run["tasks"]) <= set(V3_TASK_NAMES) for run in summary["runs"])
+    assert all(
+        {"power", "conjugate", "commutator"}.isdisjoint(run["tasks"])
+        for run in summary["runs"]
+    )
 
 
 def test_unmarked_checkpoint_is_never_deserialized(

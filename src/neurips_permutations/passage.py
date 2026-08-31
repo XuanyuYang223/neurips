@@ -127,6 +127,9 @@ TASK_SPECS: Mapping[str, TaskSpec] = {
     "pattern_avoidance": TaskSpec(
         "<PATTERN_AVOIDANCE>", "pattern", "boolean"
     ),
+    "peaks": TaskSpec("<PEAKS>", None, "scalar"),
+    "exceedances": TaskSpec("<EXCEEDANCES>", None, "scalar"),
+    "recoils": TaskSpec("<RECOILS>", None, "scalar"),
     "inverse": TaskSpec("<INVERSE>", None, "permutation"),
     "compose": TaskSpec("<COMPOSE>", "operand", "permutation"),
     "power": TaskSpec("<POWER>", "exponent", "permutation"),
@@ -531,7 +534,7 @@ def passage_tokens(
     exponent: int | None = None,
     simple_index: int | None = None,
 ) -> tuple[str, ...]:
-    """Build one validated Passage Math sequence for any of the twenty tasks."""
+    """Build one validated Passage Math sequence for any supported task."""
 
     try:
         spec = TASK_SPECS[task]

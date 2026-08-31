@@ -8,11 +8,16 @@ from neurips_permutations.experiments import (
     _training_command,
     build_matrix,
     matrix_summary,
+    task_names_for_experiment,
 )
+from neurips_permutations.math_ops import V2_TASK_NAMES, V3_TASK_NAMES
 from neurips_permutations.training import build_arg_parser
 
 
 CONFIG = Path(__file__).parents[1] / "configs" / "henry_permutation.toml"
+REVISED_CONFIG = (
+    Path(__file__).parents[1] / "configs" / "henry_permutation_revised.toml"
+)
 
 
 def test_frozen_matrix_contains_thirty_unique_nested_runs() -> None:
@@ -31,6 +36,34 @@ def test_frozen_matrix_contains_thirty_unique_nested_runs() -> None:
     assert by_size[2] == by_size[4][:2]
     assert by_size[4] == by_size[8][:4]
     assert by_size[8] == by_size[16][:8]
+
+
+def test_revised_v3_matrix_parses_as_thirty_nested_runs() -> None:
+    config, _ = _read_config(REVISED_CONFIG)
+    runs = build_matrix(REVISED_CONFIG)
+
+    assert task_names_for_experiment(config) == V3_TASK_NAMES
+    assert len(runs) == 30
+    assert len({run.run_id for run in runs}) == 30
+    assert {run.task_count for run in runs} == {1, 2, 4, 8, 16}
+    assert all(set(run.tasks) <= set(V3_TASK_NAMES) for run in runs)
+    assert any(
+        {"peaks", "exceedances", "recoils"} <= set(run.tasks)
+        for run in runs
+    )
+    assert all(
+        {"power", "conjugate", "commutator"}.isdisjoint(run.tasks)
+        for run in runs
+    )
+    # Declarative category-comparison metadata must not add runs to this
+    # existing nested matrix.
+    assert "category_comparison" in config
+
+
+def test_legacy_experiment_without_dataset_protocol_defaults_to_v2() -> None:
+    config, _ = _read_config(CONFIG)
+    assert "dataset_protocol_version" not in config
+    assert task_names_for_experiment(config) == V2_TASK_NAMES
 
 
 def test_status_starts_with_every_run_incomplete(tmp_path: Path) -> None:

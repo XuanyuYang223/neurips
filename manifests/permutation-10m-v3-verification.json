@@ -1,0 +1,54 @@
+{
+  "schema_version": "permutation-20/v3",
+  "generated_at_date": "2026-08-30",
+  "generation_seconds": 43.76,
+  "full_verification_seconds": 34.59,
+  "full_verification": {
+    "ok": true,
+    "records_recomputed": 10000000,
+    "shards_verified": 100,
+    "workers": 20,
+    "checks": [
+      "gzip_sha256",
+      "record_id_and_task_schedule",
+      "input_validation",
+      "mathematical_answer_recomputation",
+      "canonical_passage_tokens",
+      "declared_task_counts"
+    ]
+  },
+  "manifest": {
+    "local_path": "data/permutation-10m-v3/manifest.json",
+    "public_snapshot": "manifests/permutation-10m-v3.json",
+    "sha256": "b20a16cee7710cee4a21cc4575c8651ade1bcfca18219d2e6c230d4a3ab0cf6f",
+    "records": 10000000,
+    "shards": 100,
+    "compressed_bytes": 1139175228,
+    "records_per_task": 500000
+  },
+  "new_property_counts": {
+    "peaks": 500000,
+    "exceedances": 500000,
+    "recoils": 500000
+  },
+  "splits": {
+    "train": {
+      "shards": "000-097",
+      "records": 9800000,
+      "records_per_task": 490000,
+      "manifest_sha256": "7ad40c63a7559c52640d233a5398125d14160d83acadfa30637de291292893fa"
+    },
+    "validation": {
+      "shards": "098",
+      "records": 100000,
+      "records_per_task": 5000,
+      "manifest_sha256": "90e88845f3f58947f317c67144c83bc5e38c27b248227e311632af834d2fd068"
+    },
+    "test": {
+      "shards": "099",
+      "records": 100000,
+      "records_per_task": 5000,
+      "manifest_sha256": "3ca12e6b6eeb29fc0ddd441b9c44c80d7a160faaf7e832eb55007f4c6a3ab52b"
+    }
+  }
+}

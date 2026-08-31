@@ -17,8 +17,10 @@ from neurips_permutations.training import (
     TokenBudgetBatcher,
     TrainConfig,
     resolve_shards,
+    task_names_for_data_source,
     train_run,
 )
+from neurips_permutations.math_ops import V2_TASK_NAMES, V3_TASK_NAMES
 from neurips_permutations import training as training_module
 
 
@@ -81,6 +83,66 @@ def test_manifest_filename_resolution(tmp_path: Path) -> None:
         encoding="utf-8",
     )
     assert resolve_shards(manifest) == shards
+
+
+def test_formal_manifest_selects_schema_aware_validation_tasks(tmp_path: Path) -> None:
+    v3_manifest = tmp_path / "v3-manifest.json"
+    v3_manifest.write_text(
+        json.dumps(
+            {
+                "schema_version": "permutation-20/v3",
+                "tasks": list(V3_TASK_NAMES),
+                "shards": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+    assert task_names_for_data_source(v3_manifest) == V3_TASK_NAMES
+
+    legacy_manifest = tmp_path / "legacy-manifest.json"
+    legacy_manifest.write_text(json.dumps({"shards": []}), encoding="utf-8")
+    assert task_names_for_data_source(legacy_manifest) == V2_TASK_NAMES
+
+    value = json.loads(v3_manifest.read_text(encoding="utf-8"))
+    value["tasks"] = list(V2_TASK_NAMES)
+    v3_manifest.write_text(json.dumps(value), encoding="utf-8")
+    with pytest.raises(ValueError, match="task registry"):
+        task_names_for_data_source(v3_manifest)
+
+
+def test_v3_manifest_stream_filters_the_new_statistics(tmp_path: Path) -> None:
+    shard = _write_shard(
+        tmp_path / "part-00000.jsonl.gz",
+        [
+            _record(0, "peaks", answer=1),
+            _record(1, "exceedances", answer=2),
+            _record(2, "recoils", answer=1),
+            _record(3, "length", answer=3),
+        ],
+    )
+    manifest = tmp_path / "manifest.json"
+    manifest.write_text(
+        json.dumps(
+            {
+                "schema_version": "permutation-20/v3",
+                "tasks": list(V3_TASK_NAMES),
+                "shards": [{"filename": shard.name}],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    records = list(
+        StreamingPermutationDataset(
+            manifest,
+            tasks=("peaks", "recoils"),
+            shuffle_buffer_size=1,
+        )
+    )
+    assert [(record["id"], record["task"]) for record in records] == [
+        (0, "peaks"),
+        (2, "recoils"),
+    ]
 
 
 def test_bounded_shuffle_is_deterministic_and_epoch_specific(tmp_path: Path) -> None:

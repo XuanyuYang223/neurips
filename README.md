@@ -1,15 +1,60 @@
 # NeurIPS permutation multitask data
 
-This repository generates an auditable corpus for the permutation half of the
-multitask-generalization study. It covers exactly 20 tasks:
+This repository contains the completed `permutation-20/v2` baseline and the
+revised `permutation-20/v3` main-study design for the permutation half of the
+multitask-generalization study. The completed v2 baseline covers exactly 20
+tasks:
 
 - 4 encodings/translations;
 - 9 statistics/properties;
 - 7 algebraic operations/comparisons.
 
-The default production run writes **10,000,000 final Passage Math sequences**,
+The v2 production run wrote **10,000,000 final Passage Math sequences**,
 balanced exactly across the 20 tasks (500,000 per task). A record is one model
 sequence with one task target, matching the supplied Passage Math convention.
+
+## Henry revision: v3 main study
+
+Following Henry Kvinge's feedback, the paper's revised main suite keeps the
+standard small pre-LN decoder-only Transformer and does not attempt to match
+the original PermuFormer architecture.  Henry suggested excluding the three
+difficult algebraic tasks and comparing representations learned from different
+task categories.  The choice of `peaks`, `exceedances`, and `recoils` as the
+three replacements is a project decision made to preserve 20 balanced tasks:
+
+| v2 task removed | v3 task added | v3 records |
+|---|---|---:|
+| `power` | `peaks` | 500,000 |
+| `conjugate` | `exceedances` | 500,000 |
+| `commutator` | `recoils` | 500,000 |
+
+The v3 dataset is complete under `data/permutation-10m-v3`: `20 × 500,000 =
+10,000,000` records in 100 gzip shards, totaling 1,139,175,228 compressed
+bytes.  Generation took 43.76 seconds and full record-by-record mathematical
+and encoding verification took 34.59 seconds.  The parent manifest SHA-256 is
+`b20a16cee7710cee4a21cc4575c8651ade1bcfca18219d2e6c230d4a3ab0cf6f`.
+The checked-in [public manifest snapshot](manifests/permutation-10m-v3.json) is
+byte-identical to the local source manifest; the verification run is recorded
+in the [public full-verification report](manifests/permutation-10m-v3-verification.json).
+
+| Split | Records | Manifest SHA-256 |
+|---|---:|---|
+| Train, shards `000-097` | 9,800,000 | `7ad40c63a7559c52640d233a5398125d14160d83acadfa30637de291292893fa` |
+| Validation, shard `098` | 100,000 | `90e88845f3f58947f317c67144c83bc5e38c27b248227e311632af834d2fd068` |
+| Test, shard `099` | 100,000 | `3ca12e6b6eeb29fc0ddd441b9c44c80d7a160faaf7e832eb55007f4c6a3ab52b` |
+
+V2 data and all 30 completed v2 models are retained as the baseline; they are
+not relabelled as revised results.
+
+The project's operationalization of Henry's representation-comparison idea is
+a task-count-matched E4/S4/A4 design: four encoding tasks, four statistics
+tasks, and four algebra tasks.  Details and exact task lists are in
+[EXPERIMENTS.md](EXPERIMENTS.md) and
+[`configs/henry_permutation_revised.toml`](configs/henry_permutation_revised.toml).
+
+**Status:** the v3 data is generated and full-verified, but no revised v3 model
+has been trained yet.  The accuracy matrices below are exclusively completed
+v2 baseline results.
 
 ## Quick start
 
@@ -28,11 +73,13 @@ permutation-generate \
   --count 10000000 \
   --max-entries 30 \
   --base 100 \
+  --seed 20260830 \
   --shard-size 100000 \
   --workers 20 \
-  --output-dir data/permutation-10m-v2
-permutation-verify data/permutation-10m-v2/manifest.json --full --workers 20
-permutation-split data/permutation-10m-v2/manifest.json
+  --schema-version permutation-20/v3 \
+  --output-dir data/permutation-10m-v3
+permutation-verify data/permutation-10m-v3/manifest.json --full --workers 20
+permutation-split data/permutation-10m-v3/manifest.json
 ```
 
 Generation is deterministic, streaming, parallel, and resumable. Completed
@@ -48,10 +95,12 @@ The mathematical objects are standard permutations of `{1, ..., n}` with
 `00` through `99` are atomic tokens, while values at least 100 are encoded
 canonically between `<NUM_START>` and `<NUM_END>`.
 
-The generated multi-gigabyte corpus is ignored by Git and should be stored as a
-release artifact, object-store dataset, or local research artifact rather than
-committed to GitHub. A small checked-in sample and its manifest are included for
-format review.
+The generated multi-gigabyte data shards are ignored by Git and should be
+stored as release artifacts, object-store datasets, or local research artifacts
+rather than committed to ordinary Git history.  The repository publishes the
+complete v3 [manifest snapshot](manifests/permutation-10m-v3.json) and
+[verification summary](manifests/permutation-10m-v3-verification.json), not a
+sample of the underlying records.
 
 See [PROTOCOL.md](PROTOCOL.md) for exact definitions, composition conventions,
 canonical output rules, and the extended Passage Math grammar.
@@ -61,16 +110,17 @@ canonical output rules, and the extended Passage Math grammar.
 - [TRAINING_PROCESS.md](TRAINING_PROCESS.md): complete data-generation,
   encoding, architecture, training, recovery, validation, audit, and
   generalization record.
-- [EXPERIMENTS.md](EXPERIMENTS.md): frozen Henry nested-task matrix.
+- [EXPERIMENTS.md](EXPERIMENTS.md): completed v2 baseline, revised v3 nested
+  matrix, and matched E4/S4/A4 category design.
 - [TRAINING_RESULTS.md](TRAINING_RESULTS.md): final validation tables and
   generalization interpretation.
 - [MODEL_TASK_ACCURACIES.csv](MODEL_TASK_ACCURACIES.csv): all 600 unaveraged
   model-by-task token and exact-sequence accuracy rows in filterable form.
 
-## Every model, every task: validation accuracy
+## Every v2 baseline model, every v2 task: validation accuracy
 
 The following matrices contain the unaveraged result for every one of the
-30 formal models on every one of the 20 tasks. Each cell is one specific
+30 completed v2 models on every one of the v2 tasks. Each cell is one specific
 model-task result from validation shard 098; no task or seed averaging is
 performed. Values are percentages.
 

@@ -111,6 +111,29 @@ def test_exact_attachment_training_sequence() -> None:
     )
 
 
+@pytest.mark.parametrize(
+    ("task", "answer", "task_token", "answer_token"),
+    [
+        ("peaks", 1, "<PEAKS>", "01"),
+        ("exceedances", 2, "<EXCEEDANCES>", "02"),
+        ("recoils", 1, "<RECOILS>", "01"),
+    ],
+)
+def test_new_statistics_use_original_passage_tokens(
+    task: str, answer: int, task_token: str, answer_token: str
+) -> None:
+    assert render_passage(task, (3, 1, 4, 2), answer) == (
+        "<BOS> <SIZE> 04 <ONE_START> 03 , 01 , 04 , 02 <ONE_END> "
+        f"{task_token} = {answer_token} <EOS>"
+    )
+
+
+@pytest.mark.parametrize("task", ["peaks", "exceedances", "recoils"])
+def test_new_statistics_accept_zero_without_a_wrapped_number(task: str) -> None:
+    tokens = passage_tokens(task, (1,), 0)
+    assert tokens[-4:] == (TASK_SPECS[task].token, "=", "00", "<EOS>")
+
+
 def test_tokenizer_handles_readable_and_compact_passage_math() -> None:
     readable = render_passage("descents", (3, 1, 4, 2), 2)
     compact = readable.replace(" ", "")
@@ -235,9 +258,17 @@ def test_boolean_tasks_use_00_or_01(task: str) -> None:
     assert passage_tokens(task, (2, 1, 3), 0, **kwargs)[-2] == "00"
 
 
-def test_all_twenty_tasks_have_unique_task_tokens() -> None:
-    assert len(TASK_SPECS) == 20
-    assert len({spec.token for spec in TASK_SPECS.values()}) == 20
+def test_all_v2_and_v3_tasks_have_unique_task_tokens() -> None:
+    assert len(TASK_SPECS) == 23
+    assert len({spec.token for spec in TASK_SPECS.values()}) == 23
+    assert {
+        task: (TASK_SPECS[task].token, TASK_SPECS[task].answer_kind)
+        for task in ("peaks", "exceedances", "recoils")
+    } == {
+        "peaks": ("<PEAKS>", "scalar"),
+        "exceedances": ("<EXCEEDANCES>", "scalar"),
+        "recoils": ("<RECOILS>", "scalar"),
+    }
 
 
 def test_missing_or_extraneous_typed_operands_are_rejected() -> None:

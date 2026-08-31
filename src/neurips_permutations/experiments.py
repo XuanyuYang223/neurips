@@ -12,10 +12,27 @@ import sys
 import tomllib
 from typing import Any, Iterable
 
-from .math_ops import TASK_NAMES
+from .generate import V2_SCHEMA_VERSION, task_names_for_schema
 
 
 DEFAULT_CONFIG = Path("configs/henry_permutation.toml")
+
+
+def dataset_protocol_version(config: dict[str, Any]) -> str:
+    """Return and validate the dataset protocol selected by an experiment."""
+
+    value = config.get("dataset_protocol_version", V2_SCHEMA_VERSION)
+    if not isinstance(value, str):
+        raise ValueError("dataset_protocol_version must be a string")
+    # Validate eagerly so planning cannot silently use an unknown task grid.
+    task_names_for_schema(value)
+    return value
+
+
+def task_names_for_experiment(config: dict[str, Any]) -> tuple[str, ...]:
+    """Return the schema-aware task registry for an experiment TOML."""
+
+    return task_names_for_schema(dataset_protocol_version(config))
 
 
 @dataclass(frozen=True)
@@ -38,13 +55,14 @@ def build_matrix(config_path: Path = DEFAULT_CONFIG) -> tuple[ExperimentRun, ...
     """Build and strictly validate the frozen 30-run experiment matrix."""
 
     config, _ = _read_config(config_path)
+    task_names = task_names_for_experiment(config)
     order = tuple(config["task_order"])
     holdouts = tuple(config["holdout_tasks"])
     subset_sizes = tuple(config["task_subset_sizes"])
     architectures = tuple(config["architectures"])
     seeds = tuple(config["model_seeds"])
 
-    if len(order) != len(TASK_NAMES) or set(order) != set(TASK_NAMES):
+    if len(order) != len(task_names) or set(order) != set(task_names):
         raise ValueError("task_order must contain every one of the 20 tasks exactly once")
     if len(holdouts) != 4 or tuple(order[-4:]) != holdouts:
         raise ValueError("holdout_tasks must be exactly the final four shuffled tasks")

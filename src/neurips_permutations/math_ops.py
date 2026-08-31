@@ -23,8 +23,10 @@ Permutation = tuple[int, ...]
 Cycle = tuple[int, ...]
 
 # Kept here (rather than in the serializer) so generation, verification, and
-# the package root share one authoritative, ordered task grid.
-TASK_NAMES = (
+# the package root share authoritative, ordered task grids.  ``TASK_NAMES``
+# remains the v2 grid for backward compatibility with materialized v2 data and
+# audit metadata; new v3 callers must opt in explicitly via ``V3_TASK_NAMES``.
+V2_TASK_NAMES = (
     "to_cycle",
     "to_lehmer",
     "to_inversion_vector",
@@ -47,9 +49,36 @@ TASK_NAMES = (
     "bruhat_leq",
 )
 
+V3_TASK_NAMES = (
+    "to_cycle",
+    "to_lehmer",
+    "to_inversion_vector",
+    "to_reduced_word",
+    "length",
+    "descents",
+    "fixed_points",
+    "parity",
+    "cycle_type",
+    "rsk_shape",
+    "lis_length",
+    "lds_length",
+    "pattern_avoidance",
+    "peaks",
+    "exceedances",
+    "recoils",
+    "inverse",
+    "compose",
+    "right_multiply_simple",
+    "bruhat_leq",
+)
+
+TASK_NAMES = V2_TASK_NAMES
+
 __all__ = [
     "Permutation",
     "TASK_NAMES",
+    "V2_TASK_NAMES",
+    "V3_TASK_NAMES",
     "avoids_pattern",
     "bruhat_leq",
     "canonical_cycles",
@@ -58,6 +87,7 @@ __all__ = [
     "conjugate",
     "cycle_type",
     "descent_count",
+    "exceedance_count",
     "fixed_point_count",
     "inverse",
     "inversion_count",
@@ -66,10 +96,12 @@ __all__ = [
     "lehmer_code",
     "lis_length",
     "parity",
+    "peak_count",
     "contains_pattern",
     "pattern_contains",
     "power",
     "reduced_coxeter_word",
+    "recoil_count",
     "right_multiply_simple",
     "rsk_shape",
     "validate_permutation",
@@ -223,6 +255,44 @@ def descent_count(permutation: Sequence[int]) -> int:
 
     p = validate_permutation(permutation)
     return sum(left > right for left, right in zip(p, p[1:]))
+
+
+def peak_count(permutation: Sequence[int]) -> int:
+    """Return the number of interior peaks.
+
+    A position ``i`` is a peak exactly when
+    ``p(i - 1) < p(i) > p(i + 1)``.  Endpoints are never peaks.
+    """
+
+    p = validate_permutation(permutation)
+    return sum(
+        left < center > right
+        for left, center, right in zip(p, p[1:], p[2:])
+    )
+
+
+def exceedance_count(permutation: Sequence[int]) -> int:
+    """Return ``# {i : p(i) > i}``, with positions numbered from one."""
+
+    p = validate_permutation(permutation)
+    return sum(value > index for index, value in enumerate(p, start=1))
+
+
+def recoil_count(permutation: Sequence[int]) -> int:
+    """Return the number of descents of the inverse permutation.
+
+    Equivalently, this counts values ``v`` for which the position of ``v`` is
+    greater than the position of ``v + 1``.
+    """
+
+    p = validate_permutation(permutation)
+    inverse_positions = [0] * len(p)
+    for position, value in enumerate(p, start=1):
+        inverse_positions[value - 1] = position
+    return sum(
+        left > right
+        for left, right in zip(inverse_positions, inverse_positions[1:])
+    )
 
 
 def fixed_point_count(permutation: Sequence[int]) -> int:

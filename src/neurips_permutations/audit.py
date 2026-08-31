@@ -27,8 +27,13 @@ from typing import Any
 import torch
 from torch import Tensor
 
-from .experiments import ExperimentRun, _training_command, build_matrix
-from .math_ops import TASK_NAMES
+from .experiments import (
+    ExperimentRun,
+    _training_command,
+    build_matrix,
+    dataset_protocol_version,
+    task_names_for_experiment,
+)
 from .models import build_model
 from .passage import TOKEN_TO_ID
 from .training import TrainConfig, build_arg_parser, parse_shard_indices
@@ -446,6 +451,8 @@ def _audit_manifest(
     *,
     expected_indices: Sequence[int],
     expected_seed: int,
+    expected_schema_version: str,
+    task_names: Sequence[str],
     parent_sha256: str | None = None,
     parent_path: Path | None = None,
     parent_shards: Mapping[int, Mapping[str, Any]] | None = None,
@@ -484,9 +491,9 @@ def _audit_manifest(
 
     indices = tuple(expected_indices)
     shard_size = 100_000
-    per_task_per_shard = shard_size // len(TASK_NAMES)
+    per_task_per_shard = shard_size // len(task_names)
     expected_task_counts = {
-        task: per_task_per_shard * len(indices) for task in TASK_NAMES
+        task: per_task_per_shard * len(indices) for task in task_names
     }
     for key, expected in (
         ("base", 100),
@@ -495,11 +502,11 @@ def _audit_manifest(
         ("gzip_compresslevel", 6),
         ("gzip_mtime", 0),
         ("max_entries", 30),
-        ("schema_version", "permutation-20/v2"),
+        ("schema_version", expected_schema_version),
         ("seed", expected_seed),
         ("shard_count", len(indices)),
         ("shard_size", shard_size),
-        ("tasks", list(TASK_NAMES)),
+        ("tasks", list(task_names)),
         ("task_counts", expected_task_counts),
     ):
         _check_equal(
@@ -589,7 +596,7 @@ def _audit_manifest(
             "last_id": (expected_index + 1) * shard_size - 1,
             "record_count": shard_size,
             "task_counts": {
-                task: per_task_per_shard for task in TASK_NAMES
+                task: per_task_per_shard for task in task_names
             },
         }
         for key, expected in expected_values.items():
@@ -1148,8 +1155,14 @@ def _validate_rng(rng: Any, issues: list[dict[str, Any]]) -> None:
         issues.append(_issue("cuda_rng_invalid", "CUDA RNG state is invalid"))
 
 
-def _validate_validation(value: Any, issues: list[dict[str, Any]], *, label: str) -> None:
-    expected_tasks = set(TASK_NAMES)
+def _validate_validation(
+    value: Any,
+    issues: list[dict[str, Any]],
+    *,
+    label: str,
+    task_names: Sequence[str],
+) -> None:
+    expected_tasks = set(task_names)
     if not isinstance(value, Mapping) or set(value) != expected_tasks:
         issues.append(
             _issue(
@@ -1328,6 +1341,7 @@ def audit_run(
     training_manifest_sha256: str | None,
     validation_manifest_sha256: str | None,
     manifests_ok: bool,
+    validation_tasks: Sequence[str],
     partial_artifacts: Sequence[Path] = (),
     symlinks: Sequence[Path] = (),
 ) -> dict[str, Any]:
@@ -1640,9 +1654,19 @@ def audit_run(
         issues=issues,
     )
     checkpoint_validation = checkpoint.get("validation")
-    _validate_validation(checkpoint_validation, issues, label="checkpoint_validation")
+    _validate_validation(
+        checkpoint_validation,
+        issues,
+        label="checkpoint_validation",
+        task_names=validation_tasks,
+    )
     marker_validation = marker.get("validation")
-    _validate_validation(marker_validation, issues, label="marker_validation")
+    _validate_validation(
+        marker_validation,
+        issues,
+        label="marker_validation",
+        task_names=validation_tasks,
+    )
     if not _strict_equal(marker_validation, checkpoint_validation):
         issues.append(
             _issue("marker_validation_checkpoint_mismatch", "marker and checkpoint validation differ")
@@ -1668,6 +1692,8 @@ def audit_experiment(config_path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
     config_bytes = _read_regular_nofollow(config_absolute)
     experiment = tomllib.loads(config_bytes.decode("utf-8"))
     config_sha256 = _sha256_bytes(config_bytes)
+    expected_schema_version = dataset_protocol_version(experiment)
+    task_names = task_names_for_experiment(experiment)
     runs = build_matrix(config_absolute)
     global_issues: list[dict[str, Any]] = []
     if len(runs) != 30:
@@ -1727,6 +1753,8 @@ def audit_experiment(config_path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
             path,
             expected_indices=tuple(range(100)),
             expected_seed=int(experiment["task_order_seed"]),
+            expected_schema_version=expected_schema_version,
+            task_names=task_names,
         )
     training_manifest_audit = manifest_cache[dataset_manifest]
     validation_manifest_audit = manifest_cache[validation_manifest]
@@ -1734,6 +1762,8 @@ def audit_experiment(config_path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
         test_manifest,
         expected_indices=test_indices,
         expected_seed=int(experiment["task_order_seed"]),
+        expected_schema_version=expected_schema_version,
+        task_names=task_names,
         parent_sha256=training_manifest_audit["sha256"],
         parent_path=dataset_manifest,
         parent_shards=training_manifest_audit["_shards_by_index"],
@@ -1770,6 +1800,7 @@ def audit_experiment(config_path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
             training_manifest_sha256=training_manifest_audit["sha256"],
             validation_manifest_sha256=validation_manifest_audit["sha256"],
             manifests_ok=manifests_ok,
+            validation_tasks=task_names,
             partial_artifacts=scan["partials"],
             symlinks=scan["symlinks"],
         )

@@ -17,17 +17,26 @@ from random import Random
 from typing import Any, Iterable, Mapping, Sequence
 
 from . import math_ops as ops
-from .math_ops import TASK_NAMES
+from .math_ops import V2_TASK_NAMES, V3_TASK_NAMES
 from .passage import TASK_SPECS, passage_tokens
 
 
-SCHEMA_VERSION = "permutation-20/v2"
+V2_SCHEMA_VERSION = "permutation-20/v2"
+V3_SCHEMA_VERSION = "permutation-20/v3"
+# The unqualified API and CLI now create Henry's revised task suite.  The
+# explicit v2 protocol remains available for reproducing and validating the
+# already-generated corpus.
+SCHEMA_VERSION = V3_SCHEMA_VERSION
+TASKS_BY_SCHEMA: Mapping[str, tuple[str, ...]] = {
+    V2_SCHEMA_VERSION: V2_TASK_NAMES,
+    V3_SCHEMA_VERSION: V3_TASK_NAMES,
+}
 DEFAULT_COUNT = 10_000_000
 DEFAULT_MAX_ENTRIES = 30
 DEFAULT_BASE = 100
 DEFAULT_SEED = 20_260_830
 DEFAULT_SHARD_SIZE = 100_000
-DEFAULT_OUTPUT_DIR = Path("data/permutation-10m")
+DEFAULT_OUTPUT_DIR = Path("data/permutation-10m-v3")
 DEFAULT_WORKERS = max(1, min(8, os.cpu_count() or 1))
 GZIP_COMPRESSLEVEL = 6
 
@@ -44,12 +53,25 @@ class _ShardJob:
     max_entries: int
     base: int
     seed: int
+    schema_version: str
 
 
 def _checked_int(name: str, value: int, *, minimum: int) -> int:
     if isinstance(value, bool) or not isinstance(value, int) or value < minimum:
         raise ValueError(f"{name} must be an integer >= {minimum}")
     return value
+
+
+def task_names_for_schema(schema_version: str) -> tuple[str, ...]:
+    """Return the frozen ordered task registry for a supported protocol."""
+
+    try:
+        return TASKS_BY_SCHEMA[schema_version]
+    except (KeyError, TypeError):
+        supported = ", ".join(TASKS_BY_SCHEMA)
+        raise ValueError(
+            f"unsupported schema_version {schema_version!r}; choose {supported}"
+        ) from None
 
 
 def _validate_config(
@@ -60,6 +82,7 @@ def _validate_config(
     shard_size: int,
     seed: int,
     workers: int,
+    schema_version: str,
 ) -> None:
     _checked_int("count", count, minimum=1)
     # S_3 has no incomparable pair with a positive Coxeter-length gap, so the
@@ -69,13 +92,14 @@ def _validate_config(
     _checked_int("shard_size", shard_size, minimum=1)
     _checked_int("seed", seed, minimum=0)
     _checked_int("workers", workers, minimum=1)
-    if len(TASK_NAMES) != 20 or len(set(TASK_NAMES)) != 20:
-        raise RuntimeError("TASK_NAMES must contain exactly 20 unique tasks")
-    if tuple(TASK_SPECS) != tuple(TASK_NAMES):
-        raise RuntimeError("math and Passage task order disagree")
-    if count % len(TASK_NAMES):
+    task_names = task_names_for_schema(schema_version)
+    if len(task_names) != 20 or len(set(task_names)) != 20:
+        raise RuntimeError("each schema must contain exactly 20 unique tasks")
+    if any(task not in TASK_SPECS for task in task_names):
+        raise RuntimeError("math and Passage task registries disagree")
+    if count % len(task_names):
         raise ValueError("count must be divisible by 20 for exact task balance")
-    if (count // len(TASK_NAMES)) % 2:
+    if (count // len(task_names)) % 2:
         raise ValueError(
             "count must be divisible by 40 for exact binary-label balance"
         )
@@ -268,6 +292,7 @@ def build_record(
     max_entries: int = DEFAULT_MAX_ENTRIES,
     base: int = DEFAULT_BASE,
     seed: int = DEFAULT_SEED,
+    schema_version: str = SCHEMA_VERSION,
 ) -> dict[str, Any]:
     """Build one compact record, deterministically addressed by ``record_id``."""
 
@@ -276,8 +301,9 @@ def build_record(
     if base != 100:
         raise ValueError("the Passage Math grammar currently requires base=100")
 
-    task = TASK_NAMES[record_id % len(TASK_NAMES)]
-    task_occurrence = record_id // len(TASK_NAMES)
+    task_names = task_names_for_schema(schema_version)
+    task = task_names[record_id % len(task_names)]
+    task_occurrence = record_id // len(task_names)
     rng = _record_rng(seed, record_id)
     if task == "bruhat_leq":
         if max_entries < 4:
@@ -312,6 +338,12 @@ def build_record(
         answer = ops.descent_count(primary)
     elif task == "fixed_points":
         answer = ops.fixed_point_count(primary)
+    elif task == "peaks":
+        answer = ops.peak_count(primary)
+    elif task == "exceedances":
+        answer = ops.exceedance_count(primary)
+    elif task == "recoils":
+        answer = ops.recoil_count(primary)
     elif task == "parity":
         answer = ops.parity(primary)
     elif task == "cycle_type":
@@ -382,7 +414,7 @@ def build_record(
 
     tokens = passage_tokens(task, primary, answer, **render_kwargs)  # type: ignore[arg-type]
     return {
-        "schema_version": SCHEMA_VERSION,
+        "schema_version": schema_version,
         "id": record_id,
         "task": task,
         "n": size,
@@ -416,6 +448,7 @@ def _fsync_directory(directory: Path) -> None:
 def _metadata(
     job: _ShardJob, *, sha256: str, byte_size: int, task_counts: Mapping[str, int]
 ) -> dict[str, Any]:
+    task_names = task_names_for_schema(job.schema_version)
     return {
         "index": job.index,
         "filename": job.filename,
@@ -424,7 +457,7 @@ def _metadata(
         "record_count": job.record_count,
         "byte_size": byte_size,
         "sha256": sha256,
-        "task_counts": {task: int(task_counts.get(task, 0)) for task in TASK_NAMES},
+        "task_counts": {task: int(task_counts.get(task, 0)) for task in task_names},
     }
 
 
@@ -448,6 +481,7 @@ def _write_shard(job: _ShardJob) -> dict[str, Any]:
                     max_entries=job.max_entries,
                     base=job.base,
                     seed=job.seed,
+                    schema_version=job.schema_version,
                 )
                 task_counts[record["task"]] += 1
                 line = json.dumps(
@@ -475,6 +509,7 @@ def _expected_jobs(
     max_entries: int,
     base: int,
     seed: int,
+    schema_version: str,
 ) -> tuple[_ShardJob, ...]:
     shard_count = math.ceil(count / shard_size)
     width = max(5, len(str(max(0, shard_count - 1))))
@@ -490,6 +525,7 @@ def _expected_jobs(
                 max_entries=max_entries,
                 base=base,
                 seed=seed,
+                schema_version=schema_version,
             )
         )
     return tuple(jobs)
@@ -513,15 +549,17 @@ def _assert_compatible_manifest(
     base: int,
     seed: int,
     shard_size: int,
+    schema_version: str,
 ) -> None:
+    task_names = task_names_for_schema(schema_version)
     expected = {
-        "schema_version": SCHEMA_VERSION,
+        "schema_version": schema_version,
         "count": count,
         "max_entries": max_entries,
         "base": base,
         "seed": seed,
         "shard_size": shard_size,
-        "tasks": list(TASK_NAMES),
+        "tasks": list(task_names),
     }
     mismatches = [key for key, value in expected.items() if manifest.get(key) != value]
     if mismatches:
@@ -566,17 +604,18 @@ def _inspect_orphan_shard(job: _ShardJob) -> dict[str, Any] | None:
         return None
     counts: Counter[str] = Counter()
     expected_id = job.start_id
+    task_names = task_names_for_schema(job.schema_version)
     try:
         with gzip.open(path, "rt", encoding="utf-8", newline="") as handle:
             for line in handle:
                 record = json.loads(line)
                 if not isinstance(record, dict):
                     return None
-                if record.get("schema_version") != SCHEMA_VERSION:
+                if record.get("schema_version") != job.schema_version:
                     return None
                 if record.get("id") != expected_id:
                     return None
-                expected_task = TASK_NAMES[expected_id % len(TASK_NAMES)]
+                expected_task = task_names[expected_id % len(task_names)]
                 if record.get("task") != expected_task:
                     return None
                 counts[expected_task] += 1
@@ -616,6 +655,7 @@ def generate_dataset(
     output_dir: str | Path = DEFAULT_OUTPUT_DIR,
     workers: int = DEFAULT_WORKERS,
     resume: bool = True,
+    schema_version: str = SCHEMA_VERSION,
 ) -> Path:
     """Generate or safely resume a corpus and return its manifest path."""
 
@@ -626,7 +666,9 @@ def generate_dataset(
         shard_size=shard_size,
         seed=seed,
         workers=workers,
+        schema_version=schema_version,
     )
+    task_names = task_names_for_schema(schema_version)
     destination = Path(output_dir)
     destination.mkdir(parents=True, exist_ok=True)
     jobs = _expected_jobs(
@@ -636,6 +678,7 @@ def generate_dataset(
         max_entries=max_entries,
         base=base,
         seed=seed,
+        schema_version=schema_version,
     )
     manifest_path = destination / "manifest.json"
     old_manifest: dict[str, Any] | None = None
@@ -649,6 +692,7 @@ def generate_dataset(
             base=base,
             seed=seed,
             shard_size=shard_size,
+            schema_version=schema_version,
         )
         old_shards = old_manifest.get("shards", [])
         if not isinstance(old_shards, list):
@@ -686,12 +730,12 @@ def generate_dataset(
     task_counts: Counter[str] = Counter()
     for shard in shards:
         task_counts.update(shard["task_counts"])
-    expected_per_task = count // len(TASK_NAMES)
-    if any(task_counts[task] != expected_per_task for task in TASK_NAMES):
+    expected_per_task = count // len(task_names)
+    if any(task_counts[task] != expected_per_task for task in task_names):
         raise RuntimeError("generated corpus is not exactly task-balanced")
 
     manifest: dict[str, Any] = {
-        "schema_version": SCHEMA_VERSION,
+        "schema_version": schema_version,
         "format": "jsonl.gz",
         "gzip_mtime": 0,
         "gzip_compresslevel": GZIP_COMPRESSLEVEL,
@@ -701,8 +745,8 @@ def generate_dataset(
         "seed": seed,
         "shard_size": shard_size,
         "shard_count": len(shards),
-        "tasks": list(TASK_NAMES),
-        "task_counts": {task: task_counts[task] for task in TASK_NAMES},
+        "tasks": list(task_names),
+        "task_counts": {task: task_counts[task] for task in task_names},
         "total_bytes": sum(shard["byte_size"] for shard in shards),
         "shards": shards,
     }
@@ -721,6 +765,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--shard-size", type=int, default=DEFAULT_SHARD_SIZE)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     parser.add_argument("--workers", type=int, default=DEFAULT_WORKERS)
+    parser.add_argument(
+        "--schema-version",
+        choices=tuple(TASKS_BY_SCHEMA),
+        default=SCHEMA_VERSION,
+        help="dataset protocol to generate (default: permutation-20/v3)",
+    )
     parser.add_argument(
         "--no-resume",
         action="store_false",
@@ -742,6 +792,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         output_dir=args.output_dir,
         workers=args.workers,
         resume=args.resume,
+        schema_version=args.schema_version,
     )
     print(manifest)
     return 0
@@ -760,8 +811,12 @@ __all__ = [
     "DEFAULT_SHARD_SIZE",
     "DEFAULT_WORKERS",
     "SCHEMA_VERSION",
+    "TASKS_BY_SCHEMA",
+    "V2_SCHEMA_VERSION",
+    "V3_SCHEMA_VERSION",
     "build_parser",
     "build_record",
     "generate_dataset",
     "main",
+    "task_names_for_schema",
 ]

@@ -13,9 +13,9 @@ import math
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
-from .generate import SCHEMA_VERSION
+from .generate import TASKS_BY_SCHEMA, task_names_for_schema
 from . import math_ops as ops
-from .math_ops import TASK_NAMES, validate_permutation
+from .math_ops import validate_permutation
 from .passage import TASK_SPECS, VOCABULARY, passage_tokens
 
 
@@ -28,6 +28,7 @@ class _ShardVerificationJob:
     entry: dict[str, Any]
     max_entries: int
     full: bool
+    schema_version: str
 
 
 class VerificationError(ValueError):
@@ -79,12 +80,16 @@ def _require_int(
 
 
 def _require_task_counts(
-    value: object, *, name: str, expected_total: int
+    value: object,
+    *,
+    name: str,
+    expected_total: int,
+    task_names: Sequence[str],
 ) -> dict[str, int]:
-    if not isinstance(value, dict) or set(value) != set(TASK_NAMES):
+    if not isinstance(value, dict) or set(value) != set(task_names):
         _fail(f"{name} must contain exactly the 20 task keys")
     result: dict[str, int] = {}
-    for task in TASK_NAMES:
+    for task in task_names:
         result[task] = _require_int(
             value[task], name=f"{name}.{task}", minimum=0
         )
@@ -130,6 +135,12 @@ def _mathematical_answer(
         return ops.descent_count(primary)
     if task == "fixed_points":
         return ops.fixed_point_count(primary)
+    if task == "peaks":
+        return ops.peak_count(primary)
+    if task == "exceedances":
+        return ops.exceedance_count(primary)
+    if task == "recoils":
+        return ops.recoil_count(primary)
     if task == "parity":
         return ops.parity(primary)
     if task == "cycle_type":
@@ -170,15 +181,17 @@ def _verify_record(
     max_entries: int,
     shard_name: str,
     line_number: int,
+    schema_version: str,
+    task_names: Sequence[str],
 ) -> str:
     location = f"{shard_name}:{line_number}"
     if not isinstance(record, dict):
         _fail(f"{location}: record must be a JSON object")
-    if record.get("schema_version") != SCHEMA_VERSION:
+    if record.get("schema_version") != schema_version:
         _fail(f"{location}: wrong schema_version")
     if record.get("id") != expected_id:
         _fail(f"{location}: expected id {expected_id}, got {record.get('id')!r}")
-    expected_task = TASK_NAMES[expected_id % len(TASK_NAMES)]
+    expected_task = task_names[expected_id % len(task_names)]
     if record.get("task") != expected_task:
         _fail(f"{location}: expected task {expected_task!r}")
 
@@ -249,7 +262,9 @@ def _verify_full_shard(
     *,
     entry: Mapping[str, Any],
     max_entries: int,
+    schema_version: str,
 ) -> Counter[str]:
+    task_names = task_names_for_schema(schema_version)
     expected_id = int(entry["first_id"])
     final_id = expected_id + int(entry["record_count"])
     counts: Counter[str] = Counter()
@@ -269,6 +284,8 @@ def _verify_full_shard(
                     max_entries=max_entries,
                     shard_name=path.name,
                     line_number=line_number,
+                    schema_version=schema_version,
+                    task_names=task_names,
                 )
                 counts[task] += 1
                 expected_id += 1
@@ -305,7 +322,12 @@ def _verify_shard(job: _ShardVerificationJob) -> tuple[int, int, dict[str, int] 
     parsed = None
     if job.full:
         parsed = dict(
-            _verify_full_shard(path, entry=entry, max_entries=job.max_entries)
+            _verify_full_shard(
+                path,
+                entry=entry,
+                max_entries=job.max_entries,
+                schema_version=job.schema_version,
+            )
         )
     return shard_index, actual_size, parsed
 
@@ -368,13 +390,15 @@ def verify_manifest(
     workers = _require_int(workers, name="workers", minimum=1)
     path = Path(manifest_path)
     manifest = _load_manifest(path)
-    if manifest.get("schema_version") != SCHEMA_VERSION:
+    schema_version = manifest.get("schema_version")
+    if not isinstance(schema_version, str) or schema_version not in TASKS_BY_SCHEMA:
         _fail("manifest schema_version is not supported")
+    task_names = task_names_for_schema(schema_version)
     if manifest.get("format") != "jsonl.gz":
         _fail("manifest format must be jsonl.gz")
     if manifest.get("gzip_mtime") != 0:
         _fail("manifest must declare deterministic gzip mtime=0")
-    if manifest.get("tasks") != list(TASK_NAMES):
+    if manifest.get("tasks") != list(task_names):
         _fail("manifest task registry or order is invalid")
 
     split_view = "split" in manifest or "parent_manifest" in manifest
@@ -387,7 +411,7 @@ def verify_manifest(
     count = _require_int(
         manifest.get("count"), name="count", minimum=1 if split_view else 20
     )
-    if not split_view and count % len(TASK_NAMES):
+    if not split_view and count % len(task_names):
         _fail("manifest count is not divisible by 20")
     max_entries = _require_int(
         manifest.get("max_entries"), name="max_entries", minimum=2
@@ -410,11 +434,14 @@ def verify_manifest(
         _fail("manifest shard_count is invalid")
 
     declared_global = _require_task_counts(
-        manifest.get("task_counts"), name="task_counts", expected_total=count
+        manifest.get("task_counts"),
+        name="task_counts",
+        expected_total=count,
+        task_names=task_names,
     )
     if not split_view:
-        expected_per_task = count // len(TASK_NAMES)
-        if any(declared_global[task] != expected_per_task for task in TASK_NAMES):
+        expected_per_task = count // len(task_names)
+        if any(declared_global[task] != expected_per_task for task in task_names):
             _fail("manifest is not exactly balanced across the 20 tasks")
 
     parent_by_index: dict[int, Mapping[str, Any]] = {}
@@ -501,6 +528,7 @@ def verify_manifest(
             entry.get("task_counts"),
             name=f"shard[{shard_index}].task_counts",
             expected_total=record_count,
+            task_names=task_names,
         )
         aggregate_declared.update(declared_counts)
         declared_by_index[shard_index] = declared_counts
@@ -511,12 +539,13 @@ def verify_manifest(
                 entry=entry,
                 max_entries=max_entries,
                 full=full,
+                schema_version=schema_version,
             )
         )
 
     if listed_records != count:
         _fail("listed shard record counts do not reproduce manifest count")
-    if any(aggregate_declared[task] != declared_global[task] for task in TASK_NAMES):
+    if any(aggregate_declared[task] != declared_global[task] for task in task_names):
         _fail("per-shard task counts do not reproduce global counts")
 
     if workers == 1 or len(jobs) == 1:
@@ -535,13 +564,13 @@ def verify_manifest(
             if parsed is None:  # pragma: no cover - worker contract guard
                 _fail(f"shard {shard_index} did not return full-verification counts")
             declared = declared_by_index[shard_index]
-            if any(parsed.get(task, 0) != declared[task] for task in TASK_NAMES):
+            if any(parsed.get(task, 0) != declared[task] for task in task_names):
                 _fail(
                     f"shard {shard_index} parsed task counts disagree with manifest"
                 )
             aggregate_parsed.update(parsed)
     if full and any(
-        aggregate_parsed[task] != declared_global[task] for task in TASK_NAMES
+        aggregate_parsed[task] != declared_global[task] for task in task_names
     ):
         _fail("parsed records do not reproduce global task counts")
     if manifest.get("total_bytes") != total_bytes:

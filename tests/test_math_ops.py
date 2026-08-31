@@ -5,6 +5,7 @@ from __future__ import annotations
 import unittest
 from itertools import combinations, permutations
 
+import neurips_permutations as package
 from neurips_permutations import math_ops as ops
 
 
@@ -43,6 +44,56 @@ class ValidationTests(unittest.TestCase):
             with self.subTest(malformed=malformed):
                 with self.assertRaises(TypeError):
                     ops.validate_permutation(malformed)  # type: ignore[arg-type]
+
+
+class TaskGridTests(unittest.TestCase):
+    def test_task_grids_are_exported_from_the_package_root(self) -> None:
+        self.assertIs(package.TASK_NAMES, ops.V2_TASK_NAMES)
+        self.assertIs(package.V2_TASK_NAMES, ops.V2_TASK_NAMES)
+        self.assertIs(package.V3_TASK_NAMES, ops.V3_TASK_NAMES)
+
+    def test_v2_grid_remains_the_legacy_default(self) -> None:
+        self.assertIs(ops.TASK_NAMES, ops.V2_TASK_NAMES)
+        self.assertEqual(len(ops.V2_TASK_NAMES), 20)
+        self.assertEqual(
+            ops.V2_TASK_NAMES[15:18], ("power", "conjugate", "commutator")
+        )
+
+    def test_v3_grid_replaces_slow_algebra_tasks_in_category_order(self) -> None:
+        self.assertEqual(
+            ops.V3_TASK_NAMES,
+            (
+                "to_cycle",
+                "to_lehmer",
+                "to_inversion_vector",
+                "to_reduced_word",
+                "length",
+                "descents",
+                "fixed_points",
+                "parity",
+                "cycle_type",
+                "rsk_shape",
+                "lis_length",
+                "lds_length",
+                "pattern_avoidance",
+                "peaks",
+                "exceedances",
+                "recoils",
+                "inverse",
+                "compose",
+                "right_multiply_simple",
+                "bruhat_leq",
+            ),
+        )
+        self.assertEqual(len(ops.V3_TASK_NAMES), 20)
+        self.assertEqual(
+            set(ops.V2_TASK_NAMES) - set(ops.V3_TASK_NAMES),
+            {"power", "conjugate", "commutator"},
+        )
+        self.assertEqual(
+            set(ops.V3_TASK_NAMES) - set(ops.V2_TASK_NAMES),
+            {"peaks", "exceedances", "recoils"},
+        )
 
 
 class RepresentationTests(unittest.TestCase):
@@ -116,6 +167,59 @@ class StatisticTests(unittest.TestCase):
         self.assertEqual(ops.rsk_shape(permutation), (2, 2))
         self.assertEqual(ops.lis_length(permutation), 2)
         self.assertEqual(ops.lds_length(permutation), 2)
+        self.assertEqual(ops.peak_count(permutation), 1)
+        self.assertEqual(ops.exceedance_count(permutation), 2)
+        self.assertEqual(ops.recoil_count(permutation), 1)
+
+    def test_new_statistics_cover_empty_short_and_extremal_examples(self) -> None:
+        for permutation in ((), (1,)):
+            with self.subTest(permutation=permutation):
+                self.assertEqual(ops.peak_count(permutation), 0)
+                self.assertEqual(ops.exceedance_count(permutation), 0)
+                self.assertEqual(ops.recoil_count(permutation), 0)
+
+        self.assertEqual(ops.peak_count((2, 1)), 0)
+        self.assertEqual(ops.exceedance_count((2, 1)), 1)
+        self.assertEqual(ops.recoil_count((2, 1)), 1)
+
+        self.assertEqual(ops.peak_count((1, 3, 2, 5, 4)), 2)
+        self.assertEqual(ops.exceedance_count((2, 3, 4, 5, 1)), 4)
+        self.assertEqual(ops.recoil_count((5, 4, 3, 2, 1)), 4)
+
+    def test_new_statistics_match_the_passage_definitions_exhaustively(self) -> None:
+        for size in range(7):
+            for permutation in permutations(range(1, size + 1)):
+                with self.subTest(size=size, permutation=permutation):
+                    expected_peaks = sum(
+                        permutation[index - 1]
+                        < permutation[index]
+                        > permutation[index + 1]
+                        for index in range(1, size - 1)
+                    )
+                    expected_exceedances = sum(
+                        value > index
+                        for index, value in enumerate(permutation, start=1)
+                    )
+                    expected_recoils = ops.descent_count(ops.inverse(permutation))
+
+                    self.assertEqual(ops.peak_count(permutation), expected_peaks)
+                    self.assertEqual(
+                        ops.exceedance_count(permutation), expected_exceedances
+                    )
+                    self.assertEqual(ops.recoil_count(permutation), expected_recoils)
+
+    def test_new_statistics_reuse_strict_permutation_validation(self) -> None:
+        for statistic in (
+            ops.peak_count,
+            ops.exceedance_count,
+            ops.recoil_count,
+        ):
+            with self.subTest(statistic=statistic.__name__, error="value"):
+                with self.assertRaises(ValueError):
+                    statistic((1, 1))
+            with self.subTest(statistic=statistic.__name__, error="type"):
+                with self.assertRaises(TypeError):
+                    statistic((True,))
 
     def test_cycle_type_keeps_fixed_points(self) -> None:
         self.assertEqual(ops.cycle_type((2, 1, 3, 5, 4)), (2, 2, 1))

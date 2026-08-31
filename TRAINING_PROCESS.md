@@ -1,21 +1,68 @@
 # Permutation 多任务实验：完整数据与训练过程
 
-本文档记录 permutation 部分从需求解释、数据生成、编码、模型设计、正式训练、断点恢复、验证、审计到结果发布的完整过程。它描述的是实际执行并完成的实验，而不是计划稿。
+本文档记录 permutation 部分从需求解释、数据生成、编码、模型设计、正式训练、断点恢复、验证、审计到结果发布的完整过程。第 1–14 节描述已经实际执行完成的 v2 baseline；第 0 节记录 Henry 反馈后的 v3：数据已经生成并 full-verified，但 revised 模型仍是尚未训练的冻结方案。
 
 最后更新：2026-08-30
 
 - GitHub：<https://github.com/XuanyuYang223/neurips>
-- 数据协议：`permutation-20/v2`
-- 实验协议：`henry-permutation/v1`
-- 正式状态：30/30 个 base models 完成，严格审计 30 passed / 0 failed
-- 正式训练使用的 implementation commit：`6a40235`
+- 已完成 baseline：数据协议 `permutation-20/v2`，实验协议 `henry-permutation/v1`
+- Baseline 状态：30/30 个 base models 完成，严格审计 30 passed / 0 failed
+- Revised main study：数据协议 `permutation-20/v3`，实验协议 `henry-permutation/v2-revised`
+- Revised data 状态：10,000,000 records，100 shards，full verification passed
+- Revised model 状态：方案已冻结，**尚未训练，0 个 completed models**
+- V2 正式训练使用的 implementation commit：`6a40235`
 - 完训后 audit/results 基线 commit：`32ff22a`
 
-## 1. 研究目标与当前完成范围
+## 0. Henry 反馈后的 revised main study（v3）
 
-Henry 提出的核心问题是：随着一个模型训练过的任务种类增加，它的内部表示和 generalization 能力是否系统性增强。Permutation 部分采用嵌套任务集合，并在相同优化步数预算下比较 Transformer 和 MLP。
+Henry 的意见是保持 architecture 尽量标准，不必复现原始 PermuFormer；同时把学习成本较高的 `power`、`conjugate`、`commutator` 排除出论文主实验，并按任务类别比较 learned representations。Henry 没有指定替代任务；为继续保持 20 个平衡 tasks，本项目选择了 `peaks`、`exceedances`、`recoils`。
 
-本轮已经完成：
+因此 v3 保留当前标准 small pre-LN decoder-only Transformer（4 layers、8 heads、`d_model=256`）及 MLP 对照，不引入新的 Transformer modification。任务替换为：
+
+| v2 移除 | v3 新增 | 定义 | 新数据量 |
+|---|---|---|---:|
+| `power` | `peaks` | 内部局部峰值数量 | 500,000 |
+| `conjugate` | `exceedances` | `pi(i) > i` 的位置数量 | 500,000 |
+| `commutator` | `recoils` | `pi^-1` 的 descent 数量 | 500,000 |
+
+三个新任务都是 `n <= 30` 下的 scalar property；答案用一个 `00`–`99` token，不需要 `<NUM_START>`。正式 v3 数据已经完成：20 tasks × 500,000 records = 10,000,000 条，写入独立目录 `data/permutation-10m-v3`，没有覆盖 v2 数据。
+
+| V3 data fact | Value |
+|---|---:|
+| Records | 10,000,000 |
+| Shards | 100 |
+| Compressed bytes | 1,139,175,228 |
+| Generation wall time | 43.76 seconds |
+| Full verification wall time | 34.59 seconds |
+| Parent manifest SHA-256 | `b20a16cee7710cee4a21cc4575c8651ade1bcfca18219d2e6c230d4a3ab0cf6f` |
+
+V3 split：
+
+| Split | Shards | Records | Manifest SHA-256 |
+|---|---|---:|---|
+| Train | `000-097` | 9,800,000 | `7ad40c63a7559c52640d233a5398125d14160d83acadfa30637de291292893fa` |
+| Validation | `098` | 100,000 | `90e88845f3f58947f317c67144c83bc5e38c27b248227e311632af834d2fd068` |
+| Test | `099` | 100,000 | `3ca12e6b6eeb29fc0ddd441b9c44c80d7a160faaf7e832eb55007f4c6a3ab52b` |
+
+Revised nested matrix 继续使用 `1/2/4/8/16 tasks × 2 architectures × 3 seeds = 30` 个计划模型，并保留与 v2 相同的四个 holdouts：`to_reduced_word`、`compose`、`parity`、`to_lehmer`。相同 holdout identities 便于直接比较 v2 与 v3，且保留一个 algebra holdout。新版 output 独立写到 `runs/henry-permutation-v3`。
+
+为回答 Henry 关于类别表示差异的问题，本项目将其 operationalize 为 task-count-matched 三组：
+
+| 条件 | 4 个训练任务 |
+|---|---|
+| Encoding E4 | `to_cycle`, `to_lehmer`, `to_inversion_vector`, `to_reduced_word` |
+| Statistics S4 | `length`, `cycle_type`, `rsk_shape`, `pattern_avoidance` |
+| Algebra A4 | `inverse`, `compose`, `right_multiply_simple`, `bruhat_leq` |
+
+这避免直接比较完整 `4 vs 12 vs 4` 类别造成 task-count confound。三组使用相同 per-task data、optimizer-update budget、architecture 和三个 seeds，共 `3 categories × 2 architectures × 3 seeds = 18` 个计划模型；在相同 held-out one-line permutation 的 `<ONE_END>` 位置比较 layerwise CKA、frozen linear probes 和 few-shot transfer。
+
+权威设计见 [configs/henry_permutation_revised.toml](configs/henry_permutation_revised.toml) 与 [EXPERIMENTS.md](EXPERIMENTS.md)。TOML 中的 category table 当前是 declarative design；现有 nested runner 尚不能调度 E4/S4/A4。V3 数据完成不等于模型完成：这 30+18 个计划模型都没有 `completed.json`，所以本文和 README 不报告任何 v3 accuracy。
+
+## 1. V2 baseline 的研究目标与完成范围
+
+Henry 提出的核心问题是：随着一个模型训练过的任务种类增加，它的内部表示和 generalization 能力是否系统性增强。V2 permutation baseline 采用嵌套任务集合，并在相同优化步数预算下比较 Transformer 和 MLP。
+
+V2 baseline 已经完成：
 
 1. 定义并实现 20 个 permutation tasks；
 2. 生成 10,000,000 条 Passage Math 训练序列；
@@ -25,7 +72,7 @@ Henry 提出的核心问题是：随着一个模型训练过的任务种类增�
 6. 对全部 30 个 checkpoint 做严格结构、哈希和数值审计；
 7. 汇总初步 zero-shot generalization 结果。
 
-本轮尚未完成：
+V2 baseline 尚未完成：
 
 - 在从未用于模型评估的 test shard 099 上做冻结测试；
 - holdout tasks 的 few-shot fine-tuning；
@@ -33,7 +80,7 @@ Henry 提出的核心问题是：随着一个模型训练过的任务种类增�
 - linear probing 和 representation geometry；
 - 第二份方案中的完整 `4 representations × 8 tasks` 输入组合实验。
 
-因此，当前完成的是 Henry 方案中的“任务选择、数据生成和 base-model training”阶段，以及一份 validation-set zero-shot 初步结果；还不能称为完整的 generalization study。
+因此，v2 baseline 完成的是 Henry 方案中的“任务选择、数据生成和 base-model training”阶段，以及一份 validation-set zero-shot 初步结果；还不能称为完整的 generalization study。这句话不描述 v3 模型状态；v3 目前只完成了正式数据和 full verification。
 
 ## 2. 需求解释与冻结决策
 
@@ -49,11 +96,11 @@ pi is a permutation of {1, 2, ..., n}, with 2 <= n <= 30.
 
 ### 2.2 `maximum number = 100`
 
-100 被实现为用户提供的 base-100 number tokenizer 约定和 power task 的指数上界，而不是 permutation entry 上界：
+在 v2 baseline 中，100 被实现为用户提供的 base-100 number tokenizer 约定和 power task 的指数上界，而不是 permutation entry 上界：
 
 - `00` 到 `99` 是 atomic number tokens；
 - 100 以上使用 `<NUM_START> ... <NUM_END>`；
-- power exponent 取 `0 <= k <= 100`。
+- v2 的 power exponent 取 `0 <= k <= 100`；v3 已移除 power，但 number encoding 不变。
 
 ### 2.3 “10M data”的单位
 
@@ -65,7 +112,7 @@ pi is a permutation of {1, 2, ..., n}, with 2 <= n <= 30.
 10M base permutations × 20 labels = 200M model sequences
 ```
 
-最终 20 个 tasks 完全平衡，每个 task 500,000 条。这一选择避免了约 200M 条富 JSON 记录带来的数百 GB 存储和极长训练时间，同时保留了任务平衡。
+V2 最终 20 个 tasks 完全平衡，每个 task 500,000 条。V3 也已按同样总量和平衡约束完成，其中三个新增 properties 各 500,000 条。这一选择避免了约 200M 条富 JSON 记录带来的数百 GB 存储和极长训练时间，同时保留了任务平衡。
 
 ### 2.4 输入 representation
 
@@ -73,7 +120,9 @@ pi is a permutation of {1, 2, ..., n}, with 2 <= n <= 30.
 
 第二份附件提出的 `4 input representations × 8 tasks = 32 combinations` 是另一套 representation-transfer 实验；本轮没有把它与 20-task Henry nested matrix 混在一起。
 
-## 3. 二十个任务
+## 3. V2 baseline 的二十个任务
+
+以下列表属于已经训练完成的 v2。V3 用 `peaks`、`exceedances`、`recoils` 分别替换其中的 `power`、`conjugate`、`commutator`；完整 v3 registry 见第 0 节和 [PROTOCOL.md](PROTOCOL.md)。
 
 ### 3.1 Encoding / translation（4）
 
@@ -116,7 +165,7 @@ pi is a permutation of {1, 2, ..., n}, with 2 <= n <= 30.
 
 ### 4.1 Vocabulary
 
-正式 vocabulary size 为 163：
+V2 正式 vocabulary size 为 163：
 
 - 100 个 number tokens：`00`–`99`；
 - 36 个原始 fixed tokens；
@@ -344,7 +393,7 @@ Token-mixing MLP 包含两个 learned `1024 × 1024` matrices；forward 时只�
 
 实现见 [models.py](src/neurips_permutations/models.py)。
 
-## 7. Henry nested-task 实验矩阵
+## 7. 已完成的 Henry v2 nested-task 实验矩阵
 
 ### 7.1 冻结 task order
 
@@ -695,6 +744,7 @@ python -m neurips_permutations.generate \
   --seed 20260830 \
   --shard-size 100000 \
   --workers 20 \
+  --schema-version permutation-20/v2 \
   --output-dir data/permutation-10m-v2
 
 python -m neurips_permutations.verify \
@@ -785,7 +835,8 @@ GitHub public repository 保存：
 
 GitHub 不保存：
 
-- 1.29 GB production dataset；
+- 1.29 GB v2 production dataset；
+- 1,139,175,228-byte v3 production dataset；
 - 1.15 GB formal checkpoints；
 - pilot/checkpoint runtime directories。
 
@@ -793,12 +844,15 @@ GitHub 不保存：
 
 ```text
 /home/yangx/neurips/data/permutation-10m-v2
+/home/yangx/neurips/data/permutation-10m-v3
 /home/yangx/neurips/runs/henry-permutation
 ```
 
 如需共享这些 artifacts，应使用 object storage、dataset hosting、GitHub Release assets 或专门的 model registry，而不是普通 Git blobs。
 
 ## 15. 已知限制与下一步
+
+`permutation-20/v3` 的 manifest、split manifests 和 full verification 已完成，schema-aware nested runner 的 30-run plan/dry-run 也已复核且没有启动训练。论文主实验的下一优先级是补充 E4/S4/A4 category orchestration，再决定并启动两套 revised matrices。旧 v2 的 30 个模型和下列分析仍作为 baseline/appendix 保留，不会被删除或重命名成 v3 结果。
 
 1. **Independent test**：冻结 evaluator 后，只在 shard 099 上执行一次最终测试，并用 explicit greedy decoding 对 sequence metric 做实现级一致性检查。
 2. **Few-shot generalization**：在每个 fixed holdout 上使用 Henry 建议的 20 samples 和低 learning rate fine-tune 30 个 base models；可再增加 5-shot 与 100-shot curves。
@@ -823,6 +877,7 @@ GitHub 不保存：
 - [EXPERIMENTS.md](EXPERIMENTS.md)：Henry nested matrix 概览。
 - [TRAINING_RESULTS.md](TRAINING_RESULTS.md)：最终 validation 与 generalization 数表。
 - [configs/henry_permutation.toml](configs/henry_permutation.toml)：冻结实验配置。
+- [configs/henry_permutation_revised.toml](configs/henry_permutation_revised.toml)：Henry 反馈后的 v3 设计（尚未训练）。
 - [generate.py](src/neurips_permutations/generate.py)：数据生成。
 - [verify.py](src/neurips_permutations/verify.py)：独立数据验证。
 - [passage.py](src/neurips_permutations/passage.py)：tokenizer 与 Passage Math grammar。

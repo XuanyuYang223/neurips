@@ -19,12 +19,14 @@ from neurips_permutations.generate import (
     DEFAULT_MAX_ENTRIES,
     DEFAULT_SHARD_SIZE,
     SCHEMA_VERSION,
+    V2_SCHEMA_VERSION,
+    V3_SCHEMA_VERSION,
     build_record,
     build_parser,
     generate_dataset,
     main as generate_main,
 )
-from neurips_permutations.math_ops import TASK_NAMES
+from neurips_permutations.math_ops import V2_TASK_NAMES, V3_TASK_NAMES
 from neurips_permutations.passage import passage_tokens
 from neurips_permutations.splits import create_split_manifests
 from neurips_permutations.verify import (
@@ -90,9 +92,12 @@ def test_cli_defaults_freeze_the_production_request() -> None:
     assert args.max_entries == DEFAULT_MAX_ENTRIES == 30
     assert args.base == DEFAULT_BASE == 100
     assert args.shard_size == DEFAULT_SHARD_SIZE == 100_000
-    assert args.output_dir == Path("data/permutation-10m")
+    assert args.output_dir == Path("data/permutation-10m-v3")
     assert args.resume is True
-    assert SCHEMA_VERSION == "permutation-20/v2"
+    assert args.schema_version == SCHEMA_VERSION == V3_SCHEMA_VERSION
+    assert V2_SCHEMA_VERSION == "permutation-20/v2"
+    assert V3_SCHEMA_VERSION == "permutation-20/v3"
+    assert DEFAULT_COUNT // len(V3_TASK_NAMES) == 500_000
 
 
 def test_multiple_shards_have_exact_global_task_and_label_balance(
@@ -112,10 +117,12 @@ def test_multiple_shards_have_exact_global_task_and_label_balance(
 
     assert summary["record_count"] == 80
     assert manifest["shard_count"] == 7
-    assert manifest["task_counts"] == {task: 4 for task in TASK_NAMES}
+    assert manifest["schema_version"] == V3_SCHEMA_VERSION
+    assert manifest["tasks"] == list(V3_TASK_NAMES)
+    assert manifest["task_counts"] == {task: 4 for task in V3_TASK_NAMES}
     assert [record["id"] for record in records] == list(range(80))
     assert Counter(record["task"] for record in records) == Counter(
-        {task: 4 for task in TASK_NAMES}
+        {task: 4 for task in V3_TASK_NAMES}
     )
 
     patterns = [record for record in records if record["task"] == "pattern_avoidance"]
@@ -142,14 +149,111 @@ def test_multiple_shards_have_exact_global_task_and_label_balance(
     assert gaps_by_label[0] == gaps_by_label[1]
 
 
+def test_v3_replaces_expensive_operations_with_three_scalar_statistics() -> None:
+    assert V3_TASK_NAMES == (
+        *V2_TASK_NAMES[:13],
+        "peaks",
+        "exceedances",
+        "recoils",
+        "inverse",
+        "compose",
+        "right_multiply_simple",
+        "bruhat_leq",
+    )
+    assert {"power", "conjugate", "commutator"}.isdisjoint(V3_TASK_NAMES)
+    assert {"peaks", "exceedances", "recoils"}.isdisjoint(V2_TASK_NAMES)
+    assert set(V3_TASK_NAMES) - set(V2_TASK_NAMES) == {
+        "peaks",
+        "exceedances",
+        "recoils",
+    }
+    assert set(V2_TASK_NAMES) - set(V3_TASK_NAMES) == {
+        "power",
+        "conjugate",
+        "commutator",
+    }
+
+    implementations = {
+        "peaks": ops.peak_count,
+        "exceedances": ops.exceedance_count,
+        "recoils": ops.recoil_count,
+    }
+    for task, implementation in implementations.items():
+        task_index = V3_TASK_NAMES.index(task)
+        record = build_record(
+            task_index,
+            max_entries=12,
+            seed=20260830,
+            schema_version=V3_SCHEMA_VERSION,
+        )
+        primary = tuple(record["inputs"]["primary"])
+        assert record["task"] == task
+        assert set(record["inputs"]) == {"primary"}
+        assert record["answer_kind"] == "scalar"
+        assert record["answer"] == implementation(primary)
+        assert 0 <= record["answer"] < record["n"]
+
+
+def test_v2_generation_and_full_verification_remain_supported(
+    tmp_path: Path,
+) -> None:
+    manifest_path = generate_dataset(
+        count=40,
+        max_entries=7,
+        seed=2718,
+        shard_size=13,
+        output_dir=tmp_path / "v2",
+        workers=1,
+        schema_version=V2_SCHEMA_VERSION,
+    )
+    manifest = _manifest(manifest_path)
+    records = _records(manifest_path)
+
+    assert manifest["schema_version"] == V2_SCHEMA_VERSION
+    assert manifest["tasks"] == list(V2_TASK_NAMES)
+    assert manifest["task_counts"] == {task: 2 for task in V2_TASK_NAMES}
+    assert {record["schema_version"] for record in records} == {V2_SCHEMA_VERSION}
+    assert {"power", "conjugate", "commutator"} <= {
+        record["task"] for record in records
+    }
+    assert {"peaks", "exceedances", "recoils"}.isdisjoint(
+        record["task"] for record in records
+    )
+    assert verify_manifest(manifest_path, full=True, workers=2)["ok"] is True
+    views = create_split_manifests(
+        manifest_path, train_shards=2, validation_shards=1, test_shards=1
+    )
+    assert _manifest(views["validation"])["schema_version"] == V2_SCHEMA_VERSION
+    assert verify_manifest(views["validation"], full=True)["ok"] is True
+
+
+def test_resume_rejects_cross_protocol_output_directory(tmp_path: Path) -> None:
+    output_dir = tmp_path / "mixed-protocol"
+    generate_dataset(
+        count=40,
+        max_entries=6,
+        output_dir=output_dir,
+        workers=1,
+        schema_version=V2_SCHEMA_VERSION,
+    )
+    with pytest.raises(ValueError, match="schema_version|tasks"):
+        generate_dataset(
+            count=40,
+            max_entries=6,
+            output_dir=output_dir,
+            workers=1,
+            schema_version=V3_SCHEMA_VERSION,
+        )
+
+
 def test_bruhat_labels_and_positive_gap_histograms_are_exactly_balanced() -> None:
-    task_index = TASK_NAMES.index("bruhat_leq")
+    task_index = V3_TASK_NAMES.index("bruhat_leq")
     gap_histograms: dict[int, Counter[int]] = {0: Counter(), 1: Counter()}
     label_counts: Counter[int] = Counter()
 
     for occurrence in range(400):
         record = build_record(
-            task_index + len(TASK_NAMES) * occurrence,
+            task_index + len(V3_TASK_NAMES) * occurrence,
             max_entries=30,
             seed=20260830,
         )
@@ -181,7 +285,7 @@ def test_pattern_balance_remains_nontrivial_at_minimum_supported_size() -> None:
         assert len(inputs["pattern"]) == record["n"] - 1
 
 
-@pytest.mark.parametrize("record_id", [4, 13])
+@pytest.mark.parametrize("record_id", [4, 16])
 def test_full_verifier_rejects_consistently_rendered_wrong_answers(
     tmp_path: Path, record_id: int
 ) -> None:
