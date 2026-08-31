@@ -28,6 +28,61 @@ The defensible result is: **more varied training can transfer output-format
 and local token regularities, but this experiment does not show reliable
 zero-shot acquisition of an unseen permutation operation.**
 
+## V3 task suite
+
+The dataset contains 20 tasks grouped into four encoding and translation
+tasks, twelve statistics and property tasks, and four algebraic-operation
+tasks. V3 follows Henry's recommendation to remove the especially slow
+`power`, `conjugate`, and `commutator` tasks. The project replaced them with
+`peaks`, `exceedances`, and `recoils` so that the corpus remained balanced at
+20 tasks.
+
+| Family | Task | Target |
+|---|---|---|
+| Encoding | `to_cycle` | Convert one-line notation to canonical cycle notation. |
+| Encoding | `to_lehmer` | Compute the Lehmer code. |
+| Encoding | `to_inversion_vector` | Compute the inversion vector. |
+| Encoding | `to_reduced_word` | Produce a deterministic reduced word in adjacent transpositions. |
+| Statistics | `length` | Count inversions, equivalently the Coxeter length. |
+| Statistics | `descents` | Count positions at which the next value is smaller. |
+| Statistics | `fixed_points` | Count positions satisfying `p(i) = i`. |
+| Statistics | `parity` | Classify the permutation as even or odd. |
+| Statistics | `lis_length` | Compute the longest increasing subsequence length. |
+| Statistics | `lds_length` | Compute the longest decreasing subsequence length. |
+| Statistics | `rsk_shape` | Compute the partition shape produced by RSK. |
+| Statistics | `cycle_type` | Return the cycle lengths in decreasing order. |
+| Statistics | `pattern_avoidance` | Determine whether the permutation avoids a specified pattern. |
+| Statistics | `peaks` | Count internal positions satisfying `p(i-1) < p(i) > p(i+1)`. |
+| Statistics | `exceedances` | Count positions satisfying `p(i) > i`. |
+| Statistics | `recoils` | Count descents of the inverse permutation. |
+| Algebra | `inverse` | Compute the inverse permutation. |
+| Algebra | `compose` | Compose two permutations. |
+| Algebra | `right_multiply_simple` | Right-multiply by a specified adjacent transposition. |
+| Algebra | `bruhat_leq` | Determine strong Bruhat-order comparability. |
+
+Every task contributes 500,000 records, for 10,000,000 records in total. The
+split contains 9.8 million training examples, 100,000 validation examples, and
+100,000 test examples. The independent test split therefore contains 5,000
+examples from every task.
+
+## Relationship to Henry's generalization proposal
+
+This repository now covers two of the three forms of generalization proposed
+by Henry:
+
+1. **Hard zero-shot generalization:** complete. The 48 base models were
+   evaluated on operations excluded from their training tasks.
+2. **Twenty-shot fine-tuning:** complete. Each nested base model was adapted
+   to each fixed holdout using 20 labeled examples and a low learning rate,
+   with random-initialization controls.
+3. **Linear probing:** not yet run. It requires a separately frozen protocol
+   that extracts hidden states while leaving every base-model weight fixed.
+
+The 48 independently trained base models comprise 30 nested models and 18
+category-comparison models. The fine-tuning follow-up adds 120 warm-start
+adaptations and 24 random-init controls; these 144 adapted checkpoints are not
+144 additional independently pretrained base models.
+
 ## Generalization-only nested results
 
 The fixed holdout set is identical for every nested model:
@@ -94,6 +149,41 @@ The nonzero Statistics-to-other-family exact average is driven by transfer
 between short Boolean outputs, especially `pattern_avoidance` and
 `bruhat_leq`; it is not broad success on permutation-output operations. Exact
 values are in [`test_category_generalization.csv`](test_category_generalization.csv).
+
+## Henry-style 20-shot adaptation results
+
+Each of the 30 nested base models was adapted separately to
+`to_reduced_word`, `compose`, `parity`, and `to_lehmer`. Every run used 20
+training examples for 200 optimizer steps. The 120 pretrained adaptations were
+compared with 24 random-init controls trained on the same seed-specific support
+sets.
+
+The table reports task-macro exact sequence accuracy over the four holdouts,
+followed by a mean and sample standard deviation over three seeds.
+
+| Initialization | Architecture | Base tasks | Exact % |
+|---|---|---:|---:|
+| Pretrained | Transformer | 1 | 3.37 +/- 1.25 |
+| Pretrained | Transformer | 2 | 7.04 +/- 0.53 |
+| Pretrained | Transformer | 4 | 11.01 +/- 0.26 |
+| Pretrained | Transformer | 8 | 12.68 +/- 0.32 |
+| Pretrained | Transformer | 16 | 12.49 +/- 0.56 |
+| Random init | Transformer | 0 | 13.31 +/- 0.37 |
+| Pretrained | MLP | 1 | 1.72 +/- 0.01 |
+| Pretrained | MLP | 2 | 1.61 +/- 0.17 |
+| Pretrained | MLP | 4 | 9.38 +/- 1.44 |
+| Pretrained | MLP | 8 | 5.08 +/- 1.42 |
+| Pretrained | MLP | 16 | 5.50 +/- 4.08 |
+| Random init | MLP | 0 | 13.00 +/- 0.48 |
+
+Nearly all nonzero exact accuracy came from the short Boolean `parity` task.
+After excluding `parity`, the best pretrained Transformer exact accuracy over
+`to_reduced_word`, `compose`, and `to_lehmer` was 0.113%; pretrained MLP exact
+accuracy was 0% in every condition. Broader Transformer pretraining therefore
+improved 20-shot adaptation to a simple Boolean property, but it did not
+produce broad few-shot acquisition of structured permutation algorithms. The
+complete loss, token-accuracy, exact-accuracy, and per-task tables are in the
+[few-shot report](fewshot/README.md).
 
 ## Dataset, models, and training
 
@@ -193,6 +283,19 @@ retained.
   960 validation rows;
 - [`evaluation/manifest.json`](evaluation/manifest.json): frozen test provenance
   and per-run result index.
+
+The Henry-style 20-shot files are kept in [`fewshot/`](fewshot/README.md):
+
+- [`fewshot/test_model_task_accuracies.csv`](fewshot/test_model_task_accuracies.csv):
+  all 144 unaveraged adaptation-task test results;
+- [`fewshot/test_summary.csv`](fewshot/test_summary.csv): four-holdout macro
+  results by initialization, architecture, and base-task count;
+- [`fewshot/test_structured_summary.csv`](fewshot/test_structured_summary.csv):
+  the same summary with Boolean `parity` excluded;
+- [`fewshot/test_task_summary.csv`](fewshot/test_task_summary.csv): separate
+  results for each holdout task and condition;
+- [`fewshot/test_adaptation_gains.csv`](fewshot/test_adaptation_gains.csv):
+  paired changes from zero-shot performance and random initialization.
 
 Regenerate every CSV from authenticated local artifacts with:
 
