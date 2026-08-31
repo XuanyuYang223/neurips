@@ -5,6 +5,10 @@ fine-tuning notion of generalization. It is separate from the completed v3
 zero-shot result and does not change any base-model checkpoint or authenticated
 v3 configuration.
 
+**Completion status:** all 144 runs completed, passed strict audit, and were
+evaluated once on their 5,000 target-task examples in test shard 099. Results
+are reported in [fewshot/README.md](fewshot/README.md).
+
 ## Research question
 
 The zero-shot experiment gives each held-out operation an opaque task token

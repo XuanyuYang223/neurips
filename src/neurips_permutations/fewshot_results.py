@@ -56,6 +56,20 @@ SUMMARY_FIELDS = (
     "sequence_accuracy_sample_sd",
 )
 
+TASK_SUMMARY_FIELDS = (
+    "initialization",
+    "architecture",
+    "base_trained_task_count",
+    "task",
+    "seed_count",
+    "loss_mean",
+    "loss_sample_sd",
+    "token_accuracy_mean",
+    "token_accuracy_sample_sd",
+    "sequence_accuracy_mean",
+    "sequence_accuracy_sample_sd",
+)
+
 GAIN_FIELDS = (
     "architecture",
     "base_trained_task_count",
@@ -178,9 +192,16 @@ def load_rows(
     return rows
 
 
-def build_summary(rows: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
+def build_summary(
+    rows: Sequence[Mapping[str, Any]],
+    *,
+    tasks: Sequence[str] | None = None,
+) -> list[dict[str, Any]]:
+    selected = set(tasks) if tasks is not None else None
     per_seed: dict[tuple[str, str, int, int], list[Mapping[str, Any]]] = {}
     for row in rows:
+        if selected is not None and row["task"] not in selected:
+            continue
         key = (
             str(row["initialization"]),
             str(row["architecture"]),
@@ -190,15 +211,16 @@ def build_summary(rows: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
         per_seed.setdefault(key, []).append(row)
     seed_macros: list[dict[str, Any]] = []
     for (initialization, architecture, task_count, seed), group in per_seed.items():
-        if len(group) != 4 or len({row["task"] for row in group}) != 4:
-            raise ValueError("each few-shot seed macro must contain four tasks")
+        expected_tasks = 4 if selected is None else len(selected)
+        if len(group) != expected_tasks or len({row["task"] for row in group}) != expected_tasks:
+            raise ValueError("each few-shot seed macro has the wrong task count")
         seed_macros.append(
             {
                 "initialization": initialization,
                 "architecture": architecture,
                 "base_trained_task_count": task_count,
                 "seed": seed,
-                "task_count": 4,
+                "task_count": expected_tasks,
                 "loss": _mean(float(row["loss"]) for row in group),
                 "token_accuracy": _mean(float(row["token_accuracy"]) for row in group),
                 "sequence_accuracy": _mean(
@@ -224,7 +246,38 @@ def build_summary(rows: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
             "initialization": initialization,
             "architecture": architecture,
             "base_trained_task_count": task_count,
-            "task_count": 4,
+            "task_count": int(group[0]["task_count"]),
+            "seed_count": 3,
+        }
+        for metric in ("loss", "token_accuracy", "sequence_accuracy"):
+            values = [float(row[metric]) for row in group]
+            record[f"{metric}_mean"] = statistics.fmean(values)
+            record[f"{metric}_sample_sd"] = statistics.stdev(values)
+        output.append(record)
+    return output
+
+
+def build_task_summary(rows: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
+    grouped: dict[tuple[str, str, int, str], list[Mapping[str, Any]]] = {}
+    for row in rows:
+        grouped.setdefault(
+            (
+                str(row["initialization"]),
+                str(row["architecture"]),
+                int(row["base_trained_task_count"]),
+                str(row["task"]),
+            ),
+            [],
+        ).append(row)
+    output: list[dict[str, Any]] = []
+    for (initialization, architecture, task_count, task), group in grouped.items():
+        if len(group) != 3 or len({row["seed"] for row in group}) != 3:
+            raise ValueError("few-shot task summary must contain three seeds")
+        record: dict[str, Any] = {
+            "initialization": initialization,
+            "architecture": architecture,
+            "base_trained_task_count": task_count,
+            "task": task,
             "seed_count": 3,
         }
         for metric in ("loss", "token_accuracy", "sequence_accuracy"):
@@ -344,19 +397,29 @@ def export_results(
         config_path, zero_shot_evaluation_dir=zero_shot_evaluation_dir
     )
     summary = build_summary(rows)
+    structured_summary = build_summary(
+        rows, tasks=("to_reduced_word", "compose", "to_lehmer")
+    )
+    task_summary = build_task_summary(rows)
     gains = build_gains(rows)
     outputs = {
         "raw": destination / "test_model_task_accuracies.csv",
         "summary": destination / "test_summary.csv",
+        "structured_summary": destination / "test_structured_summary.csv",
+        "task_summary": destination / "test_task_summary.csv",
         "gains": destination / "test_adaptation_gains.csv",
     }
     _write_csv(outputs["raw"], rows, RAW_FIELDS)
     _write_csv(outputs["summary"], summary, SUMMARY_FIELDS)
+    _write_csv(outputs["structured_summary"], structured_summary, SUMMARY_FIELDS)
+    _write_csv(outputs["task_summary"], task_summary, TASK_SUMMARY_FIELDS)
     _write_csv(outputs["gains"], gains, GAIN_FIELDS)
     return {
         "status": "completed",
         "raw_rows": len(rows),
         "summary_rows": len(summary),
+        "structured_summary_rows": len(structured_summary),
+        "task_summary_rows": len(task_summary),
         "gain_rows": len(gains),
         "outputs": {key: str(value) for key, value in outputs.items()},
     }

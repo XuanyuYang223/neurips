@@ -1,0 +1,24 @@
+{
+  "architecture": "mlp",
+  "base_run_id": "",
+  "base_trained_task_count": 0,
+  "checkpoint_sha256": "d182e75e1d51ed10e77accdedacee15b6c627757e50cef0fb6dd4e9e10529604",
+  "elapsed_seconds": 2.1272513970034197,
+  "evaluator_commit": "8d3ec126fb9cb88a1640a0d2d3497f0c93275c2d",
+  "fewshot_config_sha256": "8151ca27cabc61db753714bc3003db88815553a3ad1220e6f54268bc72714ad0",
+  "format_version": "henry-permutation-fewshot-test/v1",
+  "initialization": "random",
+  "metrics": {
+    "examples": 5000,
+    "loss": 2.3646703615892966,
+    "sequence_accuracy": 0.0054,
+    "token_accuracy": 0.5239576338081269,
+    "tokens": 169758
+  },
+  "run_id": "random-mlp-seed314159-compose",
+  "seed": 314159,
+  "status": "completed",
+  "support_artifact_sha256": "a9463d6402dde0425048ff156f94a32e6d2115cc4cbed3788398333ae3aedc0a",
+  "task": "compose",
+  "test_manifest_sha256": "3ca12e6b6eeb29fc0ddd441b9c44c80d7a160faaf7e832eb55007f4c6a3ab52b"
+}

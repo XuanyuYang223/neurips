@@ -139,12 +139,14 @@ and the full operational history is in
 The test split is independent at the example level but follows the same
 `n=2..30` distribution. These results do not establish size extrapolation,
 cross-representation input transfer, or learned-representation similarity.
-CKA, linear probing, and few-shot adaptation remain separate future analyses.
+CKA and linear probing remain separate future analyses.
 
-The few-shot component is now frozen as a separate 20-example adaptation
-follow-up. Its design, random-initialization control, and leakage protections
-are documented in [FEW_SHOT_PROTOCOL.md](FEW_SHOT_PROTOCOL.md). Its results are
-not included in the zero-shot tables above.
+The few-shot component is complete as a separate 20-example adaptation
+follow-up. Its [protocol](FEW_SHOT_PROTOCOL.md) and
+[results](fewshot/README.md) are kept separate from the zero-shot tables above.
+Transformer four-task exact accuracy rises from 3.37% at one base task to
+12.68% at eight tasks, but the increase is almost entirely Boolean `parity`;
+exact accuracy on the three structured holdouts remains at or below 0.113%.
 
 ## Integrity and provenance
 

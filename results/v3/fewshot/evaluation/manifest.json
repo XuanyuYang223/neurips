@@ -1,0 +1,764 @@
+{
+  "evaluator_commit": "8d3ec126fb9cb88a1640a0d2d3497f0c93275c2d",
+  "examples_per_run": 5000,
+  "fewshot_config_sha256": "8151ca27cabc61db753714bc3003db88815553a3ad1220e6f54268bc72714ad0",
+  "format_version": "henry-permutation-fewshot-test/v1",
+  "run_count": 144,
+  "runs": [
+    {
+      "checkpoint_sha256": "542a0ab9d31e750da215adbf8046257fa81e7b2cb5f5cb4f1af6bc059b2aa116",
+      "result_file": "per-run/pretrained-mlp-tasks01-seed17-to_reduced_word.json",
+      "run_id": "pretrained-mlp-tasks01-seed17-to_reduced_word"
+    },
+    {
+      "checkpoint_sha256": "0121ff09cbfdb6746bd56ca0f59d40e6735b75fc0f4449bd29379475fc1f6f1a",
+      "result_file": "per-run/pretrained-mlp-tasks01-seed17-compose.json",
+      "run_id": "pretrained-mlp-tasks01-seed17-compose"
+    },
+    {
+      "checkpoint_sha256": "12f4a48bc1aa3b1f5715b116408ee55f3777709852fb5d9ac7c6166d9d2e7491",
+      "result_file": "per-run/pretrained-mlp-tasks01-seed17-parity.json",
+      "run_id": "pretrained-mlp-tasks01-seed17-parity"
+    },
+    {
+      "checkpoint_sha256": "9b9c706df7419c2d6c93655957c403e715218cdb4ae03dc9853d7f6fce1dae43",
+      "result_file": "per-run/pretrained-mlp-tasks01-seed17-to_lehmer.json",
+      "run_id": "pretrained-mlp-tasks01-seed17-to_lehmer"
+    },
+    {
+      "checkpoint_sha256": "983ceaf956883062755ad059a0957dd13594e3b9a41e362c3cf011ecd58dffa1",
+      "result_file": "per-run/pretrained-mlp-tasks01-seed42-to_reduced_word.json",
+      "run_id": "pretrained-mlp-tasks01-seed42-to_reduced_word"
+    },
+    {
+      "checkpoint_sha256": "bc071d85415459d3b7f6620e83255b4675776f14a7c7f1784c5b65ddf2141fae",
+      "result_file": "per-run/pretrained-mlp-tasks01-seed42-compose.json",
+      "run_id": "pretrained-mlp-tasks01-seed42-compose"
+    },
+    {
+      "checkpoint_sha256": "064359ff46a7898defcafdafa3fa339c18ad1a2df166cbc786902956f0158a86",
+      "result_file": "per-run/pretrained-mlp-tasks01-seed42-parity.json",
+      "run_id": "pretrained-mlp-tasks01-seed42-parity"
+    },
+    {
+      "checkpoint_sha256": "c9a79c4a1550d9aa9a759bcea1cf55c6373f90917ded1c14e8496d96384eba9f",
+      "result_file": "per-run/pretrained-mlp-tasks01-seed42-to_lehmer.json",
+      "run_id": "pretrained-mlp-tasks01-seed42-to_lehmer"
+    },
+    {
+      "checkpoint_sha256": "503279b172b80cf3c5afe420b98ad915a31ded0a5d50c3f6a284301d804890f0",
+      "result_file": "per-run/pretrained-mlp-tasks01-seed314159-to_reduced_word.json",
+      "run_id": "pretrained-mlp-tasks01-seed314159-to_reduced_word"
+    },
+    {
+      "checkpoint_sha256": "434e4e6b1e558f4b1ce0cba8da1cb00884608402a3878f8a5daddb43031dbcc0",
+      "result_file": "per-run/pretrained-mlp-tasks01-seed314159-compose.json",
+      "run_id": "pretrained-mlp-tasks01-seed314159-compose"
+    },
+    {
+      "checkpoint_sha256": "4847267d8e3624018df6f57abf03f5d5e2687b8920295affc78bb57f93f53eb4",
+      "result_file": "per-run/pretrained-mlp-tasks01-seed314159-parity.json",
+      "run_id": "pretrained-mlp-tasks01-seed314159-parity"
+    },
+    {
+      "checkpoint_sha256": "d0ec0f16aa7c6dff7b32571da9a43b88f9e29720a66959d97172e5fa241275ef",
+      "result_file": "per-run/pretrained-mlp-tasks01-seed314159-to_lehmer.json",
+      "run_id": "pretrained-mlp-tasks01-seed314159-to_lehmer"
+    },
+    {
+      "checkpoint_sha256": "552c3056850d370724aa09de83e0c8199a2065cf38f42a579823f65f4285341f",
+      "result_file": "per-run/pretrained-mlp-tasks02-seed17-to_reduced_word.json",
+      "run_id": "pretrained-mlp-tasks02-seed17-to_reduced_word"
+    },
+    {
+      "checkpoint_sha256": "468c27e95cdcb6d15b0ecac9f702100e6959371a194de386e31b51bf06e10453",
+      "result_file": "per-run/pretrained-mlp-tasks02-seed17-compose.json",
+      "run_id": "pretrained-mlp-tasks02-seed17-compose"
+    },
+    {
+      "checkpoint_sha256": "71b0b02a3c53b24d5cabea2848ffdb61b1e553e8768ed6bdc737236f806db405",
+      "result_file": "per-run/pretrained-mlp-tasks02-seed17-parity.json",
+      "run_id": "pretrained-mlp-tasks02-seed17-parity"
+    },
+    {
+      "checkpoint_sha256": "5ae9b0fd0c7d79dffe294f0fe684bbe61218ff29160ddf2f6d670165637caa31",
+      "result_file": "per-run/pretrained-mlp-tasks02-seed17-to_lehmer.json",
+      "run_id": "pretrained-mlp-tasks02-seed17-to_lehmer"
+    },
+    {
+      "checkpoint_sha256": "c2723f61f6d9ce787a2340bfee9147c8971941736b281a2b7cd03bb34b137b8e",
+      "result_file": "per-run/pretrained-mlp-tasks02-seed42-to_reduced_word.json",
+      "run_id": "pretrained-mlp-tasks02-seed42-to_reduced_word"
+    },
+    {
+      "checkpoint_sha256": "437306cd08a22ab6a640d5905be98447fcdeaf84822a2d6c052fbc0265728e03",
+      "result_file": "per-run/pretrained-mlp-tasks02-seed42-compose.json",
+      "run_id": "pretrained-mlp-tasks02-seed42-compose"
+    },
+    {
+      "checkpoint_sha256": "dc7e17b41f91398e744539d7b64718cb47900d64a8216f93f1ec385550de35c4",
+      "result_file": "per-run/pretrained-mlp-tasks02-seed42-parity.json",
+      "run_id": "pretrained-mlp-tasks02-seed42-parity"
+    },
+    {
+      "checkpoint_sha256": "96b0b90d1326d335a65c80b5c75fbef65bdc88bdb74407b2acafc0ece24ba394",
+      "result_file": "per-run/pretrained-mlp-tasks02-seed42-to_lehmer.json",
+      "run_id": "pretrained-mlp-tasks02-seed42-to_lehmer"
+    },
+    {
+      "checkpoint_sha256": "a282b405a23cbe48ea7516ae64bd6a05eb32b840e8e103310ab09ab564171dee",
+      "result_file": "per-run/pretrained-mlp-tasks02-seed314159-to_reduced_word.json",
+      "run_id": "pretrained-mlp-tasks02-seed314159-to_reduced_word"
+    },
+    {
+      "checkpoint_sha256": "3be0d736e69b03cefeb3595fdc3b166698db306d8718ff1e91204bc676045ea5",
+      "result_file": "per-run/pretrained-mlp-tasks02-seed314159-compose.json",
+      "run_id": "pretrained-mlp-tasks02-seed314159-compose"
+    },
+    {
+      "checkpoint_sha256": "2e89f834db02df183e799fdac32029febe414706bc7b602293aac83caa35b9d3",
+      "result_file": "per-run/pretrained-mlp-tasks02-seed314159-parity.json",
+      "run_id": "pretrained-mlp-tasks02-seed314159-parity"
+    },
+    {
+      "checkpoint_sha256": "d53747c872620c9fa45c695bdd4066adf410de36721f94a4eca57965bd9ca56e",
+      "result_file": "per-run/pretrained-mlp-tasks02-seed314159-to_lehmer.json",
+      "run_id": "pretrained-mlp-tasks02-seed314159-to_lehmer"
+    },
+    {
+      "checkpoint_sha256": "c7bd22089d605fb7bd6cf2741dff30650962ecadfb9a8a957cc535e93a8f3dae",
+      "result_file": "per-run/pretrained-mlp-tasks04-seed17-to_reduced_word.json",
+      "run_id": "pretrained-mlp-tasks04-seed17-to_reduced_word"
+    },
+    {
+      "checkpoint_sha256": "dfb65476d8e6e429d2bc4e7520ce1ece5cbc5019f0d9dc4bc5253a8906a8b144",
+      "result_file": "per-run/pretrained-mlp-tasks04-seed17-compose.json",
+      "run_id": "pretrained-mlp-tasks04-seed17-compose"
+    },
+    {
+      "checkpoint_sha256": "f74ef679097ad1be1db75ec33eab59bf3f1cbabe776e299a5b975f391e7f73b5",
+      "result_file": "per-run/pretrained-mlp-tasks04-seed17-parity.json",
+      "run_id": "pretrained-mlp-tasks04-seed17-parity"
+    },
+    {
+      "checkpoint_sha256": "d24763b6059d680d25582ab078ba236781b2997f0bf0658f9fc3ee4a2d98cf43",
+      "result_file": "per-run/pretrained-mlp-tasks04-seed17-to_lehmer.json",
+      "run_id": "pretrained-mlp-tasks04-seed17-to_lehmer"
+    },
+    {
+      "checkpoint_sha256": "a9de47b2e64f816399eb069e925da419b8209a684b0f46a11f79d2ff20f290a5",
+      "result_file": "per-run/pretrained-mlp-tasks04-seed42-to_reduced_word.json",
+      "run_id": "pretrained-mlp-tasks04-seed42-to_reduced_word"
+    },
+    {
+      "checkpoint_sha256": "29f64ffe3e3b6380a52e0d0a33f87c2790657ebc29e194789aeabf8edfc0062d",
+      "result_file": "per-run/pretrained-mlp-tasks04-seed42-compose.json",
+      "run_id": "pretrained-mlp-tasks04-seed42-compose"
+    },
+    {
+      "checkpoint_sha256": "a6182c079632de0bd7741f93aa75e513b1417db12988a01f576fe56e7f74f5a4",
+      "result_file": "per-run/pretrained-mlp-tasks04-seed42-parity.json",
+      "run_id": "pretrained-mlp-tasks04-seed42-parity"
+    },
+    {
+      "checkpoint_sha256": "edbdb346d297a5e2673a3ceee63084eae0eb0fc438383809db97bb86c4e24a6b",
+      "result_file": "per-run/pretrained-mlp-tasks04-seed42-to_lehmer.json",
+      "run_id": "pretrained-mlp-tasks04-seed42-to_lehmer"
+    },
+    {
+      "checkpoint_sha256": "a3cea874595a33446de977e468dcb7e5d533a46fa463c7eebc73837d6c331446",
+      "result_file": "per-run/pretrained-mlp-tasks04-seed314159-to_reduced_word.json",
+      "run_id": "pretrained-mlp-tasks04-seed314159-to_reduced_word"
+    },
+    {
+      "checkpoint_sha256": "77899fddc366e26a48195e3acdda5f786d2bd935745b6f2493323569490576ea",
+      "result_file": "per-run/pretrained-mlp-tasks04-seed314159-compose.json",
+      "run_id": "pretrained-mlp-tasks04-seed314159-compose"
+    },
+    {
+      "checkpoint_sha256": "d376ed11c035ebbd136668a65031eeed0eba078bb945824728d9e74ce07f0f4f",
+      "result_file": "per-run/pretrained-mlp-tasks04-seed314159-parity.json",
+      "run_id": "pretrained-mlp-tasks04-seed314159-parity"
+    },
+    {
+      "checkpoint_sha256": "dd1cb4b330331d995c6232c13423719aec3ced69cb591023ad517e622418358b",
+      "result_file": "per-run/pretrained-mlp-tasks04-seed314159-to_lehmer.json",
+      "run_id": "pretrained-mlp-tasks04-seed314159-to_lehmer"
+    },
+    {
+      "checkpoint_sha256": "26e1b8f3fca7ff18f5a23dd6c94903cba2d83128a0a25c6fec8015082401336a",
+      "result_file": "per-run/pretrained-mlp-tasks08-seed17-to_reduced_word.json",
+      "run_id": "pretrained-mlp-tasks08-seed17-to_reduced_word"
+    },
+    {
+      "checkpoint_sha256": "8abac2c02539f42aa5a5632b7980f253d233b98c03bed0d6883e85f4ab85f4d4",
+      "result_file": "per-run/pretrained-mlp-tasks08-seed17-compose.json",
+      "run_id": "pretrained-mlp-tasks08-seed17-compose"
+    },
+    {
+      "checkpoint_sha256": "87292f63518eb2f0bbc79fe9363937aa54f04fae1473f99b2b171f4af467e67f",
+      "result_file": "per-run/pretrained-mlp-tasks08-seed17-parity.json",
+      "run_id": "pretrained-mlp-tasks08-seed17-parity"
+    },
+    {
+      "checkpoint_sha256": "8949c60778da5c4e8ec779f6bb2b4e196a81dc1d152dce3f7b43d40b7ef15719",
+      "result_file": "per-run/pretrained-mlp-tasks08-seed17-to_lehmer.json",
+      "run_id": "pretrained-mlp-tasks08-seed17-to_lehmer"
+    },
+    {
+      "checkpoint_sha256": "b4b60d5fd9483cb156b4baababb0b859272b5d18f3c45bd8bdae46aba16f5960",
+      "result_file": "per-run/pretrained-mlp-tasks08-seed42-to_reduced_word.json",
+      "run_id": "pretrained-mlp-tasks08-seed42-to_reduced_word"
+    },
+    {
+      "checkpoint_sha256": "baf79ea9da7725a0b28f4c8f160a071f9d89b7399289fb14259c96a7824f29cb",
+      "result_file": "per-run/pretrained-mlp-tasks08-seed42-compose.json",
+      "run_id": "pretrained-mlp-tasks08-seed42-compose"
+    },
+    {
+      "checkpoint_sha256": "c7ff4e0952781529e7820be2d88afc00566271999b6e2a16b2d4cf298a6da8cf",
+      "result_file": "per-run/pretrained-mlp-tasks08-seed42-parity.json",
+      "run_id": "pretrained-mlp-tasks08-seed42-parity"
+    },
+    {
+      "checkpoint_sha256": "ee13c7e2712cf97e43ce1e941a92da45c96f2e4f568698ab8cbeb12ae0b30bdb",
+      "result_file": "per-run/pretrained-mlp-tasks08-seed42-to_lehmer.json",
+      "run_id": "pretrained-mlp-tasks08-seed42-to_lehmer"
+    },
+    {
+      "checkpoint_sha256": "a1a53444bbb22c809b3e20af809c299ee91e2f84546897e4290b833375d5dd08",
+      "result_file": "per-run/pretrained-mlp-tasks08-seed314159-to_reduced_word.json",
+      "run_id": "pretrained-mlp-tasks08-seed314159-to_reduced_word"
+    },
+    {
+      "checkpoint_sha256": "89599ee7b9264ab7d0bbceb242c3d7bf50230c8958570b21588144b044dcd417",
+      "result_file": "per-run/pretrained-mlp-tasks08-seed314159-compose.json",
+      "run_id": "pretrained-mlp-tasks08-seed314159-compose"
+    },
+    {
+      "checkpoint_sha256": "1489b434532da991479f94a8421335f0568b72baeef46c432d3df43db89346af",
+      "result_file": "per-run/pretrained-mlp-tasks08-seed314159-parity.json",
+      "run_id": "pretrained-mlp-tasks08-seed314159-parity"
+    },
+    {
+      "checkpoint_sha256": "1d3a46abb09fcdbd0d9ba13e688b77c1e4752e3113dce2d338cf3c773fa07e1f",
+      "result_file": "per-run/pretrained-mlp-tasks08-seed314159-to_lehmer.json",
+      "run_id": "pretrained-mlp-tasks08-seed314159-to_lehmer"
+    },
+    {
+      "checkpoint_sha256": "2899254f6935aca3005821b9c179610e4b5d6c8a7f621e9570065b5cd18f37ea",
+      "result_file": "per-run/pretrained-mlp-tasks16-seed17-to_reduced_word.json",
+      "run_id": "pretrained-mlp-tasks16-seed17-to_reduced_word"
+    },
+    {
+      "checkpoint_sha256": "830b463deb0db11d59b391f44e20c2e7ba521dd3b395acf9f4678be8b404f7ac",
+      "result_file": "per-run/pretrained-mlp-tasks16-seed17-compose.json",
+      "run_id": "pretrained-mlp-tasks16-seed17-compose"
+    },
+    {
+      "checkpoint_sha256": "3a23fa9a67e771e2d0e18d6d8c04ba3a2181c8c5e7d9bd2c86d2ad0ac086dec0",
+      "result_file": "per-run/pretrained-mlp-tasks16-seed17-parity.json",
+      "run_id": "pretrained-mlp-tasks16-seed17-parity"
+    },
+    {
+      "checkpoint_sha256": "adf47a57bd98b6bb076f143f6ad967745f0430503705dafad2d2bc74b38ff243",
+      "result_file": "per-run/pretrained-mlp-tasks16-seed17-to_lehmer.json",
+      "run_id": "pretrained-mlp-tasks16-seed17-to_lehmer"
+    },
+    {
+      "checkpoint_sha256": "c08b28fc87bce962573197d953fd0f2e10bb3bd25026d354356475d5be326daa",
+      "result_file": "per-run/pretrained-mlp-tasks16-seed42-to_reduced_word.json",
+      "run_id": "pretrained-mlp-tasks16-seed42-to_reduced_word"
+    },
+    {
+      "checkpoint_sha256": "17b184317524c01dfa471199aad3d321e2ab372a86cb70ba68eb5e0e354698b9",
+      "result_file": "per-run/pretrained-mlp-tasks16-seed42-compose.json",
+      "run_id": "pretrained-mlp-tasks16-seed42-compose"
+    },
+    {
+      "checkpoint_sha256": "5b820cbf5a873d4325d2379d4a1efbd8a11bd52ecf98dbf5ca5d77bc96b39137",
+      "result_file": "per-run/pretrained-mlp-tasks16-seed42-parity.json",
+      "run_id": "pretrained-mlp-tasks16-seed42-parity"
+    },
+    {
+      "checkpoint_sha256": "f0873e98a2f3a18c71561845aaea4793f50a3aa8c70e77c77931763aa61eb698",
+      "result_file": "per-run/pretrained-mlp-tasks16-seed42-to_lehmer.json",
+      "run_id": "pretrained-mlp-tasks16-seed42-to_lehmer"
+    },
+    {
+      "checkpoint_sha256": "95ea7173965c26e274b5ff855ebe3fece29f8ee2437a275ae84840b7a9d89992",
+      "result_file": "per-run/pretrained-mlp-tasks16-seed314159-to_reduced_word.json",
+      "run_id": "pretrained-mlp-tasks16-seed314159-to_reduced_word"
+    },
+    {
+      "checkpoint_sha256": "78ca42418aecbcf31b36b2c88cb4ca2be692189ffbb1730fc5bbe16b8f2d72c9",
+      "result_file": "per-run/pretrained-mlp-tasks16-seed314159-compose.json",
+      "run_id": "pretrained-mlp-tasks16-seed314159-compose"
+    },
+    {
+      "checkpoint_sha256": "67cc9f0a50549ef38254540a44a63ae068964ac83859b20c33df98dcc6608cd8",
+      "result_file": "per-run/pretrained-mlp-tasks16-seed314159-parity.json",
+      "run_id": "pretrained-mlp-tasks16-seed314159-parity"
+    },
+    {
+      "checkpoint_sha256": "bce6f345db1612fc8f45202dcdfb0fcf8888daeb7446a57535e8d48577584fec",
+      "result_file": "per-run/pretrained-mlp-tasks16-seed314159-to_lehmer.json",
+      "run_id": "pretrained-mlp-tasks16-seed314159-to_lehmer"
+    },
+    {
+      "checkpoint_sha256": "0f80a6b99c9deae2d3188584a6d1eac8efe306e8f000c241711a0de67dc44cab",
+      "result_file": "per-run/pretrained-transformer-tasks01-seed17-to_reduced_word.json",
+      "run_id": "pretrained-transformer-tasks01-seed17-to_reduced_word"
+    },
+    {
+      "checkpoint_sha256": "47914ce3c4459ec1d68d053af0b0e0ed68ac239ac206b219c950632ed676d6fd",
+      "result_file": "per-run/pretrained-transformer-tasks01-seed17-compose.json",
+      "run_id": "pretrained-transformer-tasks01-seed17-compose"
+    },
+    {
+      "checkpoint_sha256": "05de372655ad9c214606cb32daa236165472a2dfadccd509112b5a3ba2076f70",
+      "result_file": "per-run/pretrained-transformer-tasks01-seed17-parity.json",
+      "run_id": "pretrained-transformer-tasks01-seed17-parity"
+    },
+    {
+      "checkpoint_sha256": "9b2efb39c49189721c2b1093f9ffba4c9376c7cd5929509311451aa57e231cbf",
+      "result_file": "per-run/pretrained-transformer-tasks01-seed17-to_lehmer.json",
+      "run_id": "pretrained-transformer-tasks01-seed17-to_lehmer"
+    },
+    {
+      "checkpoint_sha256": "13688ede2f0a4058787eac2f3e3d021a8fbe62a2b877f00d7972f01e05e776ef",
+      "result_file": "per-run/pretrained-transformer-tasks01-seed42-to_reduced_word.json",
+      "run_id": "pretrained-transformer-tasks01-seed42-to_reduced_word"
+    },
+    {
+      "checkpoint_sha256": "6a9fb698b56a5a6856038e27a463b333116c4f678e8104557baacfce6b7c09d8",
+      "result_file": "per-run/pretrained-transformer-tasks01-seed42-compose.json",
+      "run_id": "pretrained-transformer-tasks01-seed42-compose"
+    },
+    {
+      "checkpoint_sha256": "fdc0346bfec721b4eef28c8689076ccec1eb2e935f25767968682b085eea61b0",
+      "result_file": "per-run/pretrained-transformer-tasks01-seed42-parity.json",
+      "run_id": "pretrained-transformer-tasks01-seed42-parity"
+    },
+    {
+      "checkpoint_sha256": "b96cc01ef7ae5c83eece477ea2c3173e2ff76744d4d7e178a4befe8a9f200a84",
+      "result_file": "per-run/pretrained-transformer-tasks01-seed42-to_lehmer.json",
+      "run_id": "pretrained-transformer-tasks01-seed42-to_lehmer"
+    },
+    {
+      "checkpoint_sha256": "899a232b66dc57f08017a730d866374962e3789d66909f8cab9375bac1b8b981",
+      "result_file": "per-run/pretrained-transformer-tasks01-seed314159-to_reduced_word.json",
+      "run_id": "pretrained-transformer-tasks01-seed314159-to_reduced_word"
+    },
+    {
+      "checkpoint_sha256": "dd25d5fd11ffd4f5de18c63c6cdb916222355af583edc6ba6e942f1ff2e8bb99",
+      "result_file": "per-run/pretrained-transformer-tasks01-seed314159-compose.json",
+      "run_id": "pretrained-transformer-tasks01-seed314159-compose"
+    },
+    {
+      "checkpoint_sha256": "5486798ef92b89e973ef9722489a02c9260fe8ef369a80a7cf5eac3ac0f053d4",
+      "result_file": "per-run/pretrained-transformer-tasks01-seed314159-parity.json",
+      "run_id": "pretrained-transformer-tasks01-seed314159-parity"
+    },
+    {
+      "checkpoint_sha256": "486d9ca58add9d286e8bd58a7c6f14db1210ae806ee5bf4b0092a261ce259723",
+      "result_file": "per-run/pretrained-transformer-tasks01-seed314159-to_lehmer.json",
+      "run_id": "pretrained-transformer-tasks01-seed314159-to_lehmer"
+    },
+    {
+      "checkpoint_sha256": "421de74e5982455bb75fd85fc14e3d9db619a46a50960d96b063d9457b59315f",
+      "result_file": "per-run/pretrained-transformer-tasks02-seed17-to_reduced_word.json",
+      "run_id": "pretrained-transformer-tasks02-seed17-to_reduced_word"
+    },
+    {
+      "checkpoint_sha256": "aef653bc7f65a146c50271b9182e1a48f0dd8012f9e187d3a05460a8bb3e4c74",
+      "result_file": "per-run/pretrained-transformer-tasks02-seed17-compose.json",
+      "run_id": "pretrained-transformer-tasks02-seed17-compose"
+    },
+    {
+      "checkpoint_sha256": "6a7afdd19594894b16c208ff33325fa62cdef668ce0b802ca3d83085120076f0",
+      "result_file": "per-run/pretrained-transformer-tasks02-seed17-parity.json",
+      "run_id": "pretrained-transformer-tasks02-seed17-parity"
+    },
+    {
+      "checkpoint_sha256": "ff324164b36ea687e61180e3a2ccd16008638812c8db5921cda78ec0d8522d3b",
+      "result_file": "per-run/pretrained-transformer-tasks02-seed17-to_lehmer.json",
+      "run_id": "pretrained-transformer-tasks02-seed17-to_lehmer"
+    },
+    {
+      "checkpoint_sha256": "770650ca9b545b3cb0f93adefb9a483fc847ac92555a6da1dfa44dc846cf85c0",
+      "result_file": "per-run/pretrained-transformer-tasks02-seed42-to_reduced_word.json",
+      "run_id": "pretrained-transformer-tasks02-seed42-to_reduced_word"
+    },
+    {
+      "checkpoint_sha256": "ba41af97ed051aad18bc694dc085b6d0064e9c6919b64b56f87507204b3481c5",
+      "result_file": "per-run/pretrained-transformer-tasks02-seed42-compose.json",
+      "run_id": "pretrained-transformer-tasks02-seed42-compose"
+    },
+    {
+      "checkpoint_sha256": "f731c9873be90b16d538f1ff331c8ab1c6b801dc9a001cbc68623d5ab73d26bc",
+      "result_file": "per-run/pretrained-transformer-tasks02-seed42-parity.json",
+      "run_id": "pretrained-transformer-tasks02-seed42-parity"
+    },
+    {
+      "checkpoint_sha256": "165e5c443880dd1d02fac9244661c39377cf2611a78185a2860d0743accd5e91",
+      "result_file": "per-run/pretrained-transformer-tasks02-seed42-to_lehmer.json",
+      "run_id": "pretrained-transformer-tasks02-seed42-to_lehmer"
+    },
+    {
+      "checkpoint_sha256": "b9cc8f6888279c318b496c66fd3484dfbbf4a3e22dd20850032b69554c97f385",
+      "result_file": "per-run/pretrained-transformer-tasks02-seed314159-to_reduced_word.json",
+      "run_id": "pretrained-transformer-tasks02-seed314159-to_reduced_word"
+    },
+    {
+      "checkpoint_sha256": "9adb1f8d88f28f53ec20a8e792214fc4409cb2d0e2447c46b090ae3696f9218f",
+      "result_file": "per-run/pretrained-transformer-tasks02-seed314159-compose.json",
+      "run_id": "pretrained-transformer-tasks02-seed314159-compose"
+    },
+    {
+      "checkpoint_sha256": "4e5e9c80dbfd87281e0961ad69c0a14537f27568beff428c2ded4f2c08a3234e",
+      "result_file": "per-run/pretrained-transformer-tasks02-seed314159-parity.json",
+      "run_id": "pretrained-transformer-tasks02-seed314159-parity"
+    },
+    {
+      "checkpoint_sha256": "cd5185477664ac80d1f8c180ff484f2d85db7212ebd4b4493e0e45cfbaebced2",
+      "result_file": "per-run/pretrained-transformer-tasks02-seed314159-to_lehmer.json",
+      "run_id": "pretrained-transformer-tasks02-seed314159-to_lehmer"
+    },
+    {
+      "checkpoint_sha256": "9617a16f5dbc889724fe93bc9166501c458f2d092c292fd5ec069cd922dc512e",
+      "result_file": "per-run/pretrained-transformer-tasks04-seed17-to_reduced_word.json",
+      "run_id": "pretrained-transformer-tasks04-seed17-to_reduced_word"
+    },
+    {
+      "checkpoint_sha256": "812a9a56bc9269e90fec8e6d44fed13f9daeeecd7b5b0c20e7a69c72663a96d1",
+      "result_file": "per-run/pretrained-transformer-tasks04-seed17-compose.json",
+      "run_id": "pretrained-transformer-tasks04-seed17-compose"
+    },
+    {
+      "checkpoint_sha256": "e7febbcf8c943a4fad5ceee5635017151449471990d18d4d5f019a758281252c",
+      "result_file": "per-run/pretrained-transformer-tasks04-seed17-parity.json",
+      "run_id": "pretrained-transformer-tasks04-seed17-parity"
+    },
+    {
+      "checkpoint_sha256": "1eb038a1827427845717945319326213937983dae9c1a83355f3ea3241da2bb5",
+      "result_file": "per-run/pretrained-transformer-tasks04-seed17-to_lehmer.json",
+      "run_id": "pretrained-transformer-tasks04-seed17-to_lehmer"
+    },
+    {
+      "checkpoint_sha256": "3dca42847ef0fc8a19b2dd5ae5d77cb790d9c053e85ad4e027f670588535a984",
+      "result_file": "per-run/pretrained-transformer-tasks04-seed42-to_reduced_word.json",
+      "run_id": "pretrained-transformer-tasks04-seed42-to_reduced_word"
+    },
+    {
+      "checkpoint_sha256": "365a8d909e3d6a424c8cc3518058ef76389d1594b71f780764e36dc6682a325e",
+      "result_file": "per-run/pretrained-transformer-tasks04-seed42-compose.json",
+      "run_id": "pretrained-transformer-tasks04-seed42-compose"
+    },
+    {
+      "checkpoint_sha256": "20141518b66c8ddc8a960ea140f9d7fe80c952c56d15180da65e2c2356fd27a4",
+      "result_file": "per-run/pretrained-transformer-tasks04-seed42-parity.json",
+      "run_id": "pretrained-transformer-tasks04-seed42-parity"
+    },
+    {
+      "checkpoint_sha256": "2443511c8403aca45e465548611f8751b906b6c2eb93ae603f933a6d5485e21f",
+      "result_file": "per-run/pretrained-transformer-tasks04-seed42-to_lehmer.json",
+      "run_id": "pretrained-transformer-tasks04-seed42-to_lehmer"
+    },
+    {
+      "checkpoint_sha256": "66b29294e54675a56562de28df664c822abb3d43fd39f08f479110526cf3adc1",
+      "result_file": "per-run/pretrained-transformer-tasks04-seed314159-to_reduced_word.json",
+      "run_id": "pretrained-transformer-tasks04-seed314159-to_reduced_word"
+    },
+    {
+      "checkpoint_sha256": "81c32db1b66b6a7b1549bb407fd641e2b6b2ee8146732fa35e8157b39e22e697",
+      "result_file": "per-run/pretrained-transformer-tasks04-seed314159-compose.json",
+      "run_id": "pretrained-transformer-tasks04-seed314159-compose"
+    },
+    {
+      "checkpoint_sha256": "2475993d7f226124672cfd3b6708f511e905d5ab03643e2b9d4e4f9885be3652",
+      "result_file": "per-run/pretrained-transformer-tasks04-seed314159-parity.json",
+      "run_id": "pretrained-transformer-tasks04-seed314159-parity"
+    },
+    {
+      "checkpoint_sha256": "368e31cfb0923465b386deaacc27149d7dd976aa4da267288097bb98e109912f",
+      "result_file": "per-run/pretrained-transformer-tasks04-seed314159-to_lehmer.json",
+      "run_id": "pretrained-transformer-tasks04-seed314159-to_lehmer"
+    },
+    {
+      "checkpoint_sha256": "0052a9e8f07b39ad04a172b99abee433606ea478a46a6b32f7ca92fa78ce976f",
+      "result_file": "per-run/pretrained-transformer-tasks08-seed17-to_reduced_word.json",
+      "run_id": "pretrained-transformer-tasks08-seed17-to_reduced_word"
+    },
+    {
+      "checkpoint_sha256": "5694585ec27caaa065e48a091faf5636174919fe29c7399b5de4107355842d68",
+      "result_file": "per-run/pretrained-transformer-tasks08-seed17-compose.json",
+      "run_id": "pretrained-transformer-tasks08-seed17-compose"
+    },
+    {
+      "checkpoint_sha256": "f70dcb1bd4ed16f62e0b75e8e0342f64bbcaa3b5acd1c85ad8d5b306fdc7cc4c",
+      "result_file": "per-run/pretrained-transformer-tasks08-seed17-parity.json",
+      "run_id": "pretrained-transformer-tasks08-seed17-parity"
+    },
+    {
+      "checkpoint_sha256": "7f1759150bff473d356940e3277ca7123ca022dcac0e840274491fe98b52158b",
+      "result_file": "per-run/pretrained-transformer-tasks08-seed17-to_lehmer.json",
+      "run_id": "pretrained-transformer-tasks08-seed17-to_lehmer"
+    },
+    {
+      "checkpoint_sha256": "89aeb554faa5dc8b2a2fc63c371198f9c6cf8cb8692e1031e8bd632345ca3029",
+      "result_file": "per-run/pretrained-transformer-tasks08-seed42-to_reduced_word.json",
+      "run_id": "pretrained-transformer-tasks08-seed42-to_reduced_word"
+    },
+    {
+      "checkpoint_sha256": "f82c85300b00d82a73cd97979ae51149bc0300eb28d03c25e880129bb66e3972",
+      "result_file": "per-run/pretrained-transformer-tasks08-seed42-compose.json",
+      "run_id": "pretrained-transformer-tasks08-seed42-compose"
+    },
+    {
+      "checkpoint_sha256": "76cdcf2fcdee9165b8d14c0b87b73cc85e47daa5e9a794e52733623004d93915",
+      "result_file": "per-run/pretrained-transformer-tasks08-seed42-parity.json",
+      "run_id": "pretrained-transformer-tasks08-seed42-parity"
+    },
+    {
+      "checkpoint_sha256": "676567f6e80c3e79554299acea8cf6ee57d16402ad9afb5d5c01955c51486e7f",
+      "result_file": "per-run/pretrained-transformer-tasks08-seed42-to_lehmer.json",
+      "run_id": "pretrained-transformer-tasks08-seed42-to_lehmer"
+    },
+    {
+      "checkpoint_sha256": "177c342cead0df95e3d2d1a792a866526c3f80bac2a224618e70e08a23a74233",
+      "result_file": "per-run/pretrained-transformer-tasks08-seed314159-to_reduced_word.json",
+      "run_id": "pretrained-transformer-tasks08-seed314159-to_reduced_word"
+    },
+    {
+      "checkpoint_sha256": "c2150b532737aaba0bb7a41a1f91c7fff5b4b0e274f63a389046495846198dc0",
+      "result_file": "per-run/pretrained-transformer-tasks08-seed314159-compose.json",
+      "run_id": "pretrained-transformer-tasks08-seed314159-compose"
+    },
+    {
+      "checkpoint_sha256": "0d926736c0e842ca8540d1ade375181fcfd0b891f17a7e8ae09cb5578cbdb08a",
+      "result_file": "per-run/pretrained-transformer-tasks08-seed314159-parity.json",
+      "run_id": "pretrained-transformer-tasks08-seed314159-parity"
+    },
+    {
+      "checkpoint_sha256": "c8dcc71e7fe751c6f432ad77d48d93231fc97c7c4447f7954a45b5616af45cb7",
+      "result_file": "per-run/pretrained-transformer-tasks08-seed314159-to_lehmer.json",
+      "run_id": "pretrained-transformer-tasks08-seed314159-to_lehmer"
+    },
+    {
+      "checkpoint_sha256": "0d7e0e49bb930f0ed115cff76642c15fe3dcd73506d9598eb9eb735ce7bc3df1",
+      "result_file": "per-run/pretrained-transformer-tasks16-seed17-to_reduced_word.json",
+      "run_id": "pretrained-transformer-tasks16-seed17-to_reduced_word"
+    },
+    {
+      "checkpoint_sha256": "fc6f0488a4e0c6b240fc8d33e681420bd0c061678a146f0f77dd4758c9c8cd30",
+      "result_file": "per-run/pretrained-transformer-tasks16-seed17-compose.json",
+      "run_id": "pretrained-transformer-tasks16-seed17-compose"
+    },
+    {
+      "checkpoint_sha256": "46651ae1e67b36285d5c4746156ca60f7b259efeda6ad99a6dc7053bdd237514",
+      "result_file": "per-run/pretrained-transformer-tasks16-seed17-parity.json",
+      "run_id": "pretrained-transformer-tasks16-seed17-parity"
+    },
+    {
+      "checkpoint_sha256": "4c2071af185ce4d39337793f406c6827848aa91d96bc2378d0ec2bda3617c4fd",
+      "result_file": "per-run/pretrained-transformer-tasks16-seed17-to_lehmer.json",
+      "run_id": "pretrained-transformer-tasks16-seed17-to_lehmer"
+    },
+    {
+      "checkpoint_sha256": "ff092830a32f21eeb627e1b3de08626da3e4bb0e2d06b2985ce1502388a8194a",
+      "result_file": "per-run/pretrained-transformer-tasks16-seed42-to_reduced_word.json",
+      "run_id": "pretrained-transformer-tasks16-seed42-to_reduced_word"
+    },
+    {
+      "checkpoint_sha256": "fd89dfc69a27a067eb20ae62ba0f56cf68f4dc2688a8ce971a3701f15e6056ad",
+      "result_file": "per-run/pretrained-transformer-tasks16-seed42-compose.json",
+      "run_id": "pretrained-transformer-tasks16-seed42-compose"
+    },
+    {
+      "checkpoint_sha256": "ff8b54b7509f1d407cc5f271e6e802968cd31380d01678e6f3a24899de906f5d",
+      "result_file": "per-run/pretrained-transformer-tasks16-seed42-parity.json",
+      "run_id": "pretrained-transformer-tasks16-seed42-parity"
+    },
+    {
+      "checkpoint_sha256": "a4e62f2af3e281dbb12435bb3f7ff70ae740bccaa5eeff924aed3c4e5ca6f2b4",
+      "result_file": "per-run/pretrained-transformer-tasks16-seed42-to_lehmer.json",
+      "run_id": "pretrained-transformer-tasks16-seed42-to_lehmer"
+    },
+    {
+      "checkpoint_sha256": "200d5d26b059c60d7bbf9281f5a2deaec165f8d365bd9d737704a0f3499d0af3",
+      "result_file": "per-run/pretrained-transformer-tasks16-seed314159-to_reduced_word.json",
+      "run_id": "pretrained-transformer-tasks16-seed314159-to_reduced_word"
+    },
+    {
+      "checkpoint_sha256": "8d75b9b9462ca7608a41be0a61adca7a01095f6cead1faad994a9341fb512593",
+      "result_file": "per-run/pretrained-transformer-tasks16-seed314159-compose.json",
+      "run_id": "pretrained-transformer-tasks16-seed314159-compose"
+    },
+    {
+      "checkpoint_sha256": "16e65a511a398c2bb6c504931ebd26bbc773c6146caf84f96e10416cb2707895",
+      "result_file": "per-run/pretrained-transformer-tasks16-seed314159-parity.json",
+      "run_id": "pretrained-transformer-tasks16-seed314159-parity"
+    },
+    {
+      "checkpoint_sha256": "9eaee3c3297ec3f97a9b31f0b67ee459c2f0269b7ce91d3f6134f02c043adf45",
+      "result_file": "per-run/pretrained-transformer-tasks16-seed314159-to_lehmer.json",
+      "run_id": "pretrained-transformer-tasks16-seed314159-to_lehmer"
+    },
+    {
+      "checkpoint_sha256": "1aea37e2bfcd4756cf282959252f32dbcb5fe575e618c6a831e44419d0094d3e",
+      "result_file": "per-run/random-transformer-seed17-to_reduced_word.json",
+      "run_id": "random-transformer-seed17-to_reduced_word"
+    },
+    {
+      "checkpoint_sha256": "df067b42d3a80aac69fed6f7fdf38d0bf5b091520f5480e39fd28b17d12c7a26",
+      "result_file": "per-run/random-transformer-seed17-compose.json",
+      "run_id": "random-transformer-seed17-compose"
+    },
+    {
+      "checkpoint_sha256": "f952ce176a833a6789246941595e6b1ab7fa477eae4b30e5eaf11af3a3448fec",
+      "result_file": "per-run/random-transformer-seed17-parity.json",
+      "run_id": "random-transformer-seed17-parity"
+    },
+    {
+      "checkpoint_sha256": "129e179e9b3d4ead8f850e74acee1233d6fd9cca866bcfddf9ef970b700c655d",
+      "result_file": "per-run/random-transformer-seed17-to_lehmer.json",
+      "run_id": "random-transformer-seed17-to_lehmer"
+    },
+    {
+      "checkpoint_sha256": "0ff2b18598384eed9de75521980d3e0ec17cc437e97263a980a6dbda07ec1968",
+      "result_file": "per-run/random-transformer-seed42-to_reduced_word.json",
+      "run_id": "random-transformer-seed42-to_reduced_word"
+    },
+    {
+      "checkpoint_sha256": "6c97af3103a01a7ef3193fdea765b280804cc0f0df86c6010eb3d0ad28e8262c",
+      "result_file": "per-run/random-transformer-seed42-compose.json",
+      "run_id": "random-transformer-seed42-compose"
+    },
+    {
+      "checkpoint_sha256": "7254fe47ecb6b1ea144ec9c5f46c36cc603179283e82782370c6f98b8b48ca93",
+      "result_file": "per-run/random-transformer-seed42-parity.json",
+      "run_id": "random-transformer-seed42-parity"
+    },
+    {
+      "checkpoint_sha256": "cf7025ae7169bd86fe07182340ba5b9ad38af01a8f000c0ae2a53d3252e60fac",
+      "result_file": "per-run/random-transformer-seed42-to_lehmer.json",
+      "run_id": "random-transformer-seed42-to_lehmer"
+    },
+    {
+      "checkpoint_sha256": "2bc4e19b11ede4dbf274cc780bb48cde8d14f8a591a2997380a7b7224f510467",
+      "result_file": "per-run/random-transformer-seed314159-to_reduced_word.json",
+      "run_id": "random-transformer-seed314159-to_reduced_word"
+    },
+    {
+      "checkpoint_sha256": "0a2926fa5d1702757f636d50e27017f0a0b321a9b0d6449008405051293e092e",
+      "result_file": "per-run/random-transformer-seed314159-compose.json",
+      "run_id": "random-transformer-seed314159-compose"
+    },
+    {
+      "checkpoint_sha256": "432a57f945aa0bf1da69de5e2402bda84524e4d3f1ac8cca90f6130f5f442b1d",
+      "result_file": "per-run/random-transformer-seed314159-parity.json",
+      "run_id": "random-transformer-seed314159-parity"
+    },
+    {
+      "checkpoint_sha256": "5b353bd6ef787ba17aefff2c6b0592b35debd47a59d6bf8fe7b0b0ef48fbdb06",
+      "result_file": "per-run/random-transformer-seed314159-to_lehmer.json",
+      "run_id": "random-transformer-seed314159-to_lehmer"
+    },
+    {
+      "checkpoint_sha256": "94e6a39ee8072298d200ea936b56dda918134e88768749a4ca78ca83bed8181a",
+      "result_file": "per-run/random-mlp-seed17-to_reduced_word.json",
+      "run_id": "random-mlp-seed17-to_reduced_word"
+    },
+    {
+      "checkpoint_sha256": "9550f1c12f8ff4d1f03079c6c06d239eb270b7807c264d3a41113e37f6499cab",
+      "result_file": "per-run/random-mlp-seed17-compose.json",
+      "run_id": "random-mlp-seed17-compose"
+    },
+    {
+      "checkpoint_sha256": "d4fee8af1c55f0c38093ff28dc004a4f256b39a7c921837583953eb24934f592",
+      "result_file": "per-run/random-mlp-seed17-parity.json",
+      "run_id": "random-mlp-seed17-parity"
+    },
+    {
+      "checkpoint_sha256": "a402f89f888becc39c547c4dd255bd5dfacd87bbb4e0c864126cebe53a06ac03",
+      "result_file": "per-run/random-mlp-seed17-to_lehmer.json",
+      "run_id": "random-mlp-seed17-to_lehmer"
+    },
+    {
+      "checkpoint_sha256": "4940d8bdcb7d8a9b249978f51cda00dbd439369633f3456a52ff92a64052355e",
+      "result_file": "per-run/random-mlp-seed42-to_reduced_word.json",
+      "run_id": "random-mlp-seed42-to_reduced_word"
+    },
+    {
+      "checkpoint_sha256": "3bad6c83ced873c98a8c9f20336e6b6e30994bb4aa7e3b5c5efb2ab1462d3884",
+      "result_file": "per-run/random-mlp-seed42-compose.json",
+      "run_id": "random-mlp-seed42-compose"
+    },
+    {
+      "checkpoint_sha256": "4a5b60158e7651ea0d8427c595c28af8179ac2c720cfc412d4971c8e39a4e3ad",
+      "result_file": "per-run/random-mlp-seed42-parity.json",
+      "run_id": "random-mlp-seed42-parity"
+    },
+    {
+      "checkpoint_sha256": "5be7128b82e4f6da6695266330123ca09e61724d85fa3f6f77628a89f68725e6",
+      "result_file": "per-run/random-mlp-seed42-to_lehmer.json",
+      "run_id": "random-mlp-seed42-to_lehmer"
+    },
+    {
+      "checkpoint_sha256": "d70cebe53a3cf784c10a05a26408dd4aafd36dcfcf13a6bda68f537f8f3c00fa",
+      "result_file": "per-run/random-mlp-seed314159-to_reduced_word.json",
+      "run_id": "random-mlp-seed314159-to_reduced_word"
+    },
+    {
+      "checkpoint_sha256": "d182e75e1d51ed10e77accdedacee15b6c627757e50cef0fb6dd4e9e10529604",
+      "result_file": "per-run/random-mlp-seed314159-compose.json",
+      "run_id": "random-mlp-seed314159-compose"
+    },
+    {
+      "checkpoint_sha256": "772ef1d3267de4e2d3cfe12235019f8507ba3931c8aa23f286bc4e782828fcc1",
+      "result_file": "per-run/random-mlp-seed314159-parity.json",
+      "run_id": "random-mlp-seed314159-parity"
+    },
+    {
+      "checkpoint_sha256": "0f4eb3642c203d412f23043502ca8db5544cdec7fd3bac7c174eda6bfc0b83b3",
+      "result_file": "per-run/random-mlp-seed314159-to_lehmer.json",
+      "run_id": "random-mlp-seed314159-to_lehmer"
+    }
+  ],
+  "status": "completed",
+  "support_artifact_sha256": "a9463d6402dde0425048ff156f94a32e6d2115cc4cbed3788398333ae3aedc0a",
+  "test_manifest_full_verification": {
+    "full": true,
+    "ok": true,
+    "record_count": 100000,
+    "shard_count": 1,
+    "split": "test",
+    "task_counts": {
+      "bruhat_leq": 5000,
+      "compose": 5000,
+      "cycle_type": 5000,
+      "descents": 5000,
+      "exceedances": 5000,
+      "fixed_points": 5000,
+      "inverse": 5000,
+      "lds_length": 5000,
+      "length": 5000,
+      "lis_length": 5000,
+      "parity": 5000,
+      "pattern_avoidance": 5000,
+      "peaks": 5000,
+      "recoils": 5000,
+      "right_multiply_simple": 5000,
+      "rsk_shape": 5000,
+      "to_cycle": 5000,
+      "to_inversion_vector": 5000,
+      "to_lehmer": 5000,
+      "to_reduced_word": 5000
+    },
+    "total_bytes": 11405137,
+    "workers": 1
+  },
+  "test_manifest_sha256": "3ca12e6b6eeb29fc0ddd441b9c44c80d7a160faaf7e832eb55007f4c6a3ab52b",
+  "total_model_examples": 720000
+}

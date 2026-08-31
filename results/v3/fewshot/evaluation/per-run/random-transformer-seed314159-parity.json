@@ -1,0 +1,24 @@
+{
+  "architecture": "transformer",
+  "base_run_id": "",
+  "base_trained_task_count": 0,
+  "checkpoint_sha256": "432a57f945aa0bf1da69de5e2402bda84524e4d3f1ac8cca90f6130f5f442b1d",
+  "elapsed_seconds": 3.3175879260525107,
+  "evaluator_commit": "8d3ec126fb9cb88a1640a0d2d3497f0c93275c2d",
+  "fewshot_config_sha256": "8151ca27cabc61db753714bc3003db88815553a3ad1220e6f54268bc72714ad0",
+  "format_version": "henry-permutation-fewshot-test/v1",
+  "initialization": "random",
+  "metrics": {
+    "examples": 5000,
+    "loss": 1.1381176544189453,
+    "sequence_accuracy": 0.508,
+    "token_accuracy": 0.754,
+    "tokens": 10000
+  },
+  "run_id": "random-transformer-seed314159-parity",
+  "seed": 314159,
+  "status": "completed",
+  "support_artifact_sha256": "a9463d6402dde0425048ff156f94a32e6d2115cc4cbed3788398333ae3aedc0a",
+  "task": "parity",
+  "test_manifest_sha256": "3ca12e6b6eeb29fc0ddd441b9c44c80d7a160faaf7e832eb55007f4c6a3ab52b"
+}

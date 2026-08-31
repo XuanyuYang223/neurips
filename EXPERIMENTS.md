@@ -166,12 +166,14 @@ few-shot cross-category transfer.
 
 ## Henry-style 20-shot adaptation follow-up
 
-The hard zero-shot result is now complemented by a separately frozen
-few-shot protocol. Each of the 30 nested v3 base models is fine-tuned
+The hard zero-shot result is now complemented by a completed, separately
+frozen few-shot protocol. Each of the 30 nested v3 base models was fine-tuned
 independently on 20 train-split examples from each of the four fixed holdout
-tasks. The 120 warm-start adaptations are compared with 24 paired
+tasks. The 120 warm-start adaptations were compared with 24 paired
 random-initialization controls. Seen base-training tasks are excluded from all
-adaptation averages. The complete design is in
+adaptation averages. All 144 runs passed strict audit; independent-test
+results are in
+[`results/v3/fewshot/README.md`](results/v3/fewshot/README.md). The complete design is in
 [`results/v3/FEW_SHOT_PROTOCOL.md`](results/v3/FEW_SHOT_PROTOCOL.md), and the
 machine-readable configuration is
 [`configs/henry_permutation_fewshot.toml`](configs/henry_permutation_fewshot.toml).

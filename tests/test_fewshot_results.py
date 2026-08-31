@@ -6,6 +6,7 @@ from neurips_permutations.fewshot_results import (
     RAW_FIELDS,
     build_gains,
     build_summary,
+    build_task_summary,
 )
 
 
@@ -59,6 +60,12 @@ def test_summary_keeps_random_and_pretrained_conditions_separate() -> None:
     assert sum(row["initialization"] == "random" for row in summary) == 2
     assert {row["seed_count"] for row in summary} == {3}
     assert {row["task_count"] for row in summary} == {4}
+    structured = build_summary(
+        _rows(), tasks=("to_reduced_word", "compose", "to_lehmer")
+    )
+    assert len(structured) == 12
+    assert {row["task_count"] for row in structured} == {3}
+    assert len(build_task_summary(_rows())) == 48
 
 
 def test_paired_gains_are_macro_averaged_by_seed_then_reported() -> None:

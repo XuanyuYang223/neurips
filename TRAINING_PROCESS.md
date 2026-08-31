@@ -59,6 +59,8 @@ This avoids the task-count confound that would arise from directly comparing the
 
 The authoritative design is documented in [configs/henry_permutation_revised.toml](configs/henry_permutation_revised.toml) and [EXPERIMENTS.md](EXPERIMENTS.md). Both the 30-run nested matrix and the isolated 18-run E4/S4/A4 category matrix used schema-aware plan, dry-run, resume, and strict-audit support. E4 used micro-batches of 4 with 16-way gradient accumulation, while S4/A4 used 16 with 4-way accumulation, giving all category conditions 64 examples per optimizer update despite long reduced-word sequences. All 48 completion markers passed strict audit, and the frozen shard099 evaluation processed 100,000 examples per model. Complete results are in [results/v3/README.md](results/v3/README.md).
 
+Henry's fine-tuning proposal was then implemented as a separately frozen 20-shot follow-up. The 30 nested base models were each adapted independently to four holdouts, producing 120 warm-start runs, and 24 architecture/task/seed-matched random-initialization controls were added. Every run used 20 train-split support examples, 200 optimizer steps, and a full 5,000-example target-task validation before strict audit. All 144 checkpoints passed; the frozen test pass then evaluated 720,000 model-examples. Transformer four-task exact accuracy increased with base-task count, but almost all complete-answer success came from Boolean `parity`; structured-task exact accuracy remained at or below 0.113%. Full results and provenance are in [results/v3/fewshot/README.md](results/v3/fewshot/README.md).
+
 ## 1. V2 Baseline Research Objective and Scope of Completion
 
 Henry's central question is whether a model's internal representations and generalization ability improve systematically as the variety of tasks on which it is trained increases. The v2 permutation baseline uses nested task sets and compares the Transformer and MLP under an identical optimizer-step budget.
@@ -81,7 +83,7 @@ The v2 baseline has not yet completed:
 - Linear probing and representation geometry analyses.
 - The full `4 representations × 8 tasks` input-combination experiment from the second proposal.
 
-Thus, the v2 baseline completes the task-selection, data-generation, and base-model-training stages of Henry's proposal, together with a preliminary validation-set zero-shot result; it cannot yet be described as a complete generalization study. The v3 study separately completes data generation, 48 base models, and independent behavioral test evaluation, while representation and few-shot analyses remain outstanding.
+Thus, the v2 baseline completes the task-selection, data-generation, and base-model-training stages of Henry's proposal, together with a preliminary validation-set zero-shot result; it cannot yet be described as a complete generalization study. The v3 study separately completes data generation, 48 base models, independent behavioral test evaluation, and the 144-run 20-shot adaptation comparison, while representation analyses remain outstanding.
 
 ## 2. Requirement Interpretation and Frozen Decisions
 
@@ -858,10 +860,10 @@ To share these artifacts, use object storage, dataset hosting, GitHub Release as
 
 ## 15. Known Limitations and Next Steps
 
-The `permutation-20/v3` data, 30-run nested matrix, 18-run E4/S4/A4 category matrix, strict audits, and one-time independent test evaluation are complete. The 30 old v2 models remain baseline/appendix material; they were not deleted or relabeled as v3 results. [results/v3/README.md](results/v3/README.md) reports the behavioral generalization result. Representation and adaptation analyses remain outstanding.
+The `permutation-20/v3` data, 30-run nested matrix, 18-run E4/S4/A4 category matrix, strict audits, one-time independent zero-shot test evaluation, and 144-run Henry-style 20-shot adaptation study are complete. The 30 old v2 models remain baseline/appendix material; they were not deleted or relabeled as v3 results. [results/v3/README.md](results/v3/README.md) reports the behavioral zero-shot result, and [results/v3/fewshot/README.md](results/v3/fewshot/README.md) reports few-shot adaptation. Representation analyses remain outstanding.
 
-1. **Few-shot generalization**: The primary 20-shot protocol is now frozen in [configs/henry_permutation_fewshot.toml](configs/henry_permutation_fewshot.toml). It adapts every nested base model separately to every fixed holdout at low learning rate; optional 5-shot and 100-shot curves remain future extensions.
-2. **Random-init baseline**: The frozen follow-up includes a paired random-initialization model for every architecture, task, and seed, using the same 20 support examples and number of updates. It uses the established from-scratch learning rate rather than the pretrained fine-tuning rate.
+1. **Few-shot generalization**: The primary 20-shot protocol in [configs/henry_permutation_fewshot.toml](configs/henry_permutation_fewshot.toml) is complete. It adapted every nested base model separately to every fixed holdout at low learning rate; optional 5-shot and 100-shot curves remain future extensions.
+2. **Random-init baseline**: The completed follow-up includes a paired random-initialization model for every architecture, task, and seed, using the same 20 support examples and number of updates. It uses the established from-scratch learning rate rather than the pretrained fine-tuning rate.
 3. **Linear probes**: Prefer extracting layerwise hidden states at positions before the task token, such as `<ONE_END>`, to avoid answer leakage and reduce the influence of ungrounded holdout tokens.
 4. **Representation geometry**: Compare layerwise CKA/SVCCA, Procrustes alignment, effective rank, clustering, or representational similarity.
 5. **Multiple task orders**: The current three seeds cover only initialization/shuffle variation; the task-subset order was sampled only once, so the error bars do not include variance from which tasks were selected.
@@ -882,8 +884,10 @@ The `permutation-20/v3` data, 30-run nested matrix, 18-run E4/S4/A4 category mat
 - [EXPERIMENTS.md](EXPERIMENTS.md): overview of Henry's nested matrix.
 - [results/v2/README.md](results/v2/README.md): v2 validation and generalization tables.
 - [results/v3/README.md](results/v3/README.md): completed 48-model v3 training and independent test results.
+- [results/v3/fewshot/README.md](results/v3/fewshot/README.md): completed Henry-style 20-shot adaptation results.
 - [configs/henry_permutation.toml](configs/henry_permutation.toml): frozen experiment configuration.
 - [configs/henry_permutation_revised.toml](configs/henry_permutation_revised.toml): frozen v3 launch design after Henry's feedback.
+- [configs/henry_permutation_fewshot.toml](configs/henry_permutation_fewshot.toml): frozen 20-shot follow-up.
 - [generate.py](src/neurips_permutations/generate.py): data generation.
 - [verify.py](src/neurips_permutations/verify.py): full data verification.
 - [passage.py](src/neurips_permutations/passage.py): tokenizer and Passage Math grammar.
@@ -893,3 +897,5 @@ The `permutation-20/v3` data, 30-run nested matrix, 18-run E4/S4/A4 category mat
 - [audit.py](src/neurips_permutations/audit.py): strict completion audit.
 - [evaluate.py](src/neurips_permutations/evaluate.py): one-time full test evaluation.
 - [results.py](src/neurips_permutations/results.py): audited validation/test result export.
+- [fewshot.py](src/neurips_permutations/fewshot.py): support selection, adaptation, audit, and test evaluation.
+- [fewshot_results.py](src/neurips_permutations/fewshot_results.py): few-shot result aggregation and paired gains.

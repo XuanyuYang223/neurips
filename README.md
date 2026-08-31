@@ -34,6 +34,12 @@ therefore does not demonstrate reliable zero-shot acquisition of an unseen
 permutation operation. See the [v3 results](results/v3/README.md) for the full
 loss and accuracy changes.
 
+Henry's 20-shot follow-up is also complete. Transformer adaptation improves
+with broader base training on the four-task macro, but the increase is almost
+entirely due to Boolean `parity`; exact accuracy on the three structured
+holdouts remains at or below 0.113%. See the
+[few-shot report](results/v3/fewshot/README.md).
+
 ## v3 revision
 
 Henry suggested removing the unusually slow `power`, `conjugate`, and
@@ -80,6 +86,8 @@ are in [PROTOCOL.md](PROTOCOL.md).
 - [results/](results/README.md): versioned, shareable experiment results;
 - [20-shot follow-up](results/v3/FEW_SHOT_PROTOCOL.md): Henry-style low-LR
   adaptation against a random-initialization control;
+- [20-shot results](results/v3/fewshot/README.md): 144 audited adaptations and
+  paired zero-shot/random-init comparisons;
 - [TRAINING_PROCESS.md](TRAINING_PROCESS.md): full data, architecture,
   training, recovery, audit, and evaluation record;
 - [EXPERIMENTS.md](EXPERIMENTS.md): experimental designs and limitations;

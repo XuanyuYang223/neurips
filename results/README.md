@@ -17,6 +17,7 @@ validation results, not an untouched final test evaluation.
 - [Main report](v3/README.md)
 - [Launch and provenance record](v3/LAUNCH.md)
 - [Henry-style 20-shot follow-up protocol](v3/FEW_SHOT_PROTOCOL.md)
+- [Henry-style 20-shot results](v3/fewshot/README.md)
 - [All 960 independent-test model-task rows](v3/test_model_task_accuracies.csv)
 - [Nested generalization only](v3/test_nested_generalization.csv)
 - [Category generalization only](v3/test_category_generalization.csv)
@@ -24,6 +25,10 @@ validation results, not an untouched final test evaluation.
 V3 trained 48 models: 30 nested models and 18 category-comparison models.
 Every model was evaluated on all 20 tasks, giving 48 x 20 = 960 rows on
 validation and another 960 rows on the frozen test split.
+
+The separate Henry-style follow-up contains 120 warm-start adaptations and 24
+random-init controls. Each is evaluated only on its assigned holdout task, so
+its raw table has 144 rows rather than another 20-task grid.
 
 The two `*_generalization.csv` files intentionally exclude tasks used to train
 the evaluated model. The other summary files retain seen-task metrics for
