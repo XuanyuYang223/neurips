@@ -1,8 +1,8 @@
 # NeurIPS permutation multitask data
 
 This repository contains the completed `permutation-20/v2` baseline and the
-revised `permutation-20/v3` main-study design for the permutation half of the
-multitask-generalization study. The completed v2 baseline covers exactly 20
+completed revised `permutation-20/v3` experiment for the permutation half of
+the multitask-generalization study. The completed v2 baseline covers exactly 20
 tasks:
 
 - 4 encodings/translations;
@@ -52,9 +52,29 @@ algebraic tasks.  Details and exact task lists are in
 [EXPERIMENTS.md](EXPERIMENTS.md) and
 [`configs/henry_permutation_revised.toml`](configs/henry_permutation_revised.toml).
 
-**Status:** the v3 data has passed full verification, but no formal revised v3
-run has been trained yet.  The accuracy matrices below are exclusively
-completed v2 baseline results.
+**Status:** all **48/48 formal v3 models** completed 20,000 updates and passed
+strict audit: 30 nested-task models plus 18 matched E4/S4/A4 category models.
+The one-time independent test pass evaluated 4.8 million model-examples from
+shard099 with exactly 5,000 examples per task per model and no failures.
+
+The central generalization result is negative but informative: trained-task
+accuracy is often high, while exact zero-shot accuracy on unseen operations is
+near zero. In the nested test, the four fixed holdouts never exceed 2.83%
+task-macro exact accuracy in any architecture/task-count condition, and three
+structured holdouts are exactly 0% throughout. In the category test,
+off-diagonal exact transfer is also essentially zero; nonzero
+Statistics-to-Algebra accuracy comes from Boolean answer-format transfer to
+`bruhat_leq`, not solution of the permutation-output operations.
+
+| Architecture | E4 seen exact | S4 seen exact | A4 seen exact |
+|---|---:|---:|---:|
+| Transformer | 84.45 +/- 4.86% | 47.91 +/- 0.72% | 97.61 +/- 1.61% |
+| MLP | 16.23 +/- 0.91% | 37.85 +/- 0.25% | 30.86 +/- 0.67% |
+
+See [V3_RESULTS.md](V3_RESULTS.md) for the complete architecture, encoding,
+training, integrity, per-condition test results, and interpretation. The large
+accuracy matrices later in this README remain explicitly labeled as the
+separate v2 baseline.
 
 ## Quick start
 
@@ -114,10 +134,14 @@ canonical output rules, and the extended Passage Math grammar.
   matrix, and matched E4/S4/A4 category design.
 - [V3_LAUNCH.md](V3_LAUNCH.md): frozen implementation, data, hardware,
   batching, pilot, and completion provenance for the formal v3 study.
-- [TRAINING_RESULTS.md](TRAINING_RESULTS.md): final validation tables and
-  generalization interpretation.
+- [V3_RESULTS.md](V3_RESULTS.md): all 48 revised models and the independent
+  v3 test-set generalization result.
+- [TRAINING_RESULTS.md](TRAINING_RESULTS.md): v2 baseline validation tables and
+  interpretation.
 - [MODEL_TASK_ACCURACIES.csv](MODEL_TASK_ACCURACIES.csv): all 600 unaveraged
-  model-by-task token and exact-sequence accuracy rows in filterable form.
+  v2 model-by-task validation rows.
+- [V3_TEST_MODEL_TASK_ACCURACIES.csv](V3_TEST_MODEL_TASK_ACCURACIES.csv): all
+  960 unaveraged v3 model-by-task independent test rows.
 
 ## Every v2 baseline model, every v2 task: validation accuracy
 

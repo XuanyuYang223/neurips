@@ -60,8 +60,9 @@ encoding without `<NUM_START>` or additional operands.
 
 ### Completed v3 dataset
 
-The formal v3 corpus has been generated and fully verified; this data completion
-does not imply that any v3 model has been trained.
+The formal v3 corpus was generated and fully verified before model training.
+All revised models have since completed; data and model completion remain
+separately authenticated artifacts.
 
 | Artifact fact | Value |
 |---|---:|
@@ -122,18 +123,18 @@ is:
 The revised nested matrix keeps the old controlled shape:
 
 ```text
-5 task subsets x 2 architectures x 3 seeds = 30 planned v3 models
+5 task subsets x 2 architectures x 3 seeds = 30 completed v3 models
 ```
 
-All planned runs will use the same optimizer-update budget and training
+All runs used the same optimizer-update budget and frozen training
 hyperparameters.
 The output directory is separate (`runs/henry-permutation-v3`) so no v2
 checkpoint can be overwritten or mistaken for a revised result.
 
-Formal model status: **planned, not trained**.  The v3 implementation, parent manifest,
-full mathematical/encoding verification, and split manifests have passed their
-data gate.  The schema-aware nested `experiments.py` plan and dry-run were also
-reviewed: they contain 30 incomplete v3 runs and no training was launched.
+Formal model status: **30/30 completed and strictly audited**. The final
+independent test results are reported in [V3_RESULTS.md](V3_RESULTS.md), with
+all 600 nested model-task test cells included in
+[`V3_TEST_MODEL_TASK_ACCURACIES.csv`](V3_TEST_MODEL_TASK_ACCURACIES.csv).
 
 ## Matched category comparison
 
@@ -152,14 +153,14 @@ Each condition uses 4 tasks, 500,000 records per task, the same model sizes,
 the same optimizer-update budget, and seeds `17`, `42`, and `314159`:
 
 ```text
-3 categories x 2 architectures x 3 seeds = 18 planned category models
+3 categories x 2 architectures x 3 seeds = 18 completed category models
 ```
 
-Representation comparisons use identical held-out one-line permutations.  The
-primary landmark is the hidden state at `<ONE_END>`, before the task token, so
-the comparison measures representations of the same permutation prefix rather
-than representations contaminated by different task labels.  Planned analyses
-are layerwise CKA, frozen linear probes, and few-shot cross-category transfer.
+The completed accuracy matrix evaluates behavioral cross-category transfer on
+identical one-line input distributions. The separate representation analyses
+remain planned: their primary landmark will be the hidden state at `<ONE_END>`,
+before the task token, followed by layerwise CKA, frozen linear probes, and
+few-shot cross-category transfer.
 
 The `category_comparison` table in the revised TOML freezes this design, but it
 is now executable through `permutation-experiments --matrix category`.  Its 18
@@ -173,10 +174,11 @@ accumulation.  The selected S4 tasks span scalar, structured, and Boolean
 statistics, but they are a frozen representative subset rather than a claim
 about all 12 statistical tasks.
 
-## Completion rule
+## Completion record
 
-As in v2, every future run must use resumable model, optimizer, scheduler, and
-RNG state.  A run is complete only after an atomic `completed.json` records the
-final step, config and manifest hashes, validation metrics, and final-checkpoint
-checksum.  Until such markers exist, the README must describe v3 models as
-planned rather than trained.
+Every v3 run used resumable model, optimizer, scheduler, and RNG state. Each of
+the 48 atomic `completed.json` files records the final step, config and manifest
+hashes, validation metrics, and final-checkpoint checksum. Strict post-training
+audits report 30/30 nested and 18/18 category runs passed, with zero incomplete
+or failed runs. The frozen one-time shard099 evaluation then processed 100,000
+examples per model, or 4.8 million model-examples total.

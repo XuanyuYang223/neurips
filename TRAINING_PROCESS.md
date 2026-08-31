@@ -1,15 +1,16 @@
 # Permutation Multitask Experiments: Complete Data and Training Process
 
-This document records the complete permutation workflow, from interpreting the requirements through data generation, encoding, model design, formal training, checkpoint recovery, verification, auditing, and publication of results. Sections 1–14 describe the v2 baseline that was actually executed to completion; Section 0 records the v3 revision following Henry's feedback: the data have been generated and fully verified, but the revised models remain a frozen, untrained design.
+This document records the complete permutation workflow, from interpreting the requirements through data generation, encoding, model design, formal training, checkpoint recovery, verification, auditing, and publication of results. Sections 1–14 describe the completed v2 baseline; Section 0 records the completed v3 revision following Henry's feedback, including all 48 trained models and the independent test pass.
 
-Last updated: 2026-08-30
+Last updated: 2026-08-31
 
 - GitHub: <https://github.com/XuanyuYang223/neurips>
 - Completed baseline: data protocol `permutation-20/v2`, experiment protocol `henry-permutation/v1`
 - Baseline status: 30/30 base models completed; strict audit: 30 passed / 0 failed
 - Revised main study: data protocol `permutation-20/v3`, experiment protocol `henry-permutation/v2-revised`
 - Revised data status: 10,000,000 records, 100 shards, full verification passed
-- Revised model status: design frozen, **not yet trained; 0 completed models**
+- Revised model status: **48/48 completed; strict audit 48 passed / 0 failed**
+- Revised test status: one frozen shard099 pass, 4,800,000 model-examples
 - Implementation commit used for formal v2 training: `6a40235`
 - Post-training audit/results baseline commit: `32ff22a`
 
@@ -44,7 +45,7 @@ V3 split:
 | Validation | `098` | 100,000 | `90e88845f3f58947f317c67144c83bc5e38c27b248227e311632af834d2fd068` |
 | Test | `099` | 100,000 | `3ca12e6b6eeb29fc0ddd441b9c44c80d7a160faaf7e832eb55007f4c6a3ab52b` |
 
-The revised nested matrix continues to use `1/2/4/8/16 tasks × 2 architectures × 3 seeds = 30` planned models and retains the same four holdouts as v2: `to_reduced_word`, `compose`, `parity`, and `to_lehmer`. Keeping the same holdout identities enables direct v2–v3 comparison while preserving one algebra holdout. The revised outputs are configured to be written separately to `runs/henry-permutation-v3`.
+The revised nested matrix used `1/2/4/8/16 tasks × 2 architectures × 3 seeds = 30` completed models and retained the same four holdouts as v2: `to_reduced_word`, `compose`, `parity`, and `to_lehmer`. Keeping the same holdout identities enables direct v2–v3 comparison while preserving one algebra holdout. The revised outputs were written separately to `runs/henry-permutation-v3`.
 
 To address Henry's question about category-level representational differences, this project operationalizes it as three task-count-matched groups:
 
@@ -54,9 +55,9 @@ To address Henry's question about category-level representational differences, t
 | Statistics S4 | `length`, `cycle_type`, `rsk_shape`, `pattern_avoidance` |
 | Algebra A4 | `inverse`, `compose`, `right_multiply_simple`, `bruhat_leq` |
 
-This avoids the task-count confound that would arise from directly comparing the full `4 vs 12 vs 4` category sets. The three groups use identical per-task data, optimizer-update budgets, architectures, and three seeds, for a total of `3 categories × 2 architectures × 3 seeds = 18` planned models. Layerwise CKA, frozen linear probes, and few-shot transfer are planned to be compared at the `<ONE_END>` position for the same held-out one-line permutations.
+This avoids the task-count confound that would arise from directly comparing the full `4 vs 12 vs 4` category sets. The three groups used identical per-task data, optimizer-update budgets, architectures, and three seeds, for a total of `3 categories × 2 architectures × 3 seeds = 18` completed models. Layerwise CKA, frozen linear probes, and few-shot transfer remain planned at the `<ONE_END>` position for the same held-out one-line permutations.
 
-The authoritative design is documented in [configs/henry_permutation_revised.toml](configs/henry_permutation_revised.toml) and [EXPERIMENTS.md](EXPERIMENTS.md). Both the 30-run nested matrix and the isolated 18-run E4/S4/A4 category matrix now have schema-aware plan, dry-run, resume, and strict-audit support. E4 uses micro-batches of 4 with 16-way gradient accumulation, while S4/A4 use 16 with 4-way accumulation, giving all category conditions 64 examples per optimizer update despite long reduced-word sequences. Completion of the v3 data does not imply completion of the models: none of these 30+18 planned models has a `completed.json`, so neither this document nor the README reports any v3 accuracy.
+The authoritative design is documented in [configs/henry_permutation_revised.toml](configs/henry_permutation_revised.toml) and [EXPERIMENTS.md](EXPERIMENTS.md). Both the 30-run nested matrix and the isolated 18-run E4/S4/A4 category matrix used schema-aware plan, dry-run, resume, and strict-audit support. E4 used micro-batches of 4 with 16-way gradient accumulation, while S4/A4 used 16 with 4-way accumulation, giving all category conditions 64 examples per optimizer update despite long reduced-word sequences. All 48 completion markers passed strict audit, and the frozen shard099 evaluation processed 100,000 examples per model. Complete results are in [V3_RESULTS.md](V3_RESULTS.md).
 
 ## 1. V2 Baseline Research Objective and Scope of Completion
 
@@ -80,7 +81,7 @@ The v2 baseline has not yet completed:
 - Linear probing and representation geometry analyses.
 - The full `4 representations × 8 tasks` input-combination experiment from the second proposal.
 
-Thus, the v2 baseline completes the task-selection, data-generation, and base-model-training stages of Henry's proposal, together with a preliminary validation-set zero-shot result; it cannot yet be described as a complete generalization study. This statement does not describe the v3 model status: v3 has currently completed only the formal dataset and full verification.
+Thus, the v2 baseline completes the task-selection, data-generation, and base-model-training stages of Henry's proposal, together with a preliminary validation-set zero-shot result; it cannot yet be described as a complete generalization study. The v3 study separately completes data generation, 48 base models, and independent behavioral test evaluation, while representation and few-shot analyses remain outstanding.
 
 ## 2. Requirement Interpretation and Frozen Decisions
 
@@ -698,7 +699,7 @@ The auditor does more than check that files exist. It:
 
 ### 12.3 Tests
 
-The repository contains 155 tests, all of which pass. Coverage includes:
+The repository contains 164 tests, all of which pass. Coverage includes:
 
 - All 23 task definitions supported across v2 and v3 (20 per protocol).
 - Passage Math grammar and canonical encodings.
@@ -709,6 +710,7 @@ The repository contains 155 tests, all of which pass. Coverage includes:
 - Streaming loader, answer-only collator, training, resume, and markers.
 - Experiment matrix.
 - Adversarial completion audit.
+- Audited validation-result export and one-time test evaluation.
 
 The only warnings are deprecation warnings about using `fork()` from a multithreaded Python 3.13 process; they are neither test failures nor training-numerics issues.
 
@@ -840,7 +842,7 @@ GitHub does not store:
 
 - 1.29 GB v2 production dataset.
 - 1,139,175,228-byte v3 production dataset.
-- 1.15 GB formal checkpoints.
+- 1.15 GB v2 formal checkpoints and 1,844,025,024 bytes of v3 checkpoints.
 - pilot/checkpoint runtime directories.
 
 Local paths:
@@ -849,38 +851,39 @@ Local paths:
 /home/yangx/neurips/data/permutation-10m-v2
 /home/yangx/neurips/data/permutation-10m-v3
 /home/yangx/neurips/runs/henry-permutation
+/home/yangx/neurips/runs/henry-permutation-v3
 ```
 
 To share these artifacts, use object storage, dataset hosting, GitHub Release assets, or a dedicated model registry rather than ordinary Git blobs.
 
 ## 15. Known Limitations and Next Steps
 
-The `permutation-20/v3` manifest, split manifests, and full verification are complete. The schema-aware 30-run nested and 18-run E4/S4/A4 category plans, dry-runs, resume paths, and audit paths have also been reviewed without starting formal training. The next priority is to run both revised matrices and then perform their frozen validation, test, and representation analyses. The 30 old v2 models and the analyses reported here remain as baseline/appendix material; they will not be deleted or relabeled as v3 results.
+The `permutation-20/v3` data, 30-run nested matrix, 18-run E4/S4/A4 category matrix, strict audits, and one-time independent test evaluation are complete. The 30 old v2 models remain baseline/appendix material; they were not deleted or relabeled as v3 results. [V3_RESULTS.md](V3_RESULTS.md) reports the behavioral generalization result. Representation and adaptation analyses remain outstanding.
 
-1. **Independent test**: After freezing the evaluator, perform a single final evaluation on shard 099 and use explicit greedy decoding to check implementation-level consistency of the sequence metric.
-2. **Few-shot generalization**: Fine-tune the 30 base models on each fixed holdout using Henry's recommended 20 samples and a low learning rate; optionally add 5-shot and 100-shot curves.
-3. **Random-init baseline**: Train from random initialization using exactly the same architecture, seed, shots, steps, and optimizer budget, then compare adaptation gain.
-4. **Linear probes**: Prefer extracting layerwise hidden states at positions before the task token, such as `<ONE_END>`, to avoid answer leakage and reduce the influence of ungrounded holdout tokens.
-5. **Representation geometry**: Compare layerwise CKA/SVCCA, Procrustes alignment, effective rank, clustering, or representational similarity.
-6. **Multiple task orders**: The current three seeds cover only initialization/shuffle variation; the task-subset order was sampled only once, so the error bars do not include variance from which tasks were selected.
-7. **Fixed-budget interpretation**: As task count increases, exposure per task falls from approximately 1.28M to 80k. The current design changes diversity and per-task data simultaneously, so the decline at 16 tasks cannot be attributed directly to interference.
-8. **Metric granularity**: Token accuracy includes delimiters, copied tokens, and EOS. Each task has only 47–160 validation examples, and output lengths create substantial differences in the quantization granularity of accuracy; per-task exact accuracy should therefore also be reported.
-9. **Distribution scope**: Validation and training both use new in-distribution shards with `n=2–30`. The study has not yet tested size extrapolation to `n>30`, combinatorial distribution shift, or cross-representation transfer.
-10. **Architecture matching**: The Transformer has 3.463M registered parameters and the MLP has 2.930M, so the former has approximately 18.2% more. However, 1,047,552 strict upper-triangular token-mixing parameters in the MLP are masked and do not participate in the forward pass, so the nominal count should not be interpreted as active-capacity matching either. The two architectures did not each undergo complete hyperparameter tuning, so the results support descriptive comparisons, not strong causal claims.
-11. **Statistical scope**: There are only three seeds, with no task-level bootstrap or significance test. Nonzero values such as MLP parity can be driven by a single seed.
-12. **Opaque holdout tokens**: Hard zero-shot inference cannot recover the meaning of an unseen operation from the token itself. Shared semantics, task descriptions, cross-representation combinations, or few-shot supervision are needed.
-13. **Determinism**: The seed, data order, and sharding are deterministic, but `torch.use_deterministic_algorithms` was not enabled; bitwise-identical weights are not guaranteed across GPU, CUDA, or PyTorch versions.
-14. **Environment provenance**: The checkpoint/marker does not embed the Git commit or Python, Torch, CUDA, or driver versions. This document records the environment used here, but future protocols should write these values into the marker.
-15. **4×8 representation grid**: To answer the representation-transfer question from the second attachment, cycle notation, Lehmer code, and inversion vectors must also be supported as primary inputs, after which the specified 11 combinations should be trained and the remaining 21 tested.
+1. **Few-shot generalization**: Fine-tune the base models on each fixed holdout using Henry's recommended 20 samples and a low learning rate; optionally add 5-shot and 100-shot curves.
+2. **Random-init baseline**: Train from random initialization using exactly the same architecture, seed, shots, steps, and optimizer budget, then compare adaptation gain.
+3. **Linear probes**: Prefer extracting layerwise hidden states at positions before the task token, such as `<ONE_END>`, to avoid answer leakage and reduce the influence of ungrounded holdout tokens.
+4. **Representation geometry**: Compare layerwise CKA/SVCCA, Procrustes alignment, effective rank, clustering, or representational similarity.
+5. **Multiple task orders**: The current three seeds cover only initialization/shuffle variation; the task-subset order was sampled only once, so the error bars do not include variance from which tasks were selected.
+6. **Fixed-budget interpretation**: As task count increases, exposure per task falls from approximately 1.28M to 80k. The current design changes diversity and per-task data simultaneously, so the decline at 16 tasks cannot be attributed directly to interference.
+7. **Metric granularity**: Token accuracy includes delimiters, copied tokens, and EOS. Validation diagnostics use only 47–160 examples per task, while the final test uses 5,000 per task per model; per-task exact accuracy remains the primary complete-answer metric.
+8. **Distribution scope**: Train, validation, and test are independent in-distribution shards with `n=2–30`. The study has not tested size extrapolation to `n>30`, combinatorial distribution shift, or cross-representation transfer.
+9. **Architecture matching**: The Transformer has 3.463M registered parameters and the MLP has 2.930M, so the former has approximately 18.2% more. However, 1,047,552 strict upper-triangular token-mixing parameters in the MLP are masked and do not participate in the forward pass, so the nominal count should not be interpreted as active-capacity matching either. The two architectures did not each undergo complete hyperparameter tuning, so the results support descriptive comparisons, not strong causal claims.
+10. **Statistical scope**: There are only three seeds, with no task-level bootstrap or significance test. Nonzero values such as MLP parity can be driven by a single seed.
+11. **Opaque holdout tokens**: Hard zero-shot inference cannot recover the meaning of an unseen operation from the token itself. Shared semantics, task descriptions, cross-representation combinations, or few-shot supervision are needed.
+12. **Determinism**: The seed, data order, and sharding are deterministic, but `torch.use_deterministic_algorithms` was not enabled; bitwise-identical weights are not guaranteed across GPU, CUDA, or PyTorch versions.
+13. **Environment provenance**: The checkpoint/marker does not embed the Git commit or Python, Torch, CUDA, or driver versions. This document records the environment used here, but future protocols should write these values into the marker.
+14. **4×8 representation grid**: To answer the representation-transfer question from the second attachment, cycle notation, Lehmer code, and inversion vectors must also be supported as primary inputs, after which the specified 11 combinations should be trained and the remaining 21 tested.
 
 ## 16. Key File Index
 
 - [README.md](README.md): quick start.
 - [PROTOCOL.md](PROTOCOL.md): 20-task mathematics and data protocol.
 - [EXPERIMENTS.md](EXPERIMENTS.md): overview of Henry's nested matrix.
-- [TRAINING_RESULTS.md](TRAINING_RESULTS.md): final validation and generalization tables.
+- [TRAINING_RESULTS.md](TRAINING_RESULTS.md): v2 validation and generalization tables.
+- [V3_RESULTS.md](V3_RESULTS.md): completed 48-model v3 training and independent test results.
 - [configs/henry_permutation.toml](configs/henry_permutation.toml): frozen experiment configuration.
-- [configs/henry_permutation_revised.toml](configs/henry_permutation_revised.toml): v3 design after Henry's feedback (not yet trained).
+- [configs/henry_permutation_revised.toml](configs/henry_permutation_revised.toml): frozen v3 launch design after Henry's feedback.
 - [generate.py](src/neurips_permutations/generate.py): data generation.
 - [verify.py](src/neurips_permutations/verify.py): full data verification.
 - [passage.py](src/neurips_permutations/passage.py): tokenizer and Passage Math grammar.
@@ -888,3 +891,5 @@ The `permutation-20/v3` manifest, split manifests, and full verification are com
 - [training.py](src/neurips_permutations/training.py): streaming training and checkpoint/resume.
 - [experiments.py](src/neurips_permutations/experiments.py): 30-run orchestration.
 - [audit.py](src/neurips_permutations/audit.py): strict completion audit.
+- [evaluate.py](src/neurips_permutations/evaluate.py): one-time full test evaluation.
+- [results.py](src/neurips_permutations/results.py): audited validation/test result export.

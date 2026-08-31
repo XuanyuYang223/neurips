@@ -1,4 +1,4 @@
-# Henry permutation training: completion report
+# v2 Henry permutation training: completion report
 
 Generated from the frozen completion markers in `runs/henry-permutation` on
 2026-08-30. The checkpoint directory is intentionally gitignored.
@@ -101,7 +101,7 @@ be correct. Because the models are strictly causal, that all-token event is
 equivalent to greedy exact generation of the canonical target for the same
 prompt, although a separate decoding harness has not yet been run.
 
-Shard 099 remains untouched by model evaluation. A frozen test pass, few-shot
+The v2 shard099 remains untouched by model evaluation. A frozen v2 test pass, few-shot
 holdout fine-tuning, random-initialization baselines, linear probes, and
 representation-geometry analysis remain downstream experiments. Accordingly,
 this report establishes completion of all 30 base-model runs and a preliminary

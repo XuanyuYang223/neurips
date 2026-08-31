@@ -1,0 +1,335 @@
+{
+  "evaluator_commit": "7e2933033f6d99e16a004430d3dce19d51f37013",
+  "examples_per_run": 100000,
+  "examples_per_task_per_run": 5000,
+  "experiment_config_sha256": "dd75f31277e42f554ed681beda44bb53f2d4f65089fd9583540b9e645c4f1b40",
+  "format_version": "v3-test-evaluation/v1",
+  "run_count": 48,
+  "runs": [
+    {
+      "checkpoint_sha256": "6797abe31d5906e4085b94623bc54e0e851399e6041b0788ffd4809c4a16c76f",
+      "matrix": "nested",
+      "result_file": "per-run/transformer-tasks01-seed17.json",
+      "run_id": "transformer-tasks01-seed17"
+    },
+    {
+      "checkpoint_sha256": "f830337a5ef693d5511a56f4e452f770e8ac294a4e1168340c5b8839ffd27ad3",
+      "matrix": "nested",
+      "result_file": "per-run/transformer-tasks01-seed42.json",
+      "run_id": "transformer-tasks01-seed42"
+    },
+    {
+      "checkpoint_sha256": "eff78c21983f2c56b059a5c3eb5be739204669f4312322990ab90719654574bb",
+      "matrix": "nested",
+      "result_file": "per-run/transformer-tasks01-seed314159.json",
+      "run_id": "transformer-tasks01-seed314159"
+    },
+    {
+      "checkpoint_sha256": "a7a957b4c8d584d11aa7d17c6204cb878d5b0574c490f426b62c447937b1e115",
+      "matrix": "nested",
+      "result_file": "per-run/mlp-tasks01-seed17.json",
+      "run_id": "mlp-tasks01-seed17"
+    },
+    {
+      "checkpoint_sha256": "9f03fd07787b6f464ae9cb9014c6c5d6b8b4278bc045c5a13a3b9cc92fd74bf7",
+      "matrix": "nested",
+      "result_file": "per-run/mlp-tasks01-seed42.json",
+      "run_id": "mlp-tasks01-seed42"
+    },
+    {
+      "checkpoint_sha256": "a436fb145731392b521adb9d337591af63f96e10b1676066ecde0ca803e6c691",
+      "matrix": "nested",
+      "result_file": "per-run/mlp-tasks01-seed314159.json",
+      "run_id": "mlp-tasks01-seed314159"
+    },
+    {
+      "checkpoint_sha256": "0db84c5a371c6f5a3bc8d9a175b59996865fe273bba6ec42ac056dd5f0ee7325",
+      "matrix": "nested",
+      "result_file": "per-run/transformer-tasks02-seed17.json",
+      "run_id": "transformer-tasks02-seed17"
+    },
+    {
+      "checkpoint_sha256": "9d020b90f8017cb96d8ddba5e9ba44bd00506c6a968d1d9337a42e0ae07d212f",
+      "matrix": "nested",
+      "result_file": "per-run/transformer-tasks02-seed42.json",
+      "run_id": "transformer-tasks02-seed42"
+    },
+    {
+      "checkpoint_sha256": "5219b0b88cb37c42302bfc1270e65eb414892e742b6b78de266b9571c0be8fe0",
+      "matrix": "nested",
+      "result_file": "per-run/transformer-tasks02-seed314159.json",
+      "run_id": "transformer-tasks02-seed314159"
+    },
+    {
+      "checkpoint_sha256": "5022263e0817a20be2186f07f0a70c4a3e63d80b7ef22211fa568fab0cea52c6",
+      "matrix": "nested",
+      "result_file": "per-run/mlp-tasks02-seed17.json",
+      "run_id": "mlp-tasks02-seed17"
+    },
+    {
+      "checkpoint_sha256": "613b8f7bf79407964c909aab7f2613107d2cbcf54692ef691fa82ecb12fc8189",
+      "matrix": "nested",
+      "result_file": "per-run/mlp-tasks02-seed42.json",
+      "run_id": "mlp-tasks02-seed42"
+    },
+    {
+      "checkpoint_sha256": "d95c0c1774dbe120c5db2f2556dfe73fd6333fe55fdd1ca634b53728f2415f25",
+      "matrix": "nested",
+      "result_file": "per-run/mlp-tasks02-seed314159.json",
+      "run_id": "mlp-tasks02-seed314159"
+    },
+    {
+      "checkpoint_sha256": "df4d4f3efd6f87e8a5a7461d88803f1979a39be8596f7377b783b6b72b55829f",
+      "matrix": "nested",
+      "result_file": "per-run/transformer-tasks04-seed17.json",
+      "run_id": "transformer-tasks04-seed17"
+    },
+    {
+      "checkpoint_sha256": "327b09d5cb941ddaec7fc34bb44d6e59105679bd06d2b10ee77f8a5aaf5da8a7",
+      "matrix": "nested",
+      "result_file": "per-run/transformer-tasks04-seed42.json",
+      "run_id": "transformer-tasks04-seed42"
+    },
+    {
+      "checkpoint_sha256": "3a1618fcbe03d9ecbe03c5b28213a77df5b7188a3a3a1823ba9a7d522dd934ec",
+      "matrix": "nested",
+      "result_file": "per-run/transformer-tasks04-seed314159.json",
+      "run_id": "transformer-tasks04-seed314159"
+    },
+    {
+      "checkpoint_sha256": "b72c07eeb8e85f0276fbeca9ea1b9c093ace83dec210e06c5bdcfd06267a5492",
+      "matrix": "nested",
+      "result_file": "per-run/mlp-tasks04-seed17.json",
+      "run_id": "mlp-tasks04-seed17"
+    },
+    {
+      "checkpoint_sha256": "e67f4116d0cd9676e730e3bad08409c35c63a0a0c8df5e69def4b2314fb30b67",
+      "matrix": "nested",
+      "result_file": "per-run/mlp-tasks04-seed42.json",
+      "run_id": "mlp-tasks04-seed42"
+    },
+    {
+      "checkpoint_sha256": "6a3c76185dec75fc18dd215b3c99d70a58efd73db5b15c7ed7f62fdcc47c91d2",
+      "matrix": "nested",
+      "result_file": "per-run/mlp-tasks04-seed314159.json",
+      "run_id": "mlp-tasks04-seed314159"
+    },
+    {
+      "checkpoint_sha256": "0ff7ce4c7274d8c8f521101c8e7554dc60d0f68467dcd47af3bb09ad89d37a34",
+      "matrix": "nested",
+      "result_file": "per-run/transformer-tasks08-seed17.json",
+      "run_id": "transformer-tasks08-seed17"
+    },
+    {
+      "checkpoint_sha256": "0c67d96ef0771d4b5285d2c60a68a89ed08988c5c39f4571529a8c30495906a2",
+      "matrix": "nested",
+      "result_file": "per-run/transformer-tasks08-seed42.json",
+      "run_id": "transformer-tasks08-seed42"
+    },
+    {
+      "checkpoint_sha256": "5a476f89be5eebbaf2df57d3d2ef4923e4473d69121bc1e3a81c91dd376b46e2",
+      "matrix": "nested",
+      "result_file": "per-run/transformer-tasks08-seed314159.json",
+      "run_id": "transformer-tasks08-seed314159"
+    },
+    {
+      "checkpoint_sha256": "9d83b757daa57d35817af7926e2b25aa7384e9bb79a5abab7a16457524d6615e",
+      "matrix": "nested",
+      "result_file": "per-run/mlp-tasks08-seed17.json",
+      "run_id": "mlp-tasks08-seed17"
+    },
+    {
+      "checkpoint_sha256": "d08a1392a643c2e5352a0175c4327bc82dac3ce451e13aa381d98542ba93e854",
+      "matrix": "nested",
+      "result_file": "per-run/mlp-tasks08-seed42.json",
+      "run_id": "mlp-tasks08-seed42"
+    },
+    {
+      "checkpoint_sha256": "31305067974b66d0e2c5934c86d7ddd971523f1b2c008c2062353637f82caf37",
+      "matrix": "nested",
+      "result_file": "per-run/mlp-tasks08-seed314159.json",
+      "run_id": "mlp-tasks08-seed314159"
+    },
+    {
+      "checkpoint_sha256": "935734ef2df27dd9a48e65306c4128142db0501c5718673c80edb5fc2051a5ef",
+      "matrix": "nested",
+      "result_file": "per-run/transformer-tasks16-seed17.json",
+      "run_id": "transformer-tasks16-seed17"
+    },
+    {
+      "checkpoint_sha256": "8cdeb4078e13a22efeb6700c02a8be97793c5e7ba60052e3579f923e036977d7",
+      "matrix": "nested",
+      "result_file": "per-run/transformer-tasks16-seed42.json",
+      "run_id": "transformer-tasks16-seed42"
+    },
+    {
+      "checkpoint_sha256": "e1121547778afcadb972a243cae1b3f4b78d255752c3bef968c49db1b47b493b",
+      "matrix": "nested",
+      "result_file": "per-run/transformer-tasks16-seed314159.json",
+      "run_id": "transformer-tasks16-seed314159"
+    },
+    {
+      "checkpoint_sha256": "faf0ed56a7f122461d835b3c583199546480909c667b284756f45a139e6bca45",
+      "matrix": "nested",
+      "result_file": "per-run/mlp-tasks16-seed17.json",
+      "run_id": "mlp-tasks16-seed17"
+    },
+    {
+      "checkpoint_sha256": "f2ba156b4f20077f8d105842a86e27f0e333941bfc738fb25251838646ee5482",
+      "matrix": "nested",
+      "result_file": "per-run/mlp-tasks16-seed42.json",
+      "run_id": "mlp-tasks16-seed42"
+    },
+    {
+      "checkpoint_sha256": "49e64484885178675f1c119f3f0686ef81e9c4c195de122867a5a72a8789487c",
+      "matrix": "nested",
+      "result_file": "per-run/mlp-tasks16-seed314159.json",
+      "run_id": "mlp-tasks16-seed314159"
+    },
+    {
+      "checkpoint_sha256": "964eb5688b0185a252e13911188021d4cd992a4f306ed383a308d7794acf1985",
+      "matrix": "category",
+      "result_file": "per-run/category-encoding-e4-transformer-seed17.json",
+      "run_id": "category-encoding-e4-transformer-seed17"
+    },
+    {
+      "checkpoint_sha256": "86301388c70b35ddd473b540837d562bc11b34594dc10bea1b11b43d718ccf1f",
+      "matrix": "category",
+      "result_file": "per-run/category-encoding-e4-transformer-seed42.json",
+      "run_id": "category-encoding-e4-transformer-seed42"
+    },
+    {
+      "checkpoint_sha256": "97bdd05d061992ad7610f99c431a0820a01c83b817c38d02795111e330046909",
+      "matrix": "category",
+      "result_file": "per-run/category-encoding-e4-transformer-seed314159.json",
+      "run_id": "category-encoding-e4-transformer-seed314159"
+    },
+    {
+      "checkpoint_sha256": "c27488e77767f499a99d34d9154c8cf6238adfb680cfad1b34a49d0df568e1d1",
+      "matrix": "category",
+      "result_file": "per-run/category-encoding-e4-mlp-seed17.json",
+      "run_id": "category-encoding-e4-mlp-seed17"
+    },
+    {
+      "checkpoint_sha256": "546c6c10aa70ab9f00228918de409a2a46761962663bd468bd1166a8635f7f10",
+      "matrix": "category",
+      "result_file": "per-run/category-encoding-e4-mlp-seed42.json",
+      "run_id": "category-encoding-e4-mlp-seed42"
+    },
+    {
+      "checkpoint_sha256": "042cd0ea1c49d5f57823b8b26cb469aab433d2a0a024e02c623e9249027565f0",
+      "matrix": "category",
+      "result_file": "per-run/category-encoding-e4-mlp-seed314159.json",
+      "run_id": "category-encoding-e4-mlp-seed314159"
+    },
+    {
+      "checkpoint_sha256": "a9b9ad57d2153ef85e707914c915b4eafa8299853f7e6c9526d23e3314624c17",
+      "matrix": "category",
+      "result_file": "per-run/category-statistics-s4-transformer-seed17.json",
+      "run_id": "category-statistics-s4-transformer-seed17"
+    },
+    {
+      "checkpoint_sha256": "131ebd4d874540cd13925d9e6ea7176653c765011c27efb43b2f019b57613fd9",
+      "matrix": "category",
+      "result_file": "per-run/category-statistics-s4-transformer-seed42.json",
+      "run_id": "category-statistics-s4-transformer-seed42"
+    },
+    {
+      "checkpoint_sha256": "71bdddde8ffa03d74256e85cdc5fbcc3e4880fa1c57b3e86e4f690edccb0b025",
+      "matrix": "category",
+      "result_file": "per-run/category-statistics-s4-transformer-seed314159.json",
+      "run_id": "category-statistics-s4-transformer-seed314159"
+    },
+    {
+      "checkpoint_sha256": "d8dc12b5f26667a0003cf0bad9a6146fb8b7ef6e7feb0d5363e8acba2ad6fdeb",
+      "matrix": "category",
+      "result_file": "per-run/category-statistics-s4-mlp-seed17.json",
+      "run_id": "category-statistics-s4-mlp-seed17"
+    },
+    {
+      "checkpoint_sha256": "60cca16c9f08df1c54ceb5b5ea1040b9cea03dd7a2664b0f376983c17018e332",
+      "matrix": "category",
+      "result_file": "per-run/category-statistics-s4-mlp-seed42.json",
+      "run_id": "category-statistics-s4-mlp-seed42"
+    },
+    {
+      "checkpoint_sha256": "6e7bef4a251db6eecc6493c60a55aecc7c868a23858da01234b937f666b74f5d",
+      "matrix": "category",
+      "result_file": "per-run/category-statistics-s4-mlp-seed314159.json",
+      "run_id": "category-statistics-s4-mlp-seed314159"
+    },
+    {
+      "checkpoint_sha256": "ae3eedcd6549588e665551b2fb237def652a3c5a6b71579c5bede8da6ea38d6f",
+      "matrix": "category",
+      "result_file": "per-run/category-algebra-a4-transformer-seed17.json",
+      "run_id": "category-algebra-a4-transformer-seed17"
+    },
+    {
+      "checkpoint_sha256": "c8799c255dc3fc34d64d511dd5e36ab54d6929029a096883d5921459410beb1a",
+      "matrix": "category",
+      "result_file": "per-run/category-algebra-a4-transformer-seed42.json",
+      "run_id": "category-algebra-a4-transformer-seed42"
+    },
+    {
+      "checkpoint_sha256": "36e1787d777c6da9299f8348af3bf0eaa6c173b05d1e8c375d4fb39333644522",
+      "matrix": "category",
+      "result_file": "per-run/category-algebra-a4-transformer-seed314159.json",
+      "run_id": "category-algebra-a4-transformer-seed314159"
+    },
+    {
+      "checkpoint_sha256": "15d10dee99c4e64bc8b5ad01a7b36ce6b01b050469a4f81822486993d7407c51",
+      "matrix": "category",
+      "result_file": "per-run/category-algebra-a4-mlp-seed17.json",
+      "run_id": "category-algebra-a4-mlp-seed17"
+    },
+    {
+      "checkpoint_sha256": "2f7333accf537e338750005f6ed20490c24668dd2b19e537985d23295be3fd83",
+      "matrix": "category",
+      "result_file": "per-run/category-algebra-a4-mlp-seed42.json",
+      "run_id": "category-algebra-a4-mlp-seed42"
+    },
+    {
+      "checkpoint_sha256": "f335ec702f84ceb2b824ad6f08623e8acdd5fec24a3ab8d46fe9ef92deaea6b8",
+      "matrix": "category",
+      "result_file": "per-run/category-algebra-a4-mlp-seed314159.json",
+      "run_id": "category-algebra-a4-mlp-seed314159"
+    }
+  ],
+  "status": "completed",
+  "task_count": 20,
+  "test_manifest": "data/permutation-10m-v3/test_manifest.json",
+  "test_manifest_full_verification": {
+    "full": true,
+    "ok": true,
+    "record_count": 100000,
+    "shard_count": 1,
+    "split": "test",
+    "task_counts": {
+      "bruhat_leq": 5000,
+      "compose": 5000,
+      "cycle_type": 5000,
+      "descents": 5000,
+      "exceedances": 5000,
+      "fixed_points": 5000,
+      "inverse": 5000,
+      "lds_length": 5000,
+      "length": 5000,
+      "lis_length": 5000,
+      "parity": 5000,
+      "pattern_avoidance": 5000,
+      "peaks": 5000,
+      "recoils": 5000,
+      "right_multiply_simple": 5000,
+      "rsk_shape": 5000,
+      "to_cycle": 5000,
+      "to_inversion_vector": 5000,
+      "to_lehmer": 5000,
+      "to_reduced_word": 5000
+    },
+    "total_bytes": 11405137,
+    "workers": 1
+  },
+  "test_manifest_sha256": "3ca12e6b6eeb29fc0ddd441b9c44c80d7a160faaf7e832eb55007f4c6a3ab52b",
+  "test_shards": "099",
+  "total_model_examples": 4800000
+}

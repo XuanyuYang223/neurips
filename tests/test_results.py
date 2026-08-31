@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import json
 from pathlib import Path
 import tomllib
 
@@ -9,11 +10,13 @@ from neurips_permutations.results import (
     CATEGORY_SUMMARY_FIELDS,
     NESTED_SUMMARY_FIELDS,
     RUN_SUMMARY_FIELDS,
+    TEST_FIELDS,
     VALIDATION_FIELDS,
     build_category_summary,
     build_nested_summary,
     build_run_summaries,
     validation_rows_from_audits,
+    rows_from_test_evaluations,
     write_csv_atomic,
 )
 
@@ -145,3 +148,68 @@ def test_failed_audit_is_rejected() -> None:
         assert "nested strict audit did not pass" in str(error)
     else:
         raise AssertionError("failed audit was accepted")
+
+
+def test_completed_test_evaluation_exports_all_960_cells(tmp_path: Path) -> None:
+    config = tomllib.loads(CONFIG.read_text(encoding="utf-8"))
+    task_names = tuple(config["task_order"])
+    entries = []
+    for matrix in ("nested", "category"):
+        for run in build_experiment_matrix(CONFIG, matrix=matrix):
+            relative = Path("per-run") / f"{run.run_id}.json"
+            result = {
+                "status": "completed",
+                "matrix": matrix,
+                "condition": getattr(run, "condition", ""),
+                "run_id": run.run_id,
+                "architecture": run.architecture,
+                "trained_tasks": list(run.tasks),
+                "trained_task_count": run.task_count,
+                "seed": run.seed,
+                "checkpoint_sha256": "c" * 64,
+                "experiment_config_sha256": "e" * 64,
+                "test_manifest_sha256": "t" * 64,
+                "test_shards": "099",
+                "evaluator_commit": "g" * 40,
+                "examples": 100_000,
+                "metrics": {
+                    task: {
+                        "examples": 5_000,
+                        "tokens": 10_000,
+                        "loss": 1.0,
+                        "token_accuracy": 0.5,
+                        "sequence_accuracy": 0.25,
+                    }
+                    for task in task_names
+                },
+            }
+            path = tmp_path / relative
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(json.dumps(result), encoding="utf-8")
+            entries.append(
+                {
+                    "matrix": matrix,
+                    "run_id": run.run_id,
+                    "checkpoint_sha256": "c" * 64,
+                    "result_file": str(relative),
+                }
+            )
+    (tmp_path / "manifest.json").write_text(
+        json.dumps(
+            {
+                "status": "completed",
+                "run_count": 48,
+                "examples_per_run": 100_000,
+                "examples_per_task_per_run": 5_000,
+                "test_manifest_sha256": "t" * 64,
+                "evaluator_commit": "g" * 40,
+                "runs": entries,
+            }
+        ),
+        encoding="utf-8",
+    )
+    rows = rows_from_test_evaluations(config, tmp_path)
+    assert len(rows) == 960
+    assert {row["evaluation_split"] for row in rows} == {"test_shard_099"}
+    assert {row["examples"] for row in rows} == {5_000}
+    assert set(rows[0]) == set(TEST_FIELDS)

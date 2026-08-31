@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import csv
 import hashlib
+import json
 import math
 import os
 from pathlib import Path
@@ -18,6 +19,7 @@ from .experiments import build_experiment_matrix, task_names_for_experiment
 
 
 DEFAULT_CONFIG = Path("configs/henry_permutation_revised.toml")
+DEFAULT_TEST_EVALUATION_DIR = Path("evaluations/v3-test-shard099")
 
 ENCODING_TASKS = {
     "to_cycle",
@@ -90,6 +92,30 @@ CATEGORY_SUMMARY_FIELDS = (
     "token_accuracy_sample_sd",
     "sequence_accuracy_mean",
     "sequence_accuracy_sample_sd",
+)
+
+TEST_FIELDS = (
+    "protocol_version",
+    "matrix",
+    "condition",
+    "run_id",
+    "architecture",
+    "trained_task_count",
+    "seed",
+    "task",
+    "task_family",
+    "task_status",
+    "evaluation_split",
+    "examples",
+    "supervised_tokens",
+    "loss",
+    "token_accuracy",
+    "sequence_accuracy",
+    "checkpoint_sha256",
+    "experiment_config_sha256",
+    "test_manifest_sha256",
+    "evaluation_shards",
+    "evaluator_commit",
 )
 
 
@@ -205,6 +231,100 @@ def validation_rows_from_audits(
 
     if len(rows) != 48 * len(task_names):
         raise ValueError(f"expected 960 validation rows, found {len(rows)}")
+    return rows
+
+
+def rows_from_test_evaluations(
+    config: Mapping[str, Any],
+    evaluation_dir: Path,
+) -> list[dict[str, Any]]:
+    """Load and validate all 48 one-time test results into 960 rows."""
+
+    manifest_path = evaluation_dir / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if (
+        not isinstance(manifest, Mapping)
+        or manifest.get("status") != "completed"
+        or manifest.get("run_count") != 48
+        or manifest.get("examples_per_run") != 100_000
+        or manifest.get("examples_per_task_per_run") != 5_000
+    ):
+        raise ValueError("test evaluation manifest is incomplete or invalid")
+    task_names = tuple(task_names_for_experiment(dict(config)))
+    holdouts = set(config["holdout_tasks"])
+    category_groups = _category_groups(config)
+    matched_category_tasks = {
+        task for tasks in category_groups.values() for task in tasks
+    }
+    run_entries = manifest.get("runs")
+    if not isinstance(run_entries, list) or len(run_entries) != 48:
+        raise ValueError("test evaluation manifest run list is invalid")
+    rows: list[dict[str, Any]] = []
+    seen_run_ids: set[str] = set()
+    for entry in run_entries:
+        if not isinstance(entry, Mapping):
+            raise ValueError("test evaluation manifest contains a malformed run")
+        result_path = evaluation_dir / str(entry["result_file"])
+        result = json.loads(result_path.read_text(encoding="utf-8"))
+        if (
+            not isinstance(result, Mapping)
+            or result.get("status") != "completed"
+            or result.get("run_id") != entry.get("run_id")
+            or result.get("matrix") != entry.get("matrix")
+            or result.get("checkpoint_sha256") != entry.get("checkpoint_sha256")
+            or result.get("test_manifest_sha256") != manifest.get("test_manifest_sha256")
+            or result.get("evaluator_commit") != manifest.get("evaluator_commit")
+            or result.get("examples") != 100_000
+        ):
+            raise ValueError(f"test result identity is invalid: {result_path}")
+        run_id = str(result["run_id"])
+        if run_id in seen_run_ids:
+            raise ValueError(f"duplicate test run: {run_id}")
+        seen_run_ids.add(run_id)
+        metrics = result.get("metrics")
+        if not isinstance(metrics, Mapping) or set(metrics) != set(task_names):
+            raise ValueError(f"test result task grid is invalid: {run_id}")
+        matrix = str(result["matrix"])
+        trained_tasks = set(result["trained_tasks"])
+        for task in task_names:
+            metric = metrics[task]
+            if metric.get("examples") != 5_000:
+                raise ValueError(f"test count is invalid: {run_id}:{task}")
+            row = {
+                "protocol_version": config["protocol_version"],
+                "matrix": matrix,
+                "condition": result.get("condition", ""),
+                "run_id": run_id,
+                "architecture": result["architecture"],
+                "trained_task_count": result["trained_task_count"],
+                "seed": result["seed"],
+                "task": task,
+                "task_family": _task_family(task),
+                "task_status": _task_status(
+                    matrix=matrix,
+                    task=task,
+                    trained_tasks=trained_tasks,
+                    holdouts=holdouts,
+                    matched_category_tasks=matched_category_tasks,
+                ),
+                "evaluation_split": "test_shard_099",
+                "examples": metric["examples"],
+                "supervised_tokens": metric["tokens"],
+                "loss": metric["loss"],
+                "token_accuracy": metric["token_accuracy"],
+                "sequence_accuracy": metric["sequence_accuracy"],
+                "checkpoint_sha256": result["checkpoint_sha256"],
+                "experiment_config_sha256": result["experiment_config_sha256"],
+                "test_manifest_sha256": result["test_manifest_sha256"],
+                "evaluation_shards": result["test_shards"],
+                "evaluator_commit": result["evaluator_commit"],
+            }
+            for key in ("loss", "token_accuracy", "sequence_accuracy"):
+                if not math.isfinite(float(row[key])):
+                    raise ValueError(f"non-finite {key} in test result {run_id}:{task}")
+            rows.append(row)
+    if len(rows) != 960:
+        raise ValueError(f"expected 960 test rows, found {len(rows)}")
     return rows
 
 
@@ -347,7 +467,12 @@ def write_csv_atomic(
         raise
 
 
-def export_results(config_path: Path, output_dir: Path) -> dict[str, Any]:
+def export_results(
+    config_path: Path,
+    output_dir: Path,
+    *,
+    test_evaluation_dir: Path | None = None,
+) -> dict[str, Any]:
     payload = config_path.read_bytes()
     config = tomllib.loads(payload.decode("utf-8"))
     # Validate the frozen run definitions before trusting audit output order.
@@ -378,7 +503,7 @@ def export_results(config_path: Path, output_dir: Path) -> dict[str, Any]:
     write_csv_atomic(outputs["runs"], run_summaries, RUN_SUMMARY_FIELDS)
     write_csv_atomic(outputs["nested"], nested_summary, NESTED_SUMMARY_FIELDS)
     write_csv_atomic(outputs["category"], category_summary, CATEGORY_SUMMARY_FIELDS)
-    return {
+    summary = {
         "config_sha256": hashlib.sha256(payload).hexdigest(),
         "validation_rows": len(validation_rows),
         "run_summary_rows": len(run_summaries),
@@ -386,18 +511,55 @@ def export_results(config_path: Path, output_dir: Path) -> dict[str, Any]:
         "category_summary_rows": len(category_summary),
         "outputs": {key: str(value) for key, value in outputs.items()},
     }
+    if test_evaluation_dir is not None:
+        test_rows = rows_from_test_evaluations(config, test_evaluation_dir)
+        test_run_summaries = build_run_summaries(test_rows, config)
+        test_nested_summary = build_nested_summary(test_run_summaries)
+        test_category_summary = build_category_summary(test_run_summaries)
+        test_outputs = {
+            "test": output_dir / "V3_TEST_MODEL_TASK_ACCURACIES.csv",
+            "test_runs": output_dir / "V3_TEST_RUN_SUMMARIES.csv",
+            "test_nested": output_dir / "V3_TEST_NESTED_SUMMARY.csv",
+            "test_category": output_dir / "V3_TEST_CATEGORY_SUMMARY.csv",
+        }
+        write_csv_atomic(test_outputs["test"], test_rows, TEST_FIELDS)
+        write_csv_atomic(test_outputs["test_runs"], test_run_summaries, RUN_SUMMARY_FIELDS)
+        write_csv_atomic(test_outputs["test_nested"], test_nested_summary, NESTED_SUMMARY_FIELDS)
+        write_csv_atomic(test_outputs["test_category"], test_category_summary, CATEGORY_SUMMARY_FIELDS)
+        summary.update(
+            {
+                "test_rows": len(test_rows),
+                "test_run_summary_rows": len(test_run_summaries),
+                "test_nested_summary_rows": len(test_nested_summary),
+                "test_category_summary_rows": len(test_category_summary),
+            }
+        )
+        summary["outputs"].update(
+            {key: str(value) for key, value in test_outputs.items()}
+        )
+    return summary
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     parser.add_argument("--output-dir", type=Path, default=Path("."))
+    parser.add_argument(
+        "--test-evaluation-dir",
+        type=Path,
+        default=None,
+        help="also export one-time test metrics from this completed evaluation",
+    )
     return parser
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    summary = export_results(args.config, args.output_dir)
+    summary = export_results(
+        args.config,
+        args.output_dir,
+        test_evaluation_dir=args.test_evaluation_dir,
+    )
     for key, value in summary.items():
         print(f"{key}: {value}")
     return 0

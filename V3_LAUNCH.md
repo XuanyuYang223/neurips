@@ -94,3 +94,26 @@ accuracy is teacher-forced and includes structural tokens and EOS; exact
 sequence accuracy is the primary operation-level metric. Category comparisons
 match task count and examples per update but do not match target-token counts
 or compute.
+
+## Post-launch completion
+
+The frozen plan above was executed without changing the authenticated TOML.
+The two controllers ran concurrently on 2026-08-31. The nested controller
+finished all 30 runs at 09:42 PDT, and the category controller finished all 18
+runs at 10:01 PDT. Every run reached 20,000 optimizer updates.
+
+Post-training strict audits reported:
+
+| Matrix | Passed | Incomplete | Failed | Global issues |
+|---|---:|---:|---:|---:|
+| Nested | 30 | 0 | 0 | 0 |
+| Category | 18 | 0 | 0 | 0 |
+
+After the evaluator was tested, committed, and pushed at commit
+`7e2933033f6d99e16a004430d3dce19d51f37013`, shard099 received its single
+model-evaluation pass. All 48 models evaluated all 100,000 test records,
+producing 4.8 million model-examples with 5,000 examples per task per model.
+The test manifest and every result are bound to checkpoint, config, evaluator,
+and test-manifest hashes. See [V3_RESULTS.md](V3_RESULTS.md) for results and
+[`evaluations/v3-test-shard099/manifest.json`](evaluations/v3-test-shard099/manifest.json)
+for the evaluation index.
