@@ -52,9 +52,9 @@ algebraic tasks.  Details and exact task lists are in
 [EXPERIMENTS.md](EXPERIMENTS.md) and
 [`configs/henry_permutation_revised.toml`](configs/henry_permutation_revised.toml).
 
-**Status:** the v3 data has passed full verification, but no revised v3 model
-has been trained yet.  The accuracy matrices below are exclusively completed
-v2 baseline results.
+**Status:** the v3 data has passed full verification, but no formal revised v3
+run has been trained yet.  The accuracy matrices below are exclusively
+completed v2 baseline results.
 
 ## Quick start
 

@@ -15,7 +15,7 @@ Generated from the frozen completion markers in `runs/henry-permutation` on
   launch configuration, data split fingerprints, checkpoint SHA-256, strict
   model state shape/dtype compatibility, optimizer/scheduler/scaler/RNG state,
   marker/checkpoint accounting agreement, finite values, and partial files.
-- Repository test suite: all 147 tests passed.
+- Repository test suite: all 155 tests passed.
 
 The formal configuration SHA-256 is
 `c5d9a0ea7a601588d1e07a520721dfeb3b8f96830d03c8c9f8632c6d37f70dfa`.

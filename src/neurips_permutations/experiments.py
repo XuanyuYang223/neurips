@@ -1,4 +1,4 @@
-"""Plan, audit, and run Henry's nested permutation-task model matrix."""
+"""Plan, inspect, and run Henry's permutation-task model matrices."""
 
 from __future__ import annotations
 
@@ -7,15 +7,45 @@ from dataclasses import asdict, dataclass
 import hashlib
 import json
 from pathlib import Path
+import re
 import subprocess
 import sys
 import tomllib
-from typing import Any, Iterable
+from typing import Any, Iterable, Literal
 
 from .generate import V2_SCHEMA_VERSION, task_names_for_schema
 
 
 DEFAULT_CONFIG = Path("configs/henry_permutation.toml")
+CATEGORY_OUTPUT_SUBDIR = "category-comparison"
+MatrixName = Literal["nested", "category"]
+
+_CATEGORY_TASKS = {
+    "encoding_e4": (
+        "to_cycle",
+        "to_lehmer",
+        "to_inversion_vector",
+        "to_reduced_word",
+    ),
+    "statistics_s4": (
+        "length",
+        "cycle_type",
+        "rsk_shape",
+        "pattern_avoidance",
+    ),
+    "algebra_a4": (
+        "inverse",
+        "compose",
+        "right_multiply_simple",
+        "bruhat_leq",
+    ),
+}
+_CATEGORY_BATCH_OVERRIDES = {
+    "encoding_e4": (4, 16),
+    "statistics_s4": (16, 4),
+    "algebra_a4": (16, 4),
+}
+_CONDITION_NAME_RE = re.compile(r"^[a-z][a-z0-9_]*$")
 
 
 def dataset_protocol_version(config: dict[str, Any]) -> str:
@@ -43,6 +73,15 @@ class ExperimentRun:
     seed: int
     run_id: str
     output_dir: str
+
+
+@dataclass(frozen=True)
+class CategoryExperimentRun(ExperimentRun):
+    """One task-count-matched E4, S4, or A4 comparison run."""
+
+    condition: str
+    micro_batch_size: int
+    gradient_accumulation_steps: int
 
 
 def _read_config(path: Path) -> tuple[dict[str, Any], str]:
@@ -96,11 +135,171 @@ def build_matrix(config_path: Path = DEFAULT_CONFIG) -> tuple[ExperimentRun, ...
     return tuple(runs)
 
 
+def build_category_matrix(
+    config_path: Path = DEFAULT_CONFIG,
+) -> tuple[CategoryExperimentRun, ...]:
+    """Build and strictly validate the frozen 18-run E4/S4/A4 matrix."""
+
+    config, _ = _read_config(config_path)
+    task_names = set(task_names_for_experiment(config))
+    comparison = config.get("category_comparison")
+    if not isinstance(comparison, dict):
+        raise ValueError("category_comparison must be a TOML table")
+
+    architectures = tuple(comparison.get("architectures", ()))
+    seeds = tuple(comparison.get("model_seeds", ()))
+    if architectures != ("transformer", "mlp"):
+        raise ValueError(
+            "category_comparison architectures must be transformer and mlp"
+        )
+    if architectures != tuple(config.get("architectures", ())):
+        raise ValueError(
+            "category_comparison architectures must match the nested matrix"
+        )
+    if len(seeds) != 3 or len(set(seeds)) != 3 or not all(
+        type(seed) is int for seed in seeds
+    ):
+        raise ValueError(
+            "category_comparison requires exactly three distinct integer model seeds"
+        )
+    if seeds != tuple(config.get("model_seeds", ())):
+        raise ValueError(
+            "category_comparison model_seeds must match the nested matrix"
+        )
+    if comparison.get("records_per_task") != 500_000:
+        raise ValueError(
+            "category_comparison records_per_task must be the frozen 500000"
+        )
+    if comparison.get("equal_optimizer_updates") is not True:
+        raise ValueError(
+            "category_comparison must keep equal_optimizer_updates enabled"
+        )
+
+    raw_conditions = comparison.get("conditions")
+    if not isinstance(raw_conditions, list):
+        raise ValueError("category_comparison.conditions must be an array of tables")
+    if len(raw_conditions) != len(_CATEGORY_TASKS):
+        raise ValueError("category_comparison must define exactly E4, S4, and A4")
+
+    conditions: list[tuple[str, tuple[str, ...], int, int]] = []
+    used_tasks: set[str] = set()
+    for position, raw in enumerate(raw_conditions):
+        if not isinstance(raw, dict) or set(raw) != {
+            "name",
+            "tasks",
+            "micro_batch_size",
+            "gradient_accumulation_steps",
+        }:
+            raise ValueError(
+                "each category_comparison condition must contain name, tasks, "
+                "micro_batch_size, and gradient_accumulation_steps"
+            )
+        name = raw["name"]
+        tasks = raw["tasks"]
+        if not isinstance(name, str) or not _CONDITION_NAME_RE.fullmatch(name):
+            raise ValueError(f"invalid category condition name at index {position}")
+        if not isinstance(tasks, list) or not all(
+            isinstance(task, str) for task in tasks
+        ):
+            raise ValueError(f"category condition {name} tasks must be strings")
+        task_tuple = tuple(tasks)
+        expected_tasks = _CATEGORY_TASKS.get(name)
+        if expected_tasks is None:
+            raise ValueError(f"unknown category condition: {name}")
+        if task_tuple != expected_tasks:
+            raise ValueError(
+                f"category condition {name} must use its frozen four-task set"
+            )
+        if len(set(task_tuple)) != 4 or not set(task_tuple) <= task_names:
+            raise ValueError(
+                f"category condition {name} must contain four unique dataset tasks"
+            )
+        overlap = used_tasks.intersection(task_tuple)
+        if overlap:
+            raise ValueError(
+                "category conditions must be task-disjoint; overlap: "
+                + ",".join(sorted(overlap))
+            )
+        used_tasks.update(task_tuple)
+        micro_batch_size = raw["micro_batch_size"]
+        gradient_accumulation_steps = raw["gradient_accumulation_steps"]
+        if (
+            type(micro_batch_size) is not int
+            or micro_batch_size < 1
+            or type(gradient_accumulation_steps) is not int
+            or gradient_accumulation_steps < 1
+        ):
+            raise ValueError(
+                f"category condition {name} batch override values must be positive integers"
+            )
+        if micro_batch_size * gradient_accumulation_steps != 64:
+            raise ValueError(
+                f"category condition {name} must have effective batch size 64"
+            )
+        expected_batch_override = _CATEGORY_BATCH_OVERRIDES[name]
+        if (micro_batch_size, gradient_accumulation_steps) != expected_batch_override:
+            raise ValueError(
+                f"category condition {name} must use frozen batch override "
+                f"{expected_batch_override[0]}x{expected_batch_override[1]}"
+            )
+        conditions.append(
+            (
+                name,
+                task_tuple,
+                micro_batch_size,
+                gradient_accumulation_steps,
+            )
+        )
+
+    if tuple(name for name, *_ in conditions) != tuple(_CATEGORY_TASKS):
+        raise ValueError("category conditions must be ordered E4, S4, then A4")
+
+    root = Path(config["output_dir"]) / CATEGORY_OUTPUT_SUBDIR
+    runs: list[CategoryExperimentRun] = []
+    for condition, tasks, micro_batch_size, gradient_accumulation_steps in conditions:
+        condition_id = condition.replace("_", "-")
+        for architecture in architectures:
+            for seed in seeds:
+                run_id = f"category-{condition_id}-{architecture}-seed{seed}"
+                runs.append(
+                    CategoryExperimentRun(
+                        architecture=architecture,
+                        task_count=4,
+                        tasks=tasks,
+                        seed=seed,
+                        run_id=run_id,
+                        output_dir=str(root / run_id),
+                        condition=condition,
+                        micro_batch_size=micro_batch_size,
+                        gradient_accumulation_steps=gradient_accumulation_steps,
+                    )
+                )
+    if len(runs) != 18 or len({run.run_id for run in runs}) != 18:
+        raise ValueError("category matrix must contain exactly 18 unique runs")
+    return tuple(runs)
+
+
+def build_experiment_matrix(
+    config_path: Path = DEFAULT_CONFIG,
+    *,
+    matrix: MatrixName = "nested",
+) -> tuple[ExperimentRun, ...]:
+    """Dispatch to a frozen matrix while preserving the legacy nested API."""
+
+    if matrix == "nested":
+        return build_matrix(config_path)
+    if matrix == "category":
+        return build_category_matrix(config_path)
+    raise ValueError(f"unknown experiment matrix: {matrix}")
+
+
 def matrix_summary(
     config_path: Path = DEFAULT_CONFIG,
+    *,
+    matrix: MatrixName = "nested",
 ) -> dict[str, Any]:
     config, config_sha256 = _read_config(config_path)
-    runs = build_matrix(config_path)
+    runs = build_experiment_matrix(config_path, matrix=matrix)
     dataset_sha256 = _sha256_file(Path(config["dataset_manifest"]))
     validation_sha256 = _sha256_file(Path(config["validation_manifest"]))
     complete = []
@@ -118,6 +317,7 @@ def matrix_summary(
         target.append(run.run_id)
     return {
         "protocol_version": config["protocol_version"],
+        "matrix": matrix,
         "config_path": str(config_path),
         "config_sha256": config_sha256,
         "run_count": len(runs),
@@ -200,6 +400,16 @@ def _training_command(
     training = config["training"]
     model = config["model"]
     data = config["data"]
+    micro_batch_size = (
+        run.micro_batch_size
+        if isinstance(run, CategoryExperimentRun)
+        else training["micro_batch_size"]
+    )
+    gradient_accumulation_steps = (
+        run.gradient_accumulation_steps
+        if isinstance(run, CategoryExperimentRun)
+        else training["gradient_accumulation_steps"]
+    )
     return [
         sys.executable,
         "-m",
@@ -219,9 +429,9 @@ def _training_command(
         "--max-steps",
         str(training["max_steps"]),
         "--batch-size",
-        str(training["micro_batch_size"]),
+        str(micro_batch_size),
         "--grad-accum",
-        str(training["gradient_accumulation_steps"]),
+        str(gradient_accumulation_steps),
         "--max-tokens-per-batch",
         str(training["max_tokens_per_batch"]),
         "--learning-rate",
@@ -273,6 +483,7 @@ def _training_command(
 def run_matrix(
     config_path: Path = DEFAULT_CONFIG,
     *,
+    matrix: MatrixName = "nested",
     only: Iterable[str] = (),
     dry_run: bool = False,
 ) -> int:
@@ -282,7 +493,7 @@ def run_matrix(
     dataset_sha256 = _sha256_file(Path(config["dataset_manifest"]))
     validation_sha256 = _sha256_file(Path(config["validation_manifest"]))
     selected = set(only)
-    for run in build_matrix(config_path):
+    for run in build_experiment_matrix(config_path, matrix=matrix):
         if selected and run.run_id not in selected:
             continue
         output_dir = Path(run.output_dir)
@@ -318,6 +529,12 @@ def run_matrix(
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
+    parser.add_argument(
+        "--matrix",
+        choices=("nested", "category"),
+        default="nested",
+        help="select the 30-run nested or 18-run E4/S4/A4 matrix",
+    )
     action = parser.add_mutually_exclusive_group(required=True)
     action.add_argument("--plan", action="store_true")
     action.add_argument("--status", action="store_true")
@@ -330,9 +547,14 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     if args.plan or args.status:
-        print(json.dumps(matrix_summary(args.config), indent=2))
+        print(json.dumps(matrix_summary(args.config, matrix=args.matrix), indent=2))
         return 0
-    return run_matrix(args.config, only=args.only, dry_run=args.dry_run)
+    return run_matrix(
+        args.config,
+        matrix=args.matrix,
+        only=args.only,
+        dry_run=args.dry_run,
+    )
 
 
 if __name__ == "__main__":

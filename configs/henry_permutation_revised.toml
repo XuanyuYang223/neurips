@@ -2,10 +2,10 @@
 # removing the three difficult v2 tasks and comparing task categories; choosing
 # peaks, exceedances, and recoils as replacements is this project's decision.
 #
-# Dataset status: generated and full-verified.  Model status: NOT TRAINED.
+# Dataset status: generated and fully verified.  Model status: NOT TRAINED.
 # The schema-aware 30-run nested plan and dry-run were reviewed on 2026-08-30.
-# The category_comparison table remains declarative metadata; E4/S4/A4 still
-# requires category-aware orchestration before those runs can launch.
+# The 18-run E4/S4/A4 category plan, dry-run, resume, and strict audit paths
+# are implemented and reviewed.  The two matrices use isolated output paths.
 
 protocol_version = "henry-permutation/v2-revised"
 dataset_protocol_version = "permutation-20/v3"
@@ -110,8 +110,9 @@ num_workers = 0
 # This matched task-count design is the project's operationalization of Henry's
 # category-comparison suggestion.  It holds task count, per-task corpus size,
 # model, optimizer, and update budget fixed.
-# The existing nested-matrix parser ignores this table; a category-aware runner
-# is required before these runs can be launched.
+# Category runs are selected with `permutation-experiments --matrix category`.
+# E4 uses smaller micro-batches and more accumulation because reduced-word
+# sequences are long; all three conditions therefore use 64 examples/update.
 [category_comparison]
 status = "planned_not_trained"
 architectures = ["transformer", "mlp"]
@@ -124,11 +125,17 @@ analyses = ["layerwise_cka", "linear_probe", "few_shot_transfer"]
 [[category_comparison.conditions]]
 name = "encoding_e4"
 tasks = ["to_cycle", "to_lehmer", "to_inversion_vector", "to_reduced_word"]
+micro_batch_size = 4
+gradient_accumulation_steps = 16
 
 [[category_comparison.conditions]]
 name = "statistics_s4"
 tasks = ["length", "cycle_type", "rsk_shape", "pattern_avoidance"]
+micro_batch_size = 16
+gradient_accumulation_steps = 4
 
 [[category_comparison.conditions]]
 name = "algebra_a4"
 tasks = ["inverse", "compose", "right_multiply_simple", "bruhat_leq"]
+micro_batch_size = 16
+gradient_accumulation_steps = 4

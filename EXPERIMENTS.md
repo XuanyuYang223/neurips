@@ -130,7 +130,7 @@ hyperparameters.
 The output directory is separate (`runs/henry-permutation-v3`) so no v2
 checkpoint can be overwritten or mistaken for a revised result.
 
-Model status: **planned, not trained**.  The v3 implementation, parent manifest,
+Formal model status: **planned, not trained**.  The v3 implementation, parent manifest,
 full mathematical/encoding verification, and split manifests have passed their
 data gate.  The schema-aware nested `experiments.py` plan and dry-run were also
 reviewed: they contain 30 incomplete v3 runs and no training was launched.
@@ -162,9 +162,16 @@ than representations contaminated by different task labels.  Planned analyses
 are layerwise CKA, frozen linear probes, and few-shot cross-category transfer.
 
 The `category_comparison` table in the revised TOML freezes this design, but it
-is declarative metadata.  The existing nested-matrix runner does not yet
-schedule E4/S4/A4 conditions; category-runner support is required before these
-18 runs begin.
+is now executable through `permutation-experiments --matrix category`.  Its 18
+run IDs and output directories are disjoint from the 30 nested runs, and the
+same completion-marker and strict-audit rules apply.
+
+The Encoding condition contains long reduced-word targets.  To hold the
+effective batch at 64 examples/update in every category, E4 uses a micro-batch
+of 4 with 16-way gradient accumulation; S4 and A4 use 16 with 4-way
+accumulation.  The selected S4 tasks span scalar, structured, and Boolean
+statistics, but they are a frozen representative subset rather than a claim
+about all 12 statistical tasks.
 
 ## Completion rule
 

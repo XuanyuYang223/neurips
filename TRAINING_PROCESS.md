@@ -56,7 +56,7 @@ To address Henry's question about category-level representational differences, t
 
 This avoids the task-count confound that would arise from directly comparing the full `4 vs 12 vs 4` category sets. The three groups use identical per-task data, optimizer-update budgets, architectures, and three seeds, for a total of `3 categories × 2 architectures × 3 seeds = 18` planned models. Layerwise CKA, frozen linear probes, and few-shot transfer are planned to be compared at the `<ONE_END>` position for the same held-out one-line permutations.
 
-The authoritative design is documented in [configs/henry_permutation_revised.toml](configs/henry_permutation_revised.toml) and [EXPERIMENTS.md](EXPERIMENTS.md). The category table in the TOML file is currently declarative; the existing nested runner cannot yet schedule E4/S4/A4. Completion of the v3 data does not imply completion of the models: none of these 30+18 planned models has a `completed.json`, so neither this document nor the README reports any v3 accuracy.
+The authoritative design is documented in [configs/henry_permutation_revised.toml](configs/henry_permutation_revised.toml) and [EXPERIMENTS.md](EXPERIMENTS.md). Both the 30-run nested matrix and the isolated 18-run E4/S4/A4 category matrix now have schema-aware plan, dry-run, resume, and strict-audit support. E4 uses micro-batches of 4 with 16-way gradient accumulation, while S4/A4 use 16 with 4-way accumulation, giving all category conditions 64 examples per optimizer update despite long reduced-word sequences. Completion of the v3 data does not imply completion of the models: none of these 30+18 planned models has a `completed.json`, so neither this document nor the README reports any v3 accuracy.
 
 ## 1. V2 Baseline Research Objective and Scope of Completion
 
@@ -698,7 +698,7 @@ The auditor does more than check that files exist. It:
 
 ### 12.3 Tests
 
-The repository contains 147 tests, all of which pass. Coverage includes:
+The repository contains 155 tests, all of which pass. Coverage includes:
 
 - All 23 task definitions supported across v2 and v3 (20 per protocol).
 - Passage Math grammar and canonical encodings.
@@ -855,7 +855,7 @@ To share these artifacts, use object storage, dataset hosting, GitHub Release as
 
 ## 15. Known Limitations and Next Steps
 
-The `permutation-20/v3` manifest, split manifests, and full verification are complete. The schema-aware nested runner's 30-run plan/dry-run has also been reviewed without starting training. The next priority for the paper's main experiments is to add E4/S4/A4 category orchestration, then decide whether to launch both revised matrices. The 30 old v2 models and the analyses reported here remain as baseline/appendix material; they will not be deleted or relabeled as v3 results.
+The `permutation-20/v3` manifest, split manifests, and full verification are complete. The schema-aware 30-run nested and 18-run E4/S4/A4 category plans, dry-runs, resume paths, and audit paths have also been reviewed without starting formal training. The next priority is to run both revised matrices and then perform their frozen validation, test, and representation analyses. The 30 old v2 models and the analyses reported here remain as baseline/appendix material; they will not be deleted or relabeled as v3 results.
 
 1. **Independent test**: After freezing the evaluator, perform a single final evaluation on shard 099 and use explicit greedy decoding to check implementation-level consistency of the sequence metric.
 2. **Few-shot generalization**: Fine-tune the 30 base models on each fixed holdout using Henry's recommended 20 samples and a low learning rate; optionally add 5-shot and 100-shot curves.

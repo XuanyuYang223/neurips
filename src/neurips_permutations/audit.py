@@ -28,9 +28,11 @@ import torch
 from torch import Tensor
 
 from .experiments import (
+    CATEGORY_OUTPUT_SUBDIR,
     ExperimentRun,
+    MatrixName,
     _training_command,
-    build_matrix,
+    build_experiment_matrix,
     dataset_protocol_version,
     task_names_for_experiment,
 )
@@ -1378,6 +1380,9 @@ def audit_run(
         "symlinks": run_symlinks,
         "issues": issues,
     }
+    condition = getattr(run, "condition", None)
+    if condition is not None:
+        result["condition"] = condition
     if not manifests_ok:
         issues.append(
             _issue("manifest_validation_failed", "required manifest validation did not pass")
@@ -1685,8 +1690,12 @@ def _strict_json(value: Any) -> Any:
     return value
 
 
-def audit_experiment(config_path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
-    """Return a strict-JSON-compatible audit of all 30 expected formal runs."""
+def audit_experiment(
+    config_path: Path = DEFAULT_CONFIG,
+    *,
+    matrix: MatrixName = "nested",
+) -> dict[str, Any]:
+    """Return a strict-JSON-compatible audit of one formal experiment matrix."""
 
     repository, config_absolute = _repository_for_config(Path(config_path))
     config_bytes = _read_regular_nofollow(config_absolute)
@@ -1694,11 +1703,15 @@ def audit_experiment(config_path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
     config_sha256 = _sha256_bytes(config_bytes)
     expected_schema_version = dataset_protocol_version(experiment)
     task_names = task_names_for_experiment(experiment)
-    runs = build_matrix(config_absolute)
+    runs = build_experiment_matrix(config_absolute, matrix=matrix)
+    expected_run_count = 30 if matrix == "nested" else 18
     global_issues: list[dict[str, Any]] = []
-    if len(runs) != 30:
+    if len(runs) != expected_run_count:
         global_issues.append(
-            _issue("expected_run_count_mismatch", "formal matrix must contain exactly 30 runs")
+            _issue(
+                "expected_run_count_mismatch",
+                f"{matrix} matrix must contain exactly {expected_run_count} runs",
+            )
         )
 
     try:
@@ -1723,8 +1736,13 @@ def audit_experiment(config_path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
             must_exist=True,
             kind="file",
         )
+        output_dir_value = experiment["output_dir"]
+        if matrix == "category":
+            output_dir_value = str(
+                Path(output_dir_value) / CATEGORY_OUTPUT_SUBDIR
+            )
         output_root = _checked_repo_path(
-            experiment["output_dir"], repository, label="output_dir"
+            output_dir_value, repository, label=f"{matrix} output_dir"
         )
     except (KeyError, AuditPathError) as error:
         raise AuditPathError(f"invalid frozen artifact path: {error}") from error
@@ -1809,7 +1827,10 @@ def audit_experiment(config_path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
     passed_count = sum(run["status"] == "passed" for run in run_results)
     incomplete_count = sum(run["status"] == "incomplete" for run in run_results)
     failed_count = sum(run["status"] == "failed" for run in run_results)
-    ok = not global_issues and passed_count == len(run_results) == 30
+    ok = (
+        not global_issues
+        and passed_count == len(run_results) == expected_run_count
+    )
     public_manifest_audits = {
         label: {key: value for key, value in audit.items() if not key.startswith("_")}
         for label, audit in manifest_audits.items()
@@ -1819,12 +1840,13 @@ def audit_experiment(config_path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
         "status": "passed" if ok else "failed",
         "ok": ok,
         "protocol_version": experiment.get("protocol_version"),
+        "matrix": matrix,
         "repository": str(repository),
         "config_path": _repo_relative(config_absolute, repository),
         "config_sha256": config_sha256,
         "output_root": _repo_relative(output_root, repository),
         "expected_global_step": int(experiment["training"]["max_steps"]),
-        "expected_run_count": 30,
+        "expected_run_count": expected_run_count,
         "run_count": len(run_results),
         "passed_count": passed_count,
         "incomplete_count": incomplete_count,
@@ -1843,6 +1865,12 @@ def audit_experiment(config_path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
+    parser.add_argument(
+        "--matrix",
+        choices=("nested", "category"),
+        default="nested",
+        help="audit the 30-run nested or 18-run E4/S4/A4 matrix",
+    )
     parser.add_argument("--compact", action="store_true", help="emit JSON on one line")
     return parser
 
@@ -1850,7 +1878,7 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
-        summary = audit_experiment(args.config)
+        summary = audit_experiment(args.config, matrix=args.matrix)
     except Exception as error:
         summary = {
             "audit_format_version": AUDIT_FORMAT_VERSION,

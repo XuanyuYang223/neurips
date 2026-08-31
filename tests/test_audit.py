@@ -22,6 +22,7 @@ from neurips_permutations.audit import (
 )
 from neurips_permutations.experiments import (
     ExperimentRun,
+    build_category_matrix,
     build_matrix,
     task_names_for_experiment,
 )
@@ -46,11 +47,21 @@ class AuditFixture:
     manifest_sha256: str
 
 
-def _replace_toml(text: str, key: str, value: Any) -> str:
+def _replace_toml(
+    text: str,
+    key: str,
+    value: Any,
+    *,
+    first_only: bool = False,
+) -> str:
     rendered = json.dumps(value) if isinstance(value, (str, bool)) else str(value)
     rendered = rendered.lower() if isinstance(value, bool) else rendered
     updated, count = re.subn(
-        rf"^{re.escape(key)}\s*=.*$", f"{key} = {rendered}", text, flags=re.M
+        rf"^{re.escape(key)}\s*=.*$",
+        f"{key} = {rendered}",
+        text,
+        count=1 if first_only else 0,
+        flags=re.M,
     )
     assert count == 1, key
     return updated
@@ -167,7 +178,12 @@ def _make_fixture(tmp_path: Path, *, revised: bool = False) -> AuditFixture:
         "validation_batches_per_task": 1,
     }
     for key, value in replacements.items():
-        text = _replace_toml(text, key, value)
+        text = _replace_toml(
+            text,
+            key,
+            value,
+            first_only=key in {"micro_batch_size", "gradient_accumulation_steps"},
+        )
     config_path = config_dir / "experiment.toml"
     config_path.write_text(text, encoding="utf-8")
     return AuditFixture(
@@ -368,6 +384,42 @@ def test_revised_v3_audit_accepts_schema_aware_manifests_and_plan(
         {"power", "conjugate", "commutator"}.isdisjoint(run["tasks"])
         for run in summary["runs"]
     )
+
+
+def test_category_checkpoint_uses_the_same_strict_eighteen_run_audit(
+    tmp_path: Path,
+) -> None:
+    fixture = _make_fixture(tmp_path, revised=True)
+    category_run = build_category_matrix(fixture.config_path)[0]
+    experiment = tomllib.loads(fixture.config_path.read_text(encoding="utf-8"))
+    expected_config = expected_train_config(
+        category_run,
+        experiment,
+        fixture.config_path,
+    )
+    assert expected_config["batch_size"] == 4
+    assert expected_config["gradient_accumulation_steps"] == 16
+    assert (
+        expected_config["batch_size"]
+        * expected_config["gradient_accumulation_steps"]
+        == 64
+    )
+    completed_run, _, _ = _write_completed_run(fixture, category_run)
+
+    summary = audit_experiment(fixture.config_path, matrix="category")
+    result = _run_result(summary, completed_run)
+
+    assert summary["matrix"] == "category"
+    assert summary["expected_run_count"] == 18
+    assert summary["run_count"] == 18
+    assert summary["passed_count"] == 1
+    assert summary["incomplete_count"] == 17
+    assert summary["failed_count"] == 0
+    assert summary["output_root"].endswith("/category-comparison")
+    assert result["status"] == "passed"
+    assert result["condition"] == "encoding_e4"
+    assert result["checkpoint_numeric"]["status"] == "passed"
+    assert all(value["status"] == "passed" for value in summary["manifests"].values())
 
 
 def test_unmarked_checkpoint_is_never_deserialized(
