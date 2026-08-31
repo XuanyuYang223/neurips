@@ -20,8 +20,9 @@ trained with three independent parameter/data-order seeds:
 5 task subsets x 2 architectures x 3 seeds = 30 completed v2 models
 ```
 
-The unaveraged validation results in the README and
-`MODEL_TASK_ACCURACIES.csv` belong only to this v2 baseline.
+The unaveraged validation results in
+[`results/v2/model_task_accuracies.csv`](results/v2/model_task_accuracies.csv)
+belong only to this v2 baseline.
 
 ## Henry's revision
 
@@ -132,9 +133,10 @@ The output directory is separate (`runs/henry-permutation-v3`) so no v2
 checkpoint can be overwritten or mistaken for a revised result.
 
 Formal model status: **30/30 completed and strictly audited**. The final
-independent test results are reported in [V3_RESULTS.md](V3_RESULTS.md), with
+independent test results are reported in
+[the v3 result package](results/v3/README.md), with
 all 600 nested model-task test cells included in
-[`V3_TEST_MODEL_TASK_ACCURACIES.csv`](V3_TEST_MODEL_TASK_ACCURACIES.csv).
+[`results/v3/test_model_task_accuracies.csv`](results/v3/test_model_task_accuracies.csv).
 
 ## Matched category comparison
 

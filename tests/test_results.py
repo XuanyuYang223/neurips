@@ -7,12 +7,16 @@ import tomllib
 
 from neurips_permutations.experiments import build_experiment_matrix
 from neurips_permutations.results import (
+    CATEGORY_GENERALIZATION_FIELDS,
     CATEGORY_SUMMARY_FIELDS,
+    NESTED_GENERALIZATION_FIELDS,
     NESTED_SUMMARY_FIELDS,
     RUN_SUMMARY_FIELDS,
     TEST_FIELDS,
     VALIDATION_FIELDS,
+    build_category_generalization,
     build_category_summary,
+    build_nested_generalization,
     build_nested_summary,
     build_run_summaries,
     validation_rows_from_audits,
@@ -99,6 +103,7 @@ def test_task_macro_summaries_average_within_run_then_across_seeds() -> None:
     assert len(nested) == 28
     assert len(category) == 18
     assert {row["seed_count"] for row in nested + category} == {3}
+    assert all(row["loss_sample_sd"] == 0 for row in nested + category)
     assert all(row["token_accuracy_sample_sd"] == 0 for row in nested + category)
     assert all(row["sequence_accuracy_sample_sd"] == 0 for row in nested + category)
 
@@ -118,11 +123,23 @@ def test_csv_writer_preserves_declared_schema_and_replaces_atomically(tmp_path: 
     run_rows = build_run_summaries(rows, config)
     nested_rows = build_nested_summary(run_rows)
     category_rows = build_category_summary(run_rows)
+    nested_generalization = build_nested_generalization(nested_rows)
+    category_generalization = build_category_generalization(run_rows)
     fixtures = (
         ("raw.csv", rows[:2], VALIDATION_FIELDS),
         ("runs.csv", run_rows[:2], RUN_SUMMARY_FIELDS),
         ("nested.csv", nested_rows[:2], NESTED_SUMMARY_FIELDS),
         ("category.csv", category_rows[:2], CATEGORY_SUMMARY_FIELDS),
+        (
+            "nested-generalization.csv",
+            nested_generalization[:2],
+            NESTED_GENERALIZATION_FIELDS,
+        ),
+        (
+            "category-generalization.csv",
+            category_generalization[:2],
+            CATEGORY_GENERALIZATION_FIELDS,
+        ),
     )
     for name, records, fields in fixtures:
         path = tmp_path / name
@@ -132,6 +149,36 @@ def test_csv_writer_preserves_declared_schema_and_replaces_atomically(tmp_path: 
         assert parsed
         assert tuple(parsed[0]) == tuple(fields)
     assert not list(tmp_path.glob("*.tmp"))
+    assert VALIDATION_FIELDS[0] == TEST_FIELDS[0] == "matrix"
+    assert "protocol_version" not in VALIDATION_FIELDS
+    assert "protocol_version" not in TEST_FIELDS
+
+
+def test_generalization_summaries_exclude_seen_tasks() -> None:
+    rows, config = _rows_and_config()
+    run_rows = build_run_summaries(rows, config)
+    nested = build_nested_generalization(build_nested_summary(run_rows))
+    category = build_category_generalization(run_rows)
+
+    assert len(nested) == 18
+    assert {row["evaluation_group"] for row in nested} == {
+        "pool_unseen",
+        "fixed_train_holdout",
+    }
+    assert all(
+        row["evaluated_unseen_task_count"] == 4
+        for row in nested
+        if row["evaluation_group"] == "fixed_train_holdout"
+    )
+    assert all(
+        row["loss_change_from_k1"] == 0
+        and row["token_accuracy_change_from_k1"] == 0
+        and row["sequence_accuracy_change_from_k1"] == 0
+        for row in nested
+        if row["trained_task_count"] == 1
+    )
+    assert len(category) == 6
+    assert {row["evaluated_unseen_task_count"] for row in category} == {8}
 
 
 def test_failed_audit_is_rejected() -> None:
@@ -212,4 +259,4 @@ def test_completed_test_evaluation_exports_all_960_cells(tmp_path: Path) -> None
     assert len(rows) == 960
     assert {row["evaluation_split"] for row in rows} == {"test_shard_099"}
     assert {row["examples"] for row in rows} == {5_000}
-    assert set(rows[0]) == set(TEST_FIELDS)
+    assert set(TEST_FIELDS) < set(rows[0])

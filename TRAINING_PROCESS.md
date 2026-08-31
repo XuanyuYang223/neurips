@@ -57,7 +57,7 @@ To address Henry's question about category-level representational differences, t
 
 This avoids the task-count confound that would arise from directly comparing the full `4 vs 12 vs 4` category sets. The three groups used identical per-task data, optimizer-update budgets, architectures, and three seeds, for a total of `3 categories × 2 architectures × 3 seeds = 18` completed models. Layerwise CKA, frozen linear probes, and few-shot transfer remain planned at the `<ONE_END>` position for the same held-out one-line permutations.
 
-The authoritative design is documented in [configs/henry_permutation_revised.toml](configs/henry_permutation_revised.toml) and [EXPERIMENTS.md](EXPERIMENTS.md). Both the 30-run nested matrix and the isolated 18-run E4/S4/A4 category matrix used schema-aware plan, dry-run, resume, and strict-audit support. E4 used micro-batches of 4 with 16-way gradient accumulation, while S4/A4 used 16 with 4-way accumulation, giving all category conditions 64 examples per optimizer update despite long reduced-word sequences. All 48 completion markers passed strict audit, and the frozen shard099 evaluation processed 100,000 examples per model. Complete results are in [V3_RESULTS.md](V3_RESULTS.md).
+The authoritative design is documented in [configs/henry_permutation_revised.toml](configs/henry_permutation_revised.toml) and [EXPERIMENTS.md](EXPERIMENTS.md). Both the 30-run nested matrix and the isolated 18-run E4/S4/A4 category matrix used schema-aware plan, dry-run, resume, and strict-audit support. E4 used micro-batches of 4 with 16-way gradient accumulation, while S4/A4 used 16 with 4-way accumulation, giving all category conditions 64 examples per optimizer update despite long reduced-word sequences. All 48 completion markers passed strict audit, and the frozen shard099 evaluation processed 100,000 examples per model. Complete results are in [results/v3/README.md](results/v3/README.md).
 
 ## 1. V2 Baseline Research Objective and Scope of Completion
 
@@ -647,7 +647,7 @@ The most defensible current conclusion is:
 
 A key design limitation is that the four holdouts use opaque task tokens. These tokens never appear as input tokens or correct targets in base-training sequences, so their operation semantics are not grounded, even though they remain part of the 163-way vocabulary and receive gradients as nontarget classes. The models were never taught the meaning of these tasks, making hard zero-shot task identification itself underdetermined. Henry's proposed few-shot adaptation and linear probing are more informative than this hard zero-shot metric.
 
-Complete seen, pool-unseen, and holdout tables are provided in [TRAINING_RESULTS.md](TRAINING_RESULTS.md).
+Complete seen, pool-unseen, and holdout tables are provided in [results/v2/README.md](results/v2/README.md).
 
 The per-holdout k=16 results further demonstrate that token accuracy must not be conflated with successful mathematical solution:
 
@@ -699,7 +699,7 @@ The auditor does more than check that files exist. It:
 
 ### 12.3 Tests
 
-The repository contains 164 tests, all of which pass. Coverage includes:
+The repository contains 165 tests, all of which pass. Coverage includes:
 
 - All 23 task definitions supported across v2 and v3 (20 per protocol).
 - Passage Math grammar and canonical encodings.
@@ -858,7 +858,7 @@ To share these artifacts, use object storage, dataset hosting, GitHub Release as
 
 ## 15. Known Limitations and Next Steps
 
-The `permutation-20/v3` data, 30-run nested matrix, 18-run E4/S4/A4 category matrix, strict audits, and one-time independent test evaluation are complete. The 30 old v2 models remain baseline/appendix material; they were not deleted or relabeled as v3 results. [V3_RESULTS.md](V3_RESULTS.md) reports the behavioral generalization result. Representation and adaptation analyses remain outstanding.
+The `permutation-20/v3` data, 30-run nested matrix, 18-run E4/S4/A4 category matrix, strict audits, and one-time independent test evaluation are complete. The 30 old v2 models remain baseline/appendix material; they were not deleted or relabeled as v3 results. [results/v3/README.md](results/v3/README.md) reports the behavioral generalization result. Representation and adaptation analyses remain outstanding.
 
 1. **Few-shot generalization**: Fine-tune the base models on each fixed holdout using Henry's recommended 20 samples and a low learning rate; optionally add 5-shot and 100-shot curves.
 2. **Random-init baseline**: Train from random initialization using exactly the same architecture, seed, shots, steps, and optimizer budget, then compare adaptation gain.
@@ -880,8 +880,8 @@ The `permutation-20/v3` data, 30-run nested matrix, 18-run E4/S4/A4 category mat
 - [README.md](README.md): quick start.
 - [PROTOCOL.md](PROTOCOL.md): 20-task mathematics and data protocol.
 - [EXPERIMENTS.md](EXPERIMENTS.md): overview of Henry's nested matrix.
-- [TRAINING_RESULTS.md](TRAINING_RESULTS.md): v2 validation and generalization tables.
-- [V3_RESULTS.md](V3_RESULTS.md): completed 48-model v3 training and independent test results.
+- [results/v2/README.md](results/v2/README.md): v2 validation and generalization tables.
+- [results/v3/README.md](results/v3/README.md): completed 48-model v3 training and independent test results.
 - [configs/henry_permutation.toml](configs/henry_permutation.toml): frozen experiment configuration.
 - [configs/henry_permutation_revised.toml](configs/henry_permutation_revised.toml): frozen v3 launch design after Henry's feedback.
 - [generate.py](src/neurips_permutations/generate.py): data generation.

@@ -19,7 +19,8 @@ from .experiments import build_experiment_matrix, task_names_for_experiment
 
 
 DEFAULT_CONFIG = Path("configs/henry_permutation_revised.toml")
-DEFAULT_TEST_EVALUATION_DIR = Path("evaluations/v3-test-shard099")
+DEFAULT_OUTPUT_DIR = Path("results/v3")
+DEFAULT_TEST_EVALUATION_DIR = Path("results/v3/evaluation")
 
 ENCODING_TASKS = {
     "to_cycle",
@@ -35,7 +36,6 @@ ALGEBRA_TASKS = {
 }
 
 VALIDATION_FIELDS = (
-    "protocol_version",
     "matrix",
     "condition",
     "run_id",
@@ -59,7 +59,6 @@ VALIDATION_FIELDS = (
 )
 
 RUN_SUMMARY_FIELDS = (
-    "protocol_version",
     "matrix",
     "condition",
     "run_id",
@@ -68,6 +67,7 @@ RUN_SUMMARY_FIELDS = (
     "seed",
     "evaluation_group",
     "task_count",
+    "task_macro_loss",
     "task_macro_token_accuracy",
     "task_macro_sequence_accuracy",
 )
@@ -77,6 +77,8 @@ NESTED_SUMMARY_FIELDS = (
     "trained_task_count",
     "task_status",
     "seed_count",
+    "loss_mean",
+    "loss_sample_sd",
     "token_accuracy_mean",
     "token_accuracy_sample_sd",
     "sequence_accuracy_mean",
@@ -88,6 +90,8 @@ CATEGORY_SUMMARY_FIELDS = (
     "training_condition",
     "evaluation_condition",
     "seed_count",
+    "loss_mean",
+    "loss_sample_sd",
     "token_accuracy_mean",
     "token_accuracy_sample_sd",
     "sequence_accuracy_mean",
@@ -95,7 +99,6 @@ CATEGORY_SUMMARY_FIELDS = (
 )
 
 TEST_FIELDS = (
-    "protocol_version",
     "matrix",
     "condition",
     "run_id",
@@ -116,6 +119,45 @@ TEST_FIELDS = (
     "test_manifest_sha256",
     "evaluation_shards",
     "evaluator_commit",
+)
+
+NESTED_GENERALIZATION_FIELDS = (
+    "architecture",
+    "trained_task_count",
+    "evaluation_group",
+    "evaluated_unseen_task_count",
+    "seed_count",
+    "loss_mean",
+    "loss_sample_sd",
+    "loss_change_from_k1",
+    "token_accuracy_mean",
+    "token_accuracy_sample_sd",
+    "token_accuracy_change_from_k1",
+    "sequence_accuracy_mean",
+    "sequence_accuracy_sample_sd",
+    "sequence_accuracy_change_from_k1",
+)
+
+CATEGORY_GENERALIZATION_FIELDS = (
+    "architecture",
+    "training_condition",
+    "evaluated_unseen_task_count",
+    "seed_count",
+    "unseen_loss_mean",
+    "unseen_loss_sample_sd",
+    "seen_loss_mean",
+    "loss_gap_unseen_minus_seen_mean",
+    "loss_gap_sample_sd",
+    "unseen_token_accuracy_mean",
+    "unseen_token_accuracy_sample_sd",
+    "seen_token_accuracy_mean",
+    "token_accuracy_gap_unseen_minus_seen_mean",
+    "token_accuracy_gap_sample_sd",
+    "unseen_sequence_accuracy_mean",
+    "unseen_sequence_accuracy_sample_sd",
+    "seen_sequence_accuracy_mean",
+    "sequence_accuracy_gap_unseen_minus_seen_mean",
+    "sequence_accuracy_gap_sample_sd",
 )
 
 
@@ -372,6 +414,9 @@ def build_run_summaries(
                     "seed": first["seed"],
                     "evaluation_group": group,
                     "task_count": len(group_rows),
+                    "task_macro_loss": _mean(
+                        float(row["loss"]) for row in group_rows
+                    ),
                     "task_macro_token_accuracy": _mean(
                         float(row["token_accuracy"]) for row in group_rows
                     ),
@@ -396,10 +441,13 @@ def _aggregate_seed_rows(
             raise ValueError(f"summary group {key!r} does not contain three seeds")
         token = [float(row["task_macro_token_accuracy"]) for row in group]
         sequence = [float(row["task_macro_sequence_accuracy"]) for row in group]
+        loss = [float(row["task_macro_loss"]) for row in group]
         record = dict(zip(key_fields, key, strict=True))
         record.update(
             {
                 "seed_count": 3,
+                "loss_mean": statistics.fmean(loss),
+                "loss_sample_sd": statistics.stdev(loss),
                 "token_accuracy_mean": statistics.fmean(token),
                 "token_accuracy_sample_sd": statistics.stdev(token),
                 "sequence_accuracy_mean": statistics.fmean(sequence),
@@ -433,6 +481,110 @@ def build_category_summary(run_summaries: Sequence[Mapping[str, Any]]) -> list[d
         rows,
         ("architecture", "training_condition", "evaluation_condition"),
     )
+
+
+def build_nested_generalization(
+    nested_summary: Sequence[Mapping[str, Any]],
+) -> list[dict[str, Any]]:
+    """Exclude seen tasks and report changes relative to each k=1 baseline."""
+
+    eligible = [row for row in nested_summary if row["task_status"] != "seen"]
+    baselines = {
+        (row["architecture"], row["task_status"]): row
+        for row in eligible
+        if int(row["trained_task_count"]) == 1
+    }
+    output: list[dict[str, Any]] = []
+    for row in eligible:
+        status = str(row["task_status"])
+        baseline = baselines[(row["architecture"], status)]
+        trained_count = int(row["trained_task_count"])
+        evaluated_count = 4 if status == "fixed_train_holdout" else 16 - trained_count
+        output.append(
+            {
+                "architecture": row["architecture"],
+                "trained_task_count": trained_count,
+                "evaluation_group": status,
+                "evaluated_unseen_task_count": evaluated_count,
+                "seed_count": row["seed_count"],
+                "loss_mean": row["loss_mean"],
+                "loss_sample_sd": row["loss_sample_sd"],
+                "loss_change_from_k1": float(row["loss_mean"])
+                - float(baseline["loss_mean"]),
+                "token_accuracy_mean": row["token_accuracy_mean"],
+                "token_accuracy_sample_sd": row["token_accuracy_sample_sd"],
+                "token_accuracy_change_from_k1": float(row["token_accuracy_mean"])
+                - float(baseline["token_accuracy_mean"]),
+                "sequence_accuracy_mean": row["sequence_accuracy_mean"],
+                "sequence_accuracy_sample_sd": row["sequence_accuracy_sample_sd"],
+                "sequence_accuracy_change_from_k1": float(row["sequence_accuracy_mean"])
+                - float(baseline["sequence_accuracy_mean"]),
+            }
+        )
+    return output
+
+
+def build_category_generalization(
+    run_summaries: Sequence[Mapping[str, Any]],
+) -> list[dict[str, Any]]:
+    """Macro-average only off-diagonal matched-category tasks for each run."""
+
+    category_rows = [row for row in run_summaries if row["matrix"] == "category"]
+    by_run: dict[str, list[Mapping[str, Any]]] = {}
+    for row in category_rows:
+        by_run.setdefault(str(row["run_id"]), []).append(row)
+    per_seed: list[dict[str, Any]] = []
+    for run_id, rows in by_run.items():
+        first = rows[0]
+        condition = first["condition"]
+        seen = next(row for row in rows if row["evaluation_group"] == condition)
+        unseen = [row for row in rows if row["evaluation_group"] != condition]
+        if len(unseen) != 2 or any(int(row["task_count"]) != 4 for row in unseen):
+            raise ValueError(f"category run {run_id} lacks two four-task unseen groups")
+        record: dict[str, Any] = {
+            "architecture": first["architecture"],
+            "training_condition": condition,
+            "seed": first["seed"],
+            "evaluated_unseen_task_count": 8,
+        }
+        for metric in ("loss", "token_accuracy", "sequence_accuracy"):
+            seen_value = float(seen[f"task_macro_{metric}"])
+            unseen_value = statistics.fmean(
+                float(row[f"task_macro_{metric}"]) for row in unseen
+            )
+            record[f"seen_{metric}"] = seen_value
+            record[f"unseen_{metric}"] = unseen_value
+            record[f"{metric}_gap"] = unseen_value - seen_value
+        per_seed.append(record)
+
+    grouped: dict[tuple[str, str], list[Mapping[str, Any]]] = {}
+    for row in per_seed:
+        grouped.setdefault(
+            (str(row["architecture"]), str(row["training_condition"])), []
+        ).append(row)
+    output: list[dict[str, Any]] = []
+    for (architecture, condition), rows in grouped.items():
+        if len(rows) != 3 or len({row["seed"] for row in rows}) != 3:
+            raise ValueError("category generalization group must contain three seeds")
+        record = {
+            "architecture": architecture,
+            "training_condition": condition,
+            "evaluated_unseen_task_count": 8,
+            "seed_count": 3,
+        }
+        for metric in ("loss", "token_accuracy", "sequence_accuracy"):
+            unseen_values = [float(row[f"unseen_{metric}"]) for row in rows]
+            seen_values = [float(row[f"seen_{metric}"]) for row in rows]
+            gap_values = [float(row[f"{metric}_gap"]) for row in rows]
+            record[f"unseen_{metric}_mean"] = statistics.fmean(unseen_values)
+            record[f"unseen_{metric}_sample_sd"] = statistics.stdev(unseen_values)
+            record[f"seen_{metric}_mean"] = statistics.fmean(seen_values)
+            record[f"{metric}_gap_unseen_minus_seen_mean"] = statistics.fmean(
+                gap_values
+            )
+            record[f"{metric}_gap_sample_sd"] = statistics.stdev(gap_values)
+        output.append(record)
+    return output
 
 
 def _format_csv_value(value: Any) -> Any:
@@ -494,10 +646,10 @@ def export_results(
     category_summary = build_category_summary(run_summaries)
 
     outputs = {
-        "validation": output_dir / "V3_MODEL_TASK_ACCURACIES.csv",
-        "runs": output_dir / "V3_RUN_SUMMARIES.csv",
-        "nested": output_dir / "V3_NESTED_SUMMARY.csv",
-        "category": output_dir / "V3_CATEGORY_SUMMARY.csv",
+        "validation": output_dir / "validation_model_task_accuracies.csv",
+        "runs": output_dir / "validation_run_summaries.csv",
+        "nested": output_dir / "validation_nested_summary.csv",
+        "category": output_dir / "validation_category_summary.csv",
     }
     write_csv_atomic(outputs["validation"], validation_rows, VALIDATION_FIELDS)
     write_csv_atomic(outputs["runs"], run_summaries, RUN_SUMMARY_FIELDS)
@@ -516,22 +668,50 @@ def export_results(
         test_run_summaries = build_run_summaries(test_rows, config)
         test_nested_summary = build_nested_summary(test_run_summaries)
         test_category_summary = build_category_summary(test_run_summaries)
+        test_nested_generalization = build_nested_generalization(
+            test_nested_summary
+        )
+        test_category_generalization = build_category_generalization(
+            test_run_summaries
+        )
         test_outputs = {
-            "test": output_dir / "V3_TEST_MODEL_TASK_ACCURACIES.csv",
-            "test_runs": output_dir / "V3_TEST_RUN_SUMMARIES.csv",
-            "test_nested": output_dir / "V3_TEST_NESTED_SUMMARY.csv",
-            "test_category": output_dir / "V3_TEST_CATEGORY_SUMMARY.csv",
+            "test": output_dir / "test_model_task_accuracies.csv",
+            "test_runs": output_dir / "test_run_summaries.csv",
+            "test_nested": output_dir / "test_nested_summary.csv",
+            "test_category": output_dir / "test_category_summary.csv",
+            "test_nested_generalization": (
+                output_dir / "test_nested_generalization.csv"
+            ),
+            "test_category_generalization": (
+                output_dir / "test_category_generalization.csv"
+            ),
         }
         write_csv_atomic(test_outputs["test"], test_rows, TEST_FIELDS)
         write_csv_atomic(test_outputs["test_runs"], test_run_summaries, RUN_SUMMARY_FIELDS)
         write_csv_atomic(test_outputs["test_nested"], test_nested_summary, NESTED_SUMMARY_FIELDS)
         write_csv_atomic(test_outputs["test_category"], test_category_summary, CATEGORY_SUMMARY_FIELDS)
+        write_csv_atomic(
+            test_outputs["test_nested_generalization"],
+            test_nested_generalization,
+            NESTED_GENERALIZATION_FIELDS,
+        )
+        write_csv_atomic(
+            test_outputs["test_category_generalization"],
+            test_category_generalization,
+            CATEGORY_GENERALIZATION_FIELDS,
+        )
         summary.update(
             {
                 "test_rows": len(test_rows),
                 "test_run_summary_rows": len(test_run_summaries),
                 "test_nested_summary_rows": len(test_nested_summary),
                 "test_category_summary_rows": len(test_category_summary),
+                "test_nested_generalization_rows": len(
+                    test_nested_generalization
+                ),
+                "test_category_generalization_rows": len(
+                    test_category_generalization
+                ),
             }
         )
         summary["outputs"].update(
@@ -543,7 +723,7 @@ def export_results(
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
-    parser.add_argument("--output-dir", type=Path, default=Path("."))
+    parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     parser.add_argument(
         "--test-evaluation-dir",
         type=Path,

@@ -55,7 +55,8 @@ optimizer update, not supervised-token or FLOP budgets.
 
 ## Preflight evidence
 
-The complete test suite passed with 155 tests. Both strict prelaunch audits
+At launch, the complete test suite passed with 155 tests. Both strict
+prelaunch audits
 reported no failed runs and no global or manifest issues; all 48 expected runs
 were correctly classified as incomplete. Four isolated 100-update GPU pilots
 completed without NaN, Inf, OOM, checkpoint, or completion-marker failures:
@@ -114,6 +115,6 @@ After the evaluator was tested, committed, and pushed at commit
 model-evaluation pass. All 48 models evaluated all 100,000 test records,
 producing 4.8 million model-examples with 5,000 examples per task per model.
 The test manifest and every result are bound to checkpoint, config, evaluator,
-and test-manifest hashes. See [V3_RESULTS.md](V3_RESULTS.md) for results and
-[`evaluations/v3-test-shard099/manifest.json`](evaluations/v3-test-shard099/manifest.json)
+and test-manifest hashes. See [the v3 result report](README.md) for results and
+[`evaluation/manifest.json`](evaluation/manifest.json)
 for the evaluation index.

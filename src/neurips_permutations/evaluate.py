@@ -35,7 +35,7 @@ from .verify import verify_manifest
 
 
 DEFAULT_CONFIG = Path("configs/henry_permutation_revised.toml")
-DEFAULT_OUTPUT_DIR = Path("evaluations/v3-test-shard099")
+DEFAULT_OUTPUT_DIR = Path("results/v3/evaluation")
 EVALUATION_FORMAT_VERSION = "v3-test-evaluation/v1"
 
 
