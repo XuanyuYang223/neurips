@@ -76,6 +76,44 @@ SUMMARY_FIELDS = (
     "cka_max",
 )
 
+CATEGORY_PAIR_FIELDS = (
+    "comparison",
+    "architecture",
+    "condition_a",
+    "seed_a",
+    "run_id_a",
+    "layer",
+    "condition_b",
+    "seed_b",
+    "run_id_b",
+    "probe_examples",
+    "linear_cka",
+)
+
+CATEGORY_SUMMARY_FIELDS = (
+    "comparison",
+    "architecture",
+    "condition_a",
+    "condition_b",
+    "layer",
+    "pair_count",
+    "cka_mean",
+    "cka_sample_sd",
+    "cka_min",
+    "cka_max",
+)
+
+CATEGORY_OVERALL_FIELDS = (
+    "comparison",
+    "architecture",
+    "layer",
+    "pair_count",
+    "cka_mean",
+    "cka_sample_sd",
+    "cka_min",
+    "cka_max",
+)
+
 
 @dataclass(frozen=True)
 class ProbeExample:
@@ -686,6 +724,201 @@ def summarize_pairwise_rows(rows: Sequence[Mapping[str, Any]]) -> list[dict[str,
     return summaries
 
 
+def _category_pair_row(
+    comparison: str,
+    a: ActivationSet,
+    b: ActivationSet,
+    *,
+    condition_a: str,
+    condition_b: str,
+    layer: str,
+    compute_device: torch.device,
+) -> dict[str, Any]:
+    value = _pair_row(
+        comparison,
+        a,
+        b,
+        layer,
+        layer,
+        compute_device=compute_device,
+    )
+    return {
+        "comparison": comparison,
+        "architecture": a.architecture,
+        "condition_a": condition_a,
+        "seed_a": a.seed,
+        "run_id_a": a.run_id,
+        "layer": layer,
+        "condition_b": condition_b,
+        "seed_b": b.seed,
+        "run_id_b": b.run_id,
+        "probe_examples": value["probe_examples"],
+        "linear_cka": value["linear_cka"],
+    }
+
+
+def build_category_pairwise_rows(
+    trained: Sequence[ActivationSet],
+    conditions_by_run: Mapping[str, str],
+    random_baselines: Sequence[ActivationSet],
+    *,
+    compute_device: torch.device,
+) -> list[dict[str, Any]]:
+    """Compare equal-k category models with 100% or 0% task overlap."""
+
+    by_key = {
+        (item.architecture, conditions_by_run[item.run_id], item.seed): item
+        for item in trained
+    }
+    architectures = sorted({item.architecture for item in trained})
+    conditions = tuple(
+        condition
+        for condition in ("encoding_e4", "statistics_s4", "algebra_a4")
+        if condition in set(conditions_by_run.values())
+    )
+    seeds = sorted({item.seed for item in trained})
+    if len(conditions) != 3:
+        raise ValueError("category CKA requires encoding_e4, statistics_s4, and algebra_a4")
+    if len(by_key) != len(architectures) * len(conditions) * len(seeds):
+        raise ValueError("category activation matrix is incomplete or duplicated")
+
+    rows: list[dict[str, Any]] = []
+    for architecture in architectures:
+        # Same four tasks, independent initialization/data order.
+        for condition in conditions:
+            for left_index, seed_a in enumerate(seeds):
+                for seed_b in seeds[left_index + 1 :]:
+                    a = by_key[architecture, condition, seed_a]
+                    b = by_key[architecture, condition, seed_b]
+                    for layer in _corresponding_layers(a, b):
+                        rows.append(
+                            _category_pair_row(
+                                "within_condition_cross_seed",
+                                a,
+                                b,
+                                condition_a=condition,
+                                condition_b=condition,
+                                layer=layer,
+                                compute_device=compute_device,
+                            )
+                        )
+
+        # Disjoint four-task families. Same-seed pairs start from identical
+        # weights; cross-seed pairs separate the task-family effect from that
+        # paired-initialization control.
+        for left_index, condition_a in enumerate(conditions):
+            for condition_b in conditions[left_index + 1 :]:
+                for seed in seeds:
+                    a = by_key[architecture, condition_a, seed]
+                    b = by_key[architecture, condition_b, seed]
+                    for layer in _corresponding_layers(a, b):
+                        rows.append(
+                            _category_pair_row(
+                                "disjoint_condition_same_seed",
+                                a,
+                                b,
+                                condition_a=condition_a,
+                                condition_b=condition_b,
+                                layer=layer,
+                                compute_device=compute_device,
+                            )
+                        )
+                for seed_a in seeds:
+                    for seed_b in seeds:
+                        if seed_a == seed_b:
+                            continue
+                        a = by_key[architecture, condition_a, seed_a]
+                        b = by_key[architecture, condition_b, seed_b]
+                        for layer in _corresponding_layers(a, b):
+                            rows.append(
+                                _category_pair_row(
+                                    "disjoint_condition_cross_seed",
+                                    a,
+                                    b,
+                                    condition_a=condition_a,
+                                    condition_b=condition_b,
+                                    layer=layer,
+                                    compute_device=compute_device,
+                                )
+                            )
+
+    random_by_key = {
+        (item.architecture, item.seed): item for item in random_baselines
+    }
+    for architecture in architectures:
+        for left_index, seed_a in enumerate(seeds):
+            for seed_b in seeds[left_index + 1 :]:
+                a = random_by_key[architecture, seed_a]
+                b = random_by_key[architecture, seed_b]
+                for layer in _corresponding_layers(a, b):
+                    rows.append(
+                        _category_pair_row(
+                            "random_cross_seed",
+                            a,
+                            b,
+                            condition_a="random_init",
+                            condition_b="random_init",
+                            layer=layer,
+                            compute_device=compute_device,
+                        )
+                    )
+    return rows
+
+
+def summarize_category_rows(
+    rows: Sequence[Mapping[str, Any]],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    detailed_groups: dict[tuple[str, str, str, str, str], list[float]] = {}
+    overall_groups: dict[tuple[str, str, str], list[float]] = {}
+    for row in rows:
+        detailed_key = (
+            str(row["comparison"]),
+            str(row["architecture"]),
+            str(row["condition_a"]),
+            str(row["condition_b"]),
+            str(row["layer"]),
+        )
+        overall_key = (
+            str(row["comparison"]),
+            str(row["architecture"]),
+            str(row["layer"]),
+        )
+        value = float(row["linear_cka"])
+        detailed_groups.setdefault(detailed_key, []).append(value)
+        overall_groups.setdefault(overall_key, []).append(value)
+
+    def statistics_row(values: Sequence[float]) -> dict[str, Any]:
+        return {
+            "pair_count": len(values),
+            "cka_mean": statistics.fmean(values),
+            "cka_sample_sd": statistics.stdev(values) if len(values) > 1 else 0.0,
+            "cka_min": min(values),
+            "cka_max": max(values),
+        }
+
+    detailed = [
+        {
+            "comparison": key[0],
+            "architecture": key[1],
+            "condition_a": key[2],
+            "condition_b": key[3],
+            "layer": key[4],
+            **statistics_row(values),
+        }
+        for key, values in sorted(detailed_groups.items())
+    ]
+    overall = [
+        {
+            "comparison": key[0],
+            "architecture": key[1],
+            "layer": key[2],
+            **statistics_row(values),
+        }
+        for key, values in sorted(overall_groups.items())
+    ]
+    return detailed, overall
+
+
 def _average_ranks(values: Sequence[float]) -> list[float]:
     order = sorted(range(len(values)), key=lambda index: values[index])
     ranks = [0.0] * len(values)
@@ -945,6 +1178,317 @@ def _render_readme(
     return "\n".join(lines)
 
 
+def _render_category_readme(
+    detailed: Sequence[Mapping[str, Any]],
+    overall: Sequence[Mapping[str, Any]],
+    *,
+    probe: Mapping[str, Any],
+    commit: str,
+) -> str:
+    overall_lookup = {
+        (row["comparison"], row["architecture"], row["layer"]): row
+        for row in overall
+    }
+    detailed_lookup = {
+        (
+            row["comparison"],
+            row["architecture"],
+            row["condition_a"],
+            row["condition_b"],
+            row["layer"],
+        ): row
+        for row in detailed
+    }
+    labels = {
+        "encoding_e4": "Encoding E4",
+        "statistics_s4": "Statistics S4",
+        "algebra_a4": "Algebra A4",
+    }
+    conditions = ("encoding_e4", "statistics_s4", "algebra_a4")
+    lines = [
+        "# V3 disjoint-category representation similarity",
+        "",
+        "This controlled CKA comparison uses the 18 completed category models. Every",
+        "model was trained on exactly four tasks. Encoding E4, Statistics S4, and",
+        "Algebra A4 are pairwise disjoint, so cross-condition task overlap is zero.",
+        "All models receive the same task-free validation prefixes and are measured at",
+        "`<ONE_END>` before any task token appears.",
+        "",
+        "## Main comparison",
+        "",
+        "The table aggregates final-layer comparisons across the three task families.",
+        "Within-condition pairs have 100% task overlap and different seeds. Disjoint",
+        "pairs have 0% task overlap and are reported separately for matched and",
+        "different seeds.",
+        "",
+        "| Architecture | Comparison | Pairs | Final-layer CKA |",
+        "|---|---|---:|---:|",
+    ]
+    comparison_labels = (
+        ("within_condition_cross_seed", "Same family, different seed"),
+        ("disjoint_condition_same_seed", "Disjoint families, same seed"),
+        ("disjoint_condition_cross_seed", "Disjoint families, different seed"),
+        ("random_cross_seed", "Random init, different seed"),
+    )
+    for architecture in ("transformer", "mlp"):
+        architecture_label = "Transformer" if architecture == "transformer" else "MLP"
+        for comparison, comparison_label in comparison_labels:
+            row = overall_lookup[(comparison, architecture, "final_norm")]
+            lines.append(
+                f"| {architecture_label} | {comparison_label} | {row['pair_count']} | "
+                f"{float(row['cka_mean']):.4f} +/- {float(row['cka_sample_sd']):.4f} |"
+            )
+
+    lines.extend(
+        [
+            "",
+            "## Same-family cross-seed detail",
+            "",
+            "| Architecture | Training family | Final-layer CKA |",
+            "|---|---|---:|",
+        ]
+    )
+    for architecture in ("transformer", "mlp"):
+        architecture_label = "Transformer" if architecture == "transformer" else "MLP"
+        for condition in conditions:
+            row = detailed_lookup[
+                (
+                    "within_condition_cross_seed",
+                    architecture,
+                    condition,
+                    condition,
+                    "final_norm",
+                )
+            ]
+            lines.append(
+                f"| {architecture_label} | {labels[condition]} | "
+                f"{float(row['cka_mean']):.4f} +/- {float(row['cka_sample_sd']):.4f} |"
+            )
+
+    lines.extend(
+        [
+            "",
+            "## Disjoint-family same-seed detail",
+            "",
+            "The two models in each row started from identical seed-specific weights;",
+            "their only formal experimental difference is the disjoint training family.",
+            "",
+            "| Architecture | Family pair | Final-layer CKA |",
+            "|---|---|---:|",
+        ]
+    )
+    for architecture in ("transformer", "mlp"):
+        architecture_label = "Transformer" if architecture == "transformer" else "MLP"
+        for left_index, condition_a in enumerate(conditions):
+            for condition_b in conditions[left_index + 1 :]:
+                row = detailed_lookup[
+                    (
+                        "disjoint_condition_same_seed",
+                        architecture,
+                        condition_a,
+                        condition_b,
+                        "final_norm",
+                    )
+                ]
+                lines.append(
+                    f"| {architecture_label} | {labels[condition_a]} vs "
+                    f"{labels[condition_b]} | {float(row['cka_mean']):.4f} +/- "
+                    f"{float(row['cka_sample_sd']):.4f} |"
+                )
+
+    lines.extend(
+        [
+            "",
+            "## Interpretation",
+            "",
+        ]
+    )
+    for architecture in ("transformer", "mlp"):
+        label = "Transformer" if architecture == "transformer" else "MLP"
+        within = float(
+            overall_lookup[
+                ("within_condition_cross_seed", architecture, "final_norm")
+            ]["cka_mean"]
+        )
+        disjoint = float(
+            overall_lookup[
+                ("disjoint_condition_cross_seed", architecture, "final_norm")
+            ]["cka_mean"]
+        )
+        matched = float(
+            overall_lookup[
+                ("disjoint_condition_same_seed", architecture, "final_norm")
+            ]["cka_mean"]
+        )
+        lines.append(
+            f"- {label}: same-family cross-seed CKA is {within:.4f}; disjoint-family "
+            f"cross-seed CKA is {disjoint:.4f} (difference {within - disjoint:+.4f}); "
+            f"disjoint-family same-seed CKA is {matched:.4f}."
+        )
+    lines.extend(
+        [
+            "",
+            "This fixes k at four and removes task overlap, but task family remains",
+            "confounded with task identities, output types, and difficulty. It therefore",
+            "tests whether these three existing families produce different geometries;",
+            "it does not yet estimate a general causal effect of task count. A larger",
+            "controlled-overlap study would need multiple balanced task subsets at each k.",
+            "",
+            "## Protocol and files",
+            "",
+            f"- Probe: {probe['example_count']:,} validation-shard-098 prefixes; SHA-256",
+            f"  `{probe['probe_sha256']}`. Test shard 099 was not read.",
+            "- Layers: embedding output, every model block, and final normalization.",
+            "- Metric: biased linear CKA over examples with float64 accumulation.",
+            f"- Analysis implementation commit: `{commit}`.",
+            "- `category_pairwise_layer_cka.csv`: all individual comparisons.",
+            "- `category_summary.csv`: family-pair summaries.",
+            "- `category_overall_summary.csv`: primary aggregate summaries.",
+            "- `manifest.json`: exact checkpoints, probe identity, and artifact hashes.",
+            "",
+        ]
+    )
+    return "\n".join(lines)
+
+
+def run_category_analysis(
+    config_path: Path,
+    output_dir: Path,
+    *,
+    probe_count: int,
+    probe_seed: int,
+    batch_size: int,
+    device: torch.device,
+) -> dict[str, Any]:
+    audit = audit_experiment(config_path, matrix="category")
+    if not audit["ok"] or audit["passed_count"] != 18:
+        raise ValueError("category experiment must pass strict 18/18 audit before CKA")
+    repository = Path(audit["repository"])
+    manifest = repository / "data/permutation-10m-v3/manifest.json"
+    manifest_sha256 = _sha256(manifest)
+    examples = select_probe_examples(
+        manifest,
+        count=probe_count,
+        seed=probe_seed,
+        shard_index=DEFAULT_VALIDATION_SHARD,
+    )
+    probe = probe_identity(
+        examples,
+        dataset_manifest_sha256=manifest_sha256,
+        shard_index=DEFAULT_VALIDATION_SHARD,
+        seed=probe_seed,
+    )
+    _atomic_json(probe, output_dir / "probe_manifest.json")
+
+    cache_dir = output_dir.parent / "cache"
+    trained: list[ActivationSet] = []
+    conditions_by_run: dict[str, str] = {}
+    for index, run in enumerate(audit["runs"], start=1):
+        print(f"extracting category activation {index}/18: {run['run_id']}", flush=True)
+        conditions_by_run[str(run["run_id"])] = str(run["condition"])
+        trained.append(
+            _load_trained_activations(
+                run,
+                repository=repository,
+                examples=examples,
+                probe_sha256=probe["probe_sha256"],
+                cache_dir=cache_dir,
+                device=device,
+                batch_size=batch_size,
+            )
+        )
+
+    seeds = sorted({item.seed for item in trained})
+    random_baselines: list[ActivationSet] = []
+    for architecture in sorted({item.architecture for item in trained}):
+        reference = next(
+            run for run in audit["runs"] if run["architecture"] == architecture
+        )
+        for seed in seeds:
+            random_baselines.append(
+                _load_random_activations(
+                    reference,
+                    repository=repository,
+                    seed=seed,
+                    examples=examples,
+                    probe_sha256=probe["probe_sha256"],
+                    cache_dir=cache_dir,
+                    device=device,
+                    batch_size=batch_size,
+                )
+            )
+
+    rows = build_category_pairwise_rows(
+        trained,
+        conditions_by_run,
+        random_baselines,
+        compute_device=device,
+    )
+    detailed, overall = summarize_category_rows(rows)
+    pair_path = output_dir / "category_pairwise_layer_cka.csv"
+    summary_path = output_dir / "category_summary.csv"
+    overall_path = output_dir / "category_overall_summary.csv"
+    _atomic_csv(rows, CATEGORY_PAIR_FIELDS, pair_path)
+    _atomic_csv(detailed, CATEGORY_SUMMARY_FIELDS, summary_path)
+    _atomic_csv(overall, CATEGORY_OVERALL_FIELDS, overall_path)
+    commit = _git_commit(repository)
+    readme_path = output_dir / "README.md"
+    _atomic_text(
+        _render_category_readme(detailed, overall, probe=probe, commit=commit),
+        readme_path,
+    )
+    result = {
+        "format_version": FORMAT_VERSION,
+        "status": "completed",
+        "matrix": "category",
+        "method": "biased_linear_cka",
+        "landmark": "<ONE_END>",
+        "analysis_commit": commit,
+        "config_path": str(config_path),
+        "config_sha256": audit["config_sha256"],
+        "probe": probe,
+        "conditions": {
+            "encoding_e4": [
+                "to_cycle",
+                "to_lehmer",
+                "to_inversion_vector",
+                "to_reduced_word",
+            ],
+            "statistics_s4": [
+                "length",
+                "cycle_type",
+                "rsk_shape",
+                "pattern_avoidance",
+            ],
+            "algebra_a4": [
+                "inverse",
+                "compose",
+                "right_multiply_simple",
+                "bruhat_leq",
+            ],
+        },
+        "models": [
+            {
+                "run_id": item.run_id,
+                "condition": conditions_by_run[item.run_id],
+                "architecture": item.architecture,
+                "seed": item.seed,
+                "checkpoint_sha256": item.checkpoint_sha256,
+            }
+            for item in trained
+        ],
+        "artifacts": {
+            pair_path.name: _sha256(pair_path),
+            summary_path.name: _sha256(summary_path),
+            overall_path.name: _sha256(overall_path),
+            "probe_manifest.json": _sha256(output_dir / "probe_manifest.json"),
+            readme_path.name: _sha256(readme_path),
+        },
+    }
+    _atomic_json(result, output_dir / "manifest.json")
+    return result
+
+
 def run_analysis(
     config_path: Path,
     output_dir: Path,
@@ -1059,6 +1603,12 @@ def run_analysis(
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
+    parser.add_argument(
+        "--matrix",
+        choices=("nested", "category"),
+        default="nested",
+        help="analyze the 30-model nested or 18-model category matrix",
+    )
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     parser.add_argument("--probe-count", type=int, default=DEFAULT_PROBE_COUNT)
     parser.add_argument("--probe-seed", type=int, default=DEFAULT_PROBE_SEED)
@@ -1077,9 +1627,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     else:
         device = torch.device(args.device)
-    result = run_analysis(
+    output_dir = args.output_dir
+    if args.matrix == "category" and output_dir == DEFAULT_OUTPUT_DIR:
+        output_dir = output_dir / "category"
+    runner = run_analysis if args.matrix == "nested" else run_category_analysis
+    result = runner(
         args.config,
-        args.output_dir,
+        output_dir,
         probe_count=args.probe_count,
         probe_seed=args.probe_seed,
         batch_size=args.batch_size,

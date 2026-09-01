@@ -12,11 +12,13 @@ from neurips_permutations.cka import (
     ActivationSet,
     ProbeExample,
     build_pairwise_rows,
+    build_category_pairwise_rows,
     extract_landmark_activations,
     linear_cka,
     probe_identity,
     select_probe_examples,
     summarize_pairwise_rows,
+    summarize_category_rows,
     _spearman,
 )
 from neurips_permutations.models import ModelConfig, build_model
@@ -210,3 +212,61 @@ def test_pair_matrix_and_summary_have_expected_primary_counts() -> None:
     primary = [row for row in summaries if row["comparison"] == "seed_stability"]
     assert len(primary) == 8
     assert all(row["pair_count"] == 3 for row in primary)
+
+
+def test_category_matrix_separates_overlap_and_seed_relation() -> None:
+    generator = torch.Generator().manual_seed(81)
+    conditions = ("encoding_e4", "statistics_s4", "algebra_a4")
+    seeds = (17, 42, 314159)
+    trained = []
+    condition_by_run = {}
+    random = []
+    for architecture in ("transformer", "mlp"):
+        for condition in conditions:
+            for seed in seeds:
+                item = _activation(
+                    architecture,
+                    4,
+                    seed,
+                    torch.randn(12, 5, generator=generator),
+                )
+                item = ActivationSet(
+                    run_id=f"{condition}-{item.run_id}",
+                    architecture=item.architecture,
+                    task_count=item.task_count,
+                    seed=item.seed,
+                    checkpoint_sha256=item.checkpoint_sha256,
+                    probe_sha256=item.probe_sha256,
+                    layers=item.layers,
+                )
+                trained.append(item)
+                condition_by_run[item.run_id] = condition
+        for seed in seeds:
+            random.append(
+                _activation(
+                    architecture,
+                    0,
+                    seed,
+                    torch.randn(12, 5, generator=generator),
+                )
+            )
+    rows = build_category_pairwise_rows(
+        trained,
+        condition_by_run,
+        random,
+        compute_device=torch.device("cpu"),
+    )
+    counts = {
+        comparison: sum(row["comparison"] == comparison for row in rows)
+        for comparison in {row["comparison"] for row in rows}
+    }
+    assert counts == {
+        "within_condition_cross_seed": 36,
+        "disjoint_condition_same_seed": 36,
+        "disjoint_condition_cross_seed": 72,
+        "random_cross_seed": 12,
+    }
+    detailed, overall = summarize_category_rows(rows)
+    assert len(detailed) == 40
+    assert len(overall) == 16
+    assert all(row["pair_count"] > 0 for row in detailed + overall)
