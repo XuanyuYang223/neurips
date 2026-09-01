@@ -196,7 +196,7 @@ def _atomic_csv(rows: Sequence[Mapping[str, Any]], fields: Sequence[str], path: 
     )
     try:
         with os.fdopen(descriptor, "w", encoding="utf-8", newline="") as handle:
-            writer = csv.DictWriter(handle, fieldnames=fields)
+            writer = csv.DictWriter(handle, fieldnames=fields, lineterminator="\n")
             writer.writeheader()
             writer.writerows(rows)
             handle.flush()
