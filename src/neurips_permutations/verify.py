@@ -87,7 +87,7 @@ def _require_task_counts(
     task_names: Sequence[str],
 ) -> dict[str, int]:
     if not isinstance(value, dict) or set(value) != set(task_names):
-        _fail(f"{name} must contain exactly the 20 task keys")
+        _fail(f"{name} must contain exactly the {len(task_names)} task keys")
     result: dict[str, int] = {}
     for task in task_names:
         result[task] = _require_int(
@@ -115,7 +115,10 @@ def _json_value(value: object) -> object:
 def _mathematical_answer(
     task: str, primary: tuple[int, ...], inputs: Mapping[str, object]
 ) -> object:
-    """Independently recompute one of the twenty task answers from inputs."""
+    """Recompute one task answer from its mathematical inputs."""
+
+    if task in ops.PROPERTY_FUNCTIONS:
+        return ops.PROPERTY_FUNCTIONS[task](primary)
 
     operand = inputs.get("operand")
     pattern = inputs.get("pattern")
@@ -409,10 +412,12 @@ def verify_manifest(
     parent = _load_parent_manifest(path, manifest)
 
     count = _require_int(
-        manifest.get("count"), name="count", minimum=1 if split_view else 20
+        manifest.get("count"),
+        name="count",
+        minimum=1 if split_view else len(task_names),
     )
     if not split_view and count % len(task_names):
-        _fail("manifest count is not divisible by 20")
+        _fail(f"manifest count is not divisible by {len(task_names)}")
     max_entries = _require_int(
         manifest.get("max_entries"), name="max_entries", minimum=2
     )
@@ -442,7 +447,9 @@ def verify_manifest(
     if not split_view:
         expected_per_task = count // len(task_names)
         if any(declared_global[task] != expected_per_task for task in task_names):
-            _fail("manifest is not exactly balanced across the 20 tasks")
+            _fail(
+                f"manifest is not exactly balanced across the {len(task_names)} tasks"
+            )
 
     parent_by_index: dict[int, Mapping[str, Any]] = {}
     if parent is not None:

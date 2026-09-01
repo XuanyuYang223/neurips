@@ -94,7 +94,37 @@ EXTENDED_FIXED_TOKENS: tuple[str, ...] = (
     "<RSK_SHAPE_END>",
 )
 
-FIXED_TOKENS: tuple[str, ...] = ORIGINAL_FIXED_TOKENS + EXTENDED_FIXED_TOKENS
+PROPERTY_FIXED_TOKENS: tuple[str, ...] = (
+    "<VALLEYS>",
+    "<DOUBLE_ASCENTS>",
+    "<DOUBLE_DESCENTS>",
+    "<SUCCESSIONS>",
+    "<ADJACENCIES>",
+    "<ANTI_FIXED_POINTS>",
+    "<DEFICIENCIES>",
+    "<LEFT_TO_RIGHT_MAXIMA>",
+    "<LEFT_TO_RIGHT_MINIMA>",
+    "<RIGHT_TO_LEFT_MAXIMA>",
+    "<RIGHT_TO_LEFT_MINIMA>",
+    "<CYCLE_COUNT>",
+    "<TWO_CYCLE_COUNT>",
+    "<THREE_CYCLE_COUNT>",
+    "<EVEN_CYCLE_COUNT>",
+    "<ODD_CYCLE_COUNT>",
+    "<LONGEST_CYCLE>",
+    "<SHORTEST_CYCLE>",
+    "<NONTRIVIAL_CYCLE_COUNT>",
+    "<LONGEST_INCREASING_RUN>",
+    "<LONGEST_DECREASING_RUN>",
+    "<GLOBAL_DESCENTS>",
+    "<COMPONENTS>",
+    "<MAX_DISPLACEMENT>",
+    "<DISPLACEMENT_ONE_COUNT>",
+)
+
+FIXED_TOKENS: tuple[str, ...] = (
+    ORIGINAL_FIXED_TOKENS + EXTENDED_FIXED_TOKENS + PROPERTY_FIXED_TOKENS
+)
 VOCABULARY: tuple[str, ...] = NUMBER_TOKENS + FIXED_TOKENS
 TOKEN_TO_ID: Mapping[str, int] = {token: index for index, token in enumerate(VOCABULARY)}
 ID_TO_TOKEN: Mapping[int, str] = {index: token for token, index in TOKEN_TO_ID.items()}
@@ -139,6 +169,47 @@ TASK_SPECS: Mapping[str, TaskSpec] = {
         "<RIGHT_MULTIPLY_SIMPLE>", "simple_index", "permutation"
     ),
     "bruhat_leq": TaskSpec("<BRUHAT_LEQ>", "operand", "boolean"),
+    "valleys": TaskSpec("<VALLEYS>", None, "scalar"),
+    "double_ascents": TaskSpec("<DOUBLE_ASCENTS>", None, "scalar"),
+    "double_descents": TaskSpec("<DOUBLE_DESCENTS>", None, "scalar"),
+    "successions": TaskSpec("<SUCCESSIONS>", None, "scalar"),
+    "adjacencies": TaskSpec("<ADJACENCIES>", None, "scalar"),
+    "anti_fixed_points": TaskSpec("<ANTI_FIXED_POINTS>", None, "scalar"),
+    "deficiencies": TaskSpec("<DEFICIENCIES>", None, "scalar"),
+    "left_to_right_maxima": TaskSpec(
+        "<LEFT_TO_RIGHT_MAXIMA>", None, "scalar"
+    ),
+    "left_to_right_minima": TaskSpec(
+        "<LEFT_TO_RIGHT_MINIMA>", None, "scalar"
+    ),
+    "right_to_left_maxima": TaskSpec(
+        "<RIGHT_TO_LEFT_MAXIMA>", None, "scalar"
+    ),
+    "right_to_left_minima": TaskSpec(
+        "<RIGHT_TO_LEFT_MINIMA>", None, "scalar"
+    ),
+    "cycle_count": TaskSpec("<CYCLE_COUNT>", None, "scalar"),
+    "two_cycle_count": TaskSpec("<TWO_CYCLE_COUNT>", None, "scalar"),
+    "three_cycle_count": TaskSpec("<THREE_CYCLE_COUNT>", None, "scalar"),
+    "even_cycle_count": TaskSpec("<EVEN_CYCLE_COUNT>", None, "scalar"),
+    "odd_cycle_count": TaskSpec("<ODD_CYCLE_COUNT>", None, "scalar"),
+    "longest_cycle": TaskSpec("<LONGEST_CYCLE>", None, "scalar"),
+    "shortest_cycle": TaskSpec("<SHORTEST_CYCLE>", None, "scalar"),
+    "nontrivial_cycle_count": TaskSpec(
+        "<NONTRIVIAL_CYCLE_COUNT>", None, "scalar"
+    ),
+    "longest_increasing_run": TaskSpec(
+        "<LONGEST_INCREASING_RUN>", None, "scalar"
+    ),
+    "longest_decreasing_run": TaskSpec(
+        "<LONGEST_DECREASING_RUN>", None, "scalar"
+    ),
+    "global_descents": TaskSpec("<GLOBAL_DESCENTS>", None, "scalar"),
+    "components": TaskSpec("<COMPONENTS>", None, "scalar"),
+    "max_displacement": TaskSpec("<MAX_DISPLACEMENT>", None, "scalar"),
+    "displacement_one_count": TaskSpec(
+        "<DISPLACEMENT_ONE_COUNT>", None, "scalar"
+    ),
 }
 
 
@@ -596,6 +667,7 @@ __all__ = [
     "ID_TO_TOKEN",
     "NUMBER_TOKENS",
     "ORIGINAL_FIXED_TOKENS",
+    "PROPERTY_FIXED_TOKENS",
     "TASK_SPECS",
     "TOKEN_TO_ID",
     "TaskSpec",

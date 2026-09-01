@@ -19,6 +19,7 @@ from neurips_permutations.generate import (
     DEFAULT_MAX_ENTRIES,
     DEFAULT_SHARD_SIZE,
     SCHEMA_VERSION,
+    PROPERTY32_SCHEMA_VERSION,
     V2_SCHEMA_VERSION,
     V3_SCHEMA_VERSION,
     build_record,
@@ -26,7 +27,11 @@ from neurips_permutations.generate import (
     generate_dataset,
     main as generate_main,
 )
-from neurips_permutations.math_ops import V2_TASK_NAMES, V3_TASK_NAMES
+from neurips_permutations.math_ops import (
+    PROPERTY32_TASK_NAMES,
+    V2_TASK_NAMES,
+    V3_TASK_NAMES,
+)
 from neurips_permutations.passage import passage_tokens
 from neurips_permutations.splits import create_split_manifests
 from neurips_permutations.verify import (
@@ -192,6 +197,56 @@ def test_v3_replaces_expensive_operations_with_three_scalar_statistics() -> None
         assert record["answer_kind"] == "scalar"
         assert record["answer"] == implementation(primary)
         assert 0 <= record["answer"] < record["n"]
+
+
+def test_property32_generation_is_balanced_scalar_and_full_verified(
+    tmp_path: Path,
+) -> None:
+    manifest_path = generate_dataset(
+        count=64,
+        max_entries=8,
+        seed=20260901,
+        shard_size=19,
+        output_dir=tmp_path / "properties32",
+        workers=2,
+        schema_version=PROPERTY32_SCHEMA_VERSION,
+    )
+    manifest = _manifest(manifest_path)
+    records = _records(manifest_path)
+
+    assert manifest["schema_version"] == PROPERTY32_SCHEMA_VERSION
+    assert manifest["tasks"] == list(PROPERTY32_TASK_NAMES)
+    assert manifest["task_counts"] == {
+        task: 2 for task in PROPERTY32_TASK_NAMES
+    }
+    assert Counter(record["task"] for record in records) == Counter(
+        {task: 2 for task in PROPERTY32_TASK_NAMES}
+    )
+    for record in records:
+        assert record["answer_kind"] == "scalar"
+        assert set(record["inputs"]) == {"primary"}
+        assert 0 <= record["answer"] <= record["n"]
+        equals = record["tokens"].index("=")
+        assert record["tokens"][equals + 2 :] == ["<EOS>"]
+    assert verify_manifest(manifest_path, full=True, workers=2)["ok"] is True
+
+
+def test_property32_allows_odd_per_task_count_and_n_equals_two(
+    tmp_path: Path,
+) -> None:
+    manifest_path = generate_dataset(
+        count=32,
+        max_entries=2,
+        seed=7,
+        shard_size=32,
+        output_dir=tmp_path / "properties32-minimal",
+        workers=1,
+        schema_version=PROPERTY32_SCHEMA_VERSION,
+    )
+    records = _records(manifest_path)
+    assert len(records) == 32
+    assert {record["n"] for record in records} == {2}
+    assert verify_manifest(manifest_path, full=True)["ok"] is True
 
 
 def test_v2_generation_and_full_verification_remain_supported(

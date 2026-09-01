@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "neurips-permutation-data"
 version = "0.1.0"
-description = "Auditable Passage Math data for 20 permutation tasks"
+description = "Auditable Passage Math data and models for permutation tasks"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = []
@@ -26,6 +26,9 @@ permutation-evaluate = "neurips_permutations.evaluate:main"
 permutation-fewshot = "neurips_permutations.fewshot:main"
 permutation-fewshot-results = "neurips_permutations.fewshot_results:main"
 permutation-cka = "neurips_permutations.cka:main"
+permutation-property-experiments = "neurips_permutations.property_experiments:main"
+permutation-property-report = "neurips_permutations.property_report:main"
+permutation-property-cka = "neurips_permutations.property_cka:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
