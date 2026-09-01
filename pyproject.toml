@@ -25,6 +25,7 @@ permutation-results = "neurips_permutations.results:main"
 permutation-evaluate = "neurips_permutations.evaluate:main"
 permutation-fewshot = "neurips_permutations.fewshot:main"
 permutation-fewshot-results = "neurips_permutations.fewshot_results:main"
+permutation-cka = "neurips_permutations.cka:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

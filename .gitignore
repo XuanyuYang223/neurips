@@ -5,6 +5,7 @@ __pycache__/
 .coverage
 .venv/
 runs/
+results/v3/cka/cache/
 
 # The generated corpus is intentionally local: 10M records are too large for GitHub.
 data/**/*.jsonl
