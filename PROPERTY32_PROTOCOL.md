@@ -102,7 +102,7 @@ The production verifier recomputed all 16,000,000 mathematical answers from
 their input permutations, reconstructed every Passage token sequence, checked
 every gzip hash, and confirmed exactly 500,000 records for each property.
 
-## Pilot models
+## Original pilot models
 
 The pilot trains ten independent Transformer checkpoints: Pool A and Pool B at
 each `k = 1, 2, 4, 8, 16`, using seed 17. Each run uses a standard four-layer,
@@ -140,3 +140,17 @@ probe input. The preregistered trend is final-layer CKA versus `log2(k)`.
 
 Within-pool alignment to the corresponding `k=16` model is retained only as an
 explicitly labeled overlapping-task control. It is not primary evidence.
+
+## Three-replicate extension
+
+The confirmatory extension is now complete. It retains the original R0 matrix
+and adds R1 and R2 with independently initialized model seeds 42 and 101 and
+two different balanced A/B partitions. Every property changes pools at least
+once across the three replicates. This produces 30 models and 960 validation
+model-task cells while preserving zero task-name overlap in every primary
+equal-`k` A-vs-B CKA comparison.
+
+The frozen design and results are documented in
+[PROPERTY32_REPLICATES.md](PROPERTY32_REPLICATES.md), and the aggregate tables
+are in
+[results/property32-zero-overlap/replicates/](results/property32-zero-overlap/replicates/README.md).

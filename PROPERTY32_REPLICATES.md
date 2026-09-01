@@ -73,3 +73,28 @@ sample standard deviation captures their combined variability. A full 3-seed
 x 3-split experiment would require 90 models and would be needed to estimate
 the two variance sources separately.
 
+## Completed results
+
+All 30 models completed 20,000 updates and passed checkpoint/configuration,
+SHA-256, finite-tensor, and validation-metric audits. The aggregate uses 960
+model-task validation cells. The test split was not read.
+
+| k | Opposite-pool exact accuracy | Exact minus majority | Final-layer A-vs-B CKA |
+|---:|---:|---:|---:|
+| 1 | 12.25% +/- 2.66% | -20.59 +/- 2.66 pp | 0.172313 +/- 0.073809 |
+| 2 | 11.49% +/- 2.22% | -21.34 +/- 2.22 pp | 0.191957 +/- 0.119854 |
+| 4 | 11.96% +/- 1.90% | -20.87 +/- 1.90 pp | 0.212761 +/- 0.092239 |
+| 8 | 13.64% +/- 3.73% | -19.19 +/- 3.73 pp | 0.619041 +/- 0.216940 |
+| 16 | 16.72% +/- 2.50% | -16.11 +/- 2.50 pp | 0.496115 +/- 0.150254 |
+
+Mean final-layer CKA has Spearman rho 0.90 against `k`, but the sequence is
+not monotonic. R0 and R1 peak at `k=8`; R2 rises monotonically and peaks at
+`k=16`. Thus the original `k=8` spike partially reproduces, while the broader
+claim supported by these three replicates is only a noisy positive association
+between task count and cross-pool representation similarity. Behavioral exact
+accuracy improves most clearly at `k=16`, but every value remains well below
+the task-specific majority baseline, so the models do not reliably execute
+unseen properties.
+
+The complete aggregate, replicate-level CSVs, and child reports are in
+[`results/property32-zero-overlap/replicates/`](results/property32-zero-overlap/replicates/README.md).

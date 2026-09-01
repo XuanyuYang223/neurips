@@ -248,6 +248,10 @@ def _render_readme(
     lines.extend(
         [
             "",
+            "Exact unseen-property accuracy remains below the task-specific ",
+            "majority baseline at every k. The behavioral result therefore does ",
+            "not demonstrate reliable hard zero-shot execution.",
+            "",
             "## Final-layer A-vs-B linear CKA",
             "",
             "| k | Mean +/- sample SD | Min | Max |",
@@ -269,11 +273,23 @@ def _render_readme(
             f"Mean-trend Pearson r against log2(k): "
             f"{float(trend['pearson_r_log2_k']):.6f}.",
             f"Replicates peaking at k=8: {trend['k8_peak_replicate_count']}/3.",
+            f"Mean CKA is monotonic non-decreasing: "
+            f"{str(bool(trend['monotonic_non_decreasing'])).lower()}.",
             "",
             "The three replicates jointly vary model seed and task split. Their ",
             "sample SD therefore captures combined variability and does not separate ",
             "the two variance sources. The fixed-update per-task exposure confound ",
-            "also remains. See `PROPERTY32_REPLICATES.md` for the frozen protocol.",
+            "also remains. See the ",
+            "[frozen protocol](../../../PROPERTY32_REPLICATES.md) for details.",
+            "",
+            "## Artifacts",
+            "",
+            "- [Replicate-level behavioral values](behavior_replicates.csv)",
+            "- [Behavioral mean and sample SD](behavior_summary.csv)",
+            "- [Replicate-level CKA values](cka_replicates.csv)",
+            "- [CKA mean, sample SD, minimum, and maximum](cka_summary.csv)",
+            "- Child reports: [R0](r0/behavior/README.md), "
+            "[R1](r1/behavior/README.md), and [R2](r2/behavior/README.md)",
             "",
         ]
     )
@@ -388,4 +404,3 @@ __all__ = [
     "summarize_behavior_replicates",
     "summarize_cka_replicates",
 ]
-

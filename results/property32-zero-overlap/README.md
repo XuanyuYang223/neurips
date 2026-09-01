@@ -1,4 +1,37 @@
-# Zero-overlap 32-property pilot
+# Zero-overlap 32-property study
+
+## Three-replicate confirmatory extension
+
+The primary result now averages three frozen joint task-split/model-seed
+replicates: R0 (seed 17), R1 (seed 42), and R2 (seed 101). Each replicate
+contains independent Pool A and Pool B models at `k = 1, 2, 4, 8, 16`, for 30
+models and 960 validation model-task cells in total. Pool A and Pool B share no
+task names within any replicate.
+
+| k | Opposite-pool exact accuracy | Exact minus majority | Final-layer A-vs-B CKA |
+|---:|---:|---:|---:|
+| 1 | 12.25% +/- 2.66% | -20.59 +/- 2.66 pp | 0.172313 +/- 0.073809 |
+| 2 | 11.49% +/- 2.22% | -21.34 +/- 2.22 pp | 0.191957 +/- 0.119854 |
+| 4 | 11.96% +/- 1.90% | -20.87 +/- 1.90 pp | 0.212761 +/- 0.092239 |
+| 8 | 13.64% +/- 3.73% | -19.19 +/- 3.73 pp | 0.619041 +/- 0.216940 |
+| 16 | 16.72% +/- 2.50% | -16.11 +/- 2.50 pp | 0.496115 +/- 0.150254 |
+
+Final-layer CKA has a positive but non-monotonic mean association with `k`
+(Spearman rho 0.90). R0 and R1 peak at `k=8`; R2 increases monotonically and
+peaks at `k=16`. Exact unseen-property execution improves most at `k=16`, but
+it remains below the majority-answer baseline at every `k`. The study therefore
+supports noisy representational convergence, not reliable hard zero-shot
+generalization.
+
+- [Aggregate report and provenance](replicates/README.md)
+- [Per-replicate behavioral values](replicates/behavior_replicates.csv)
+- [Per-replicate CKA values](replicates/cka_replicates.csv)
+- [Frozen three-replicate protocol](../../PROPERTY32_REPLICATES.md)
+
+The values above are mean plus/minus sample standard deviation over three
+replicate-level measurements. Model seed and task split vary together, so the
+error bars capture their combined variability rather than separating the two
+sources. Test data were not used.
 
 ## Question
 
@@ -12,7 +45,7 @@ Thirty-two scalar permutation properties are partitioned into Pool A and Pool
 B. Ten independent Transformers are trained: one model for each pool at
 `k = 1, 2, 4, 8, 16`. The equal-`k` A-vs-B comparison has zero task overlap.
 
-## Headline result
+## Original R0 pilot result
 
 The behavioral and representation-level evidence is mixed rather than a
 monotonic generalization trend.
@@ -112,4 +145,3 @@ The full property definitions and frozen pool order are in
 5. All reported model metrics and CKA probes use validation data. The test
    split remains unread and should be used only after a confirmatory protocol
    is frozen.
-
