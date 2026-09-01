@@ -1,0 +1,105 @@
+# Confirmatory replicate R2 for the 32-property zero-overlap pilot.
+# The split is frozen by Python Random seed 20261075.  Every four-task prefix
+# block contains one local, positional, cycle, and global/run property.
+
+protocol_version = "property32-zero-overlap/r2"
+dataset_protocol_version = "permutation-properties-32/v1"
+status = "confirmatory_replicate"
+replicate_id = "r2"
+pool_split_seed = 20261075
+dataset_manifest = "data/permutation-properties-16m-v1/train_manifest.json"
+validation_manifest = "data/permutation-properties-16m-v1/validation_manifest.json"
+test_manifest = "data/permutation-properties-16m-v1/test_manifest.json"
+output_dir = "runs/property32-zero-overlap-replicates/r2"
+task_subset_sizes = [1, 2, 4, 8, 16]
+architectures = ["transformer"]
+model_seeds = [101]
+
+pool_a = [
+  "successions",
+  "deficiencies",
+  "shortest_cycle",
+  "max_displacement",
+  "double_descents",
+  "exceedances",
+  "two_cycle_count",
+  "components",
+  "adjacencies",
+  "left_to_right_minima",
+  "even_cycle_count",
+  "displacement_one_count",
+  "recoils",
+  "right_to_left_minima",
+  "odd_cycle_count",
+  "lds_length",
+]
+
+pool_b = [
+  "descents",
+  "left_to_right_maxima",
+  "three_cycle_count",
+  "lis_length",
+  "double_ascents",
+  "right_to_left_maxima",
+  "nontrivial_cycle_count",
+  "global_descents",
+  "peaks",
+  "anti_fixed_points",
+  "longest_cycle",
+  "longest_increasing_run",
+  "valleys",
+  "fixed_points",
+  "cycle_count",
+  "longest_decreasing_run",
+]
+
+[dataset_artifact]
+parent_records = 16000000
+train_records = 15680000
+validation_records = 160000
+test_records = 160000
+records_per_property = 500000
+validation_records_per_property = 5000
+test_records_per_property = 5000
+compressed_bytes = 1306942428
+parent_manifest_sha256 = "2b6e92965f2070684dbc660087ad5aaa078c91f0c2aecac72a9c05b1999ca31d"
+train_manifest_sha256 = "f93ad5624b2c8d7e7e866ce99bf75527691de51cc4806be2f40cca415958054e"
+validation_manifest_sha256 = "b60539df6456fdb9e9a78623134ed279f90909d0c2433f8f770c9e5b8c95ec9d"
+test_manifest_sha256 = "257ff2ea900b90cd6f1edf3c9f0fcea5d2891c746c94440d744f6968dd817979"
+
+[data]
+shuffle_buffer = 10000
+max_sequence_length = 128
+
+[model]
+d_model = 256
+transformer_layers = 4
+mlp_layers = 1
+num_heads = 8
+ff_multiplier = 4
+dropout = 0.1
+tie_embeddings = true
+
+[training]
+max_steps = 20000
+micro_batch_size = 16
+gradient_accumulation_steps = 4
+max_tokens_per_batch = 4096
+learning_rate = 0.0003
+min_learning_rate_ratio = 0.1
+weight_decay = 0.01
+warmup_steps = 1000
+gradient_clip_norm = 1.0
+precision = "bf16"
+validate_every_steps = 1000
+validation_batches_per_task = 5
+checkpoint_every_steps = 1000
+num_workers = 0
+
+[analysis]
+activation_landmark = "<ONE_END>"
+probe_examples = 4096
+probe_seed = 20260902
+primary_comparison = "linear_cka_between_disjoint_pool_a_and_pool_b_at_equal_k"
+test_split_policy = "do_not_read_before_confirmatory_protocol_is_frozen"
+
