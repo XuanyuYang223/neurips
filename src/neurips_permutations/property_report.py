@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import argparse
+from collections import Counter
+import gzip
 import json
 from pathlib import Path
 import statistics
@@ -17,6 +19,7 @@ from .property_experiments import (
     build_property_matrix,
     matrix_summary,
 )
+from .training import resolve_shards
 
 
 DEFAULT_OUTPUT_DIR = Path("results/property32-zero-overlap/behavior")
@@ -84,6 +87,8 @@ RAW_FIELDS = (
     "loss",
     "token_accuracy",
     "sequence_accuracy",
+    "majority_baseline_sequence_accuracy",
+    "sequence_accuracy_minus_majority",
 )
 
 SUMMARY_FIELDS = (
@@ -94,6 +99,8 @@ SUMMARY_FIELDS = (
     "macro_loss",
     "macro_token_accuracy",
     "macro_sequence_accuracy",
+    "macro_majority_baseline_sequence_accuracy",
+    "macro_sequence_accuracy_minus_majority",
 )
 
 
@@ -122,6 +129,7 @@ def build_raw_rows(
     *,
     pool_a: Sequence[str],
     pool_b: Sequence[str],
+    majority_baselines: Mapping[str, float],
 ) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for run in runs:
@@ -134,6 +142,7 @@ def build_raw_rows(
             raise ValueError(f"{run.run_id} does not contain all 32 task metrics")
         for task in PROPERTY32_TASK_NAMES:
             metric = validation[task]
+            baseline = float(majority_baselines[task])
             rows.append(
                 {
                     "pool": run.pool.upper(),
@@ -152,6 +161,10 @@ def build_raw_rows(
                     "loss": float(metric["loss"]),
                     "token_accuracy": float(metric["token_accuracy"]),
                     "sequence_accuracy": float(metric["sequence_accuracy"]),
+                    "majority_baseline_sequence_accuracy": baseline,
+                    "sequence_accuracy_minus_majority": (
+                        float(metric["sequence_accuracy"]) - baseline
+                    ),
                 }
             )
     if len(rows) != len(runs) * 32:
@@ -191,9 +204,55 @@ def summarize_rows(rows: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
                 "macro_sequence_accuracy": statistics.fmean(
                     float(row["sequence_accuracy"]) for row in values
                 ),
+                "macro_majority_baseline_sequence_accuracy": statistics.fmean(
+                    float(row["majority_baseline_sequence_accuracy"])
+                    for row in values
+                ),
+                "macro_sequence_accuracy_minus_majority": statistics.fmean(
+                    float(row["sequence_accuracy_minus_majority"])
+                    for row in values
+                ),
             }
         )
     return result
+
+
+def compute_majority_baselines(
+    validation_manifest: Path,
+    *,
+    examples_per_task: int = 160,
+) -> dict[str, float]:
+    """Reproduce the constant-answer baseline on validation's first examples."""
+
+    if examples_per_task < 1:
+        raise ValueError("examples_per_task must be positive")
+    answers: dict[str, Counter[str]] = {
+        task: Counter() for task in PROPERTY32_TASK_NAMES
+    }
+    counts = {task: 0 for task in PROPERTY32_TASK_NAMES}
+    for shard in resolve_shards(validation_manifest):
+        opener = gzip.open if shard.name.endswith(".gz") else open
+        with opener(shard, "rt", encoding="utf-8") as handle:
+            for line in handle:
+                record = json.loads(line)
+                task = record["task"]
+                if task not in counts or counts[task] >= examples_per_task:
+                    continue
+                # Canonical JSON distinguishes scalar values without relying
+                # on hashability of any future structured answer type.
+                answer = json.dumps(
+                    record["answer"], sort_keys=True, separators=(",", ":")
+                )
+                answers[task][answer] += 1
+                counts[task] += 1
+        if all(value == examples_per_task for value in counts.values()):
+            break
+    if any(value != examples_per_task for value in counts.values()):
+        raise ValueError("validation manifest has too few examples for a baseline")
+    return {
+        task: max(counter.values()) / examples_per_task
+        for task, counter in answers.items()
+    }
 
 
 def _percent(value: float) -> str:
@@ -215,8 +274,8 @@ def _render_readme(summary_rows: Sequence[Mapping[str, Any]]) -> str:
         "",
         "## Opposite-pool transfer",
         "",
-        "| Pool | k | Loss | Token accuracy | Exact-sequence accuracy |",
-        "|---|---:|---:|---:|---:|",
+        "| Pool | k | Loss | Token accuracy | Exact accuracy | Majority baseline | Exact minus baseline |",
+        "|---|---:|---:|---:|---:|---:|---:|",
     ]
     for pool in ("A", "B"):
         for task_count in (1, 2, 4, 8, 16):
@@ -224,15 +283,17 @@ def _render_readme(summary_rows: Sequence[Mapping[str, Any]]) -> str:
             lines.append(
                 f"| {pool} | {task_count} | {float(row['macro_loss']):.4f} | "
                 f"{_percent(float(row['macro_token_accuracy']))} | "
-                f"{_percent(float(row['macro_sequence_accuracy']))} |"
+                f"{_percent(float(row['macro_sequence_accuracy']))} | "
+                f"{_percent(float(row['macro_majority_baseline_sequence_accuracy']))} | "
+                f"{100.0 * float(row['macro_sequence_accuracy_minus_majority']):+.2f} pp |"
             )
     lines.extend(
         [
             "",
             "## Seen-task performance",
             "",
-            "| Pool | k | Loss | Token accuracy | Exact-sequence accuracy |",
-            "|---|---:|---:|---:|---:|",
+            "| Pool | k | Loss | Token accuracy | Exact accuracy | Majority baseline | Exact minus baseline |",
+            "|---|---:|---:|---:|---:|---:|---:|",
         ]
     )
     for pool in ("A", "B"):
@@ -241,7 +302,9 @@ def _render_readme(summary_rows: Sequence[Mapping[str, Any]]) -> str:
             lines.append(
                 f"| {pool} | {task_count} | {float(row['macro_loss']):.4f} | "
                 f"{_percent(float(row['macro_token_accuracy']))} | "
-                f"{_percent(float(row['macro_sequence_accuracy']))} |"
+                f"{_percent(float(row['macro_sequence_accuracy']))} | "
+                f"{_percent(float(row['macro_majority_baseline_sequence_accuracy']))} | "
+                f"{100.0 * float(row['macro_sequence_accuracy_minus_majority']):+.2f} pp |"
             )
     lines.extend(
         [
@@ -250,6 +313,8 @@ def _render_readme(summary_rows: Sequence[Mapping[str, Any]]) -> str:
             "and EOS. `sequence_accuracy` requires both tokens to be correct and is the ",
             "primary complete-answer metric. `MODEL_TASK_ACCURACIES.csv` contains every ",
             "unaveraged model-task result; `SUMMARY.csv` contains the task-macro values.",
+            "The majority baseline always predicts each task's most common answer on the ",
+            "same 160 examples, exposing gains that are only answer-frequency guessing.",
             "",
             "This is a one-seed pilot with a fixed 20,000-update budget. Per-task ",
             "exposure therefore falls as k increases, so any trend mixes task diversity ",
@@ -270,7 +335,13 @@ def run_property_report(
         raise ValueError("all property pilot models must complete before reporting")
     runs = build_property_matrix(config_path)
     config = tomllib.loads(config_path.read_text(encoding="utf-8"))
-    rows = build_raw_rows(runs, pool_a=config["pool_a"], pool_b=config["pool_b"])
+    baselines = compute_majority_baselines(Path(config["validation_manifest"]))
+    rows = build_raw_rows(
+        runs,
+        pool_a=config["pool_a"],
+        pool_b=config["pool_b"],
+        majority_baselines=baselines,
+    )
     summaries = summarize_rows(rows)
     raw_path = output_dir / "MODEL_TASK_ACCURACIES.csv"
     summary_path = output_dir / "SUMMARY.csv"
@@ -319,6 +390,7 @@ __all__ = [
     "RAW_FIELDS",
     "SUMMARY_FIELDS",
     "build_raw_rows",
+    "compute_majority_baselines",
     "main",
     "run_property_report",
     "summarize_rows",

@@ -33,6 +33,8 @@ def test_summary_is_task_macro_not_token_weighted():
             "loss": 1.0,
             "token_accuracy": 0.2,
             "sequence_accuracy": 0.1,
+            "majority_baseline_sequence_accuracy": 0.05,
+            "sequence_accuracy_minus_majority": 0.05,
             "supervised_tokens": 2,
         },
         {
@@ -42,6 +44,8 @@ def test_summary_is_task_macro_not_token_weighted():
             "loss": 3.0,
             "token_accuracy": 0.8,
             "sequence_accuracy": 0.5,
+            "majority_baseline_sequence_accuracy": 0.25,
+            "sequence_accuracy_minus_majority": 0.25,
             "supervised_tokens": 200,
         },
     ]
@@ -51,3 +55,7 @@ def test_summary_is_task_macro_not_token_weighted():
     assert summary[0]["macro_loss"] == pytest.approx(2.0)
     assert summary[0]["macro_token_accuracy"] == pytest.approx(0.5)
     assert summary[0]["macro_sequence_accuracy"] == pytest.approx(0.3)
+    assert summary[0]["macro_majority_baseline_sequence_accuracy"] == pytest.approx(
+        0.15
+    )
+    assert summary[0]["macro_sequence_accuracy_minus_majority"] == pytest.approx(0.15)
