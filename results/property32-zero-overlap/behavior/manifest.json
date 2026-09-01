@@ -1,0 +1,14 @@
+{
+  "analysis_commit": "7d9f43aadff8c2494641252bfb62e8f65b7192d1",
+  "artifacts": {
+    "MODEL_TASK_ACCURACIES.csv": "6fccea8026295f72839f6e3351d0a7bbd4d87461e354b5783bbb09aac5db1efa",
+    "README.md": "54723ae460527a759d71dbd7873bb1f9fdd4258b0b8ceaf2d6d319c9919ce986",
+    "SUMMARY.csv": "368911bc8e0a75b979774d01176ae0d5e1a2e11ac6f86bc34195ef0b02407a6c"
+  },
+  "config_sha256": "5cd3fc692880d83773e7fc80c006d16367b7c3aeebcdfa678659bf7fa189b2b3",
+  "protocol_version": "property32-zero-overlap-behavior/v1",
+  "raw_row_count": 320,
+  "run_count": 10,
+  "status": "completed",
+  "test_split_used": false
+}
