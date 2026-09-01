@@ -83,6 +83,9 @@ As an additional representation-level analysis, the completed
 across seeds, task counts, layers, and architectures. CKA is not a substitute
 for linear probing: it measures similarity between representation geometries,
 whereas a probe tests whether a particular property is linearly decodable.
+Its [zero-overlap category follow-up](cka/category/README.md) holds `k=4`
+fixed: same-family cross-seed CKA is 0.5556 versus 0.3221 across disjoint
+families for the Transformer, and 0.6419 versus 0.2885 for the MLP.
 
 The 48 independently trained base models comprise 30 nested models and 18
 category-comparison models. The fine-tuning follow-up adds 120 warm-start
