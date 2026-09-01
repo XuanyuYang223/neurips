@@ -1,4 +1,4 @@
-"""Deterministic, streaming generation of the 20-task permutation corpus."""
+"""Deterministic, streaming generation of permutation-task corpora."""
 
 from __future__ import annotations
 
@@ -17,12 +17,13 @@ from random import Random
 from typing import Any, Iterable, Mapping, Sequence
 
 from . import math_ops as ops
-from .math_ops import V2_TASK_NAMES, V3_TASK_NAMES
+from .math_ops import PROPERTY32_TASK_NAMES, V2_TASK_NAMES, V3_TASK_NAMES
 from .passage import TASK_SPECS, passage_tokens
 
 
 V2_SCHEMA_VERSION = "permutation-20/v2"
 V3_SCHEMA_VERSION = "permutation-20/v3"
+PROPERTY32_SCHEMA_VERSION = "permutation-properties-32/v1"
 # The unqualified API and CLI now create Henry's revised task suite.  The
 # explicit v2 protocol remains available for reproducing and validating the
 # already-generated corpus.
@@ -30,6 +31,7 @@ SCHEMA_VERSION = V3_SCHEMA_VERSION
 TASKS_BY_SCHEMA: Mapping[str, tuple[str, ...]] = {
     V2_SCHEMA_VERSION: V2_TASK_NAMES,
     V3_SCHEMA_VERSION: V3_TASK_NAMES,
+    PROPERTY32_SCHEMA_VERSION: PROPERTY32_TASK_NAMES,
 }
 DEFAULT_COUNT = 10_000_000
 DEFAULT_MAX_ENTRIES = 30
@@ -85,21 +87,26 @@ def _validate_config(
     schema_version: str,
 ) -> None:
     _checked_int("count", count, minimum=1)
-    # S_3 has no incomparable pair with a positive Coxeter-length gap, so the
-    # balanced negative Bruhat construction requires at least S_4.
-    _checked_int("max_entries", max_entries, minimum=4)
+    # V2/V3 include Bruhat examples whose balanced negative construction needs
+    # S_4.  The scalar-only property registry is well-defined from S_2.
+    minimum_entries = 2 if schema_version == PROPERTY32_SCHEMA_VERSION else 4
+    _checked_int("max_entries", max_entries, minimum=minimum_entries)
     _checked_int("base", base, minimum=2)
     _checked_int("shard_size", shard_size, minimum=1)
     _checked_int("seed", seed, minimum=0)
     _checked_int("workers", workers, minimum=1)
     task_names = task_names_for_schema(schema_version)
-    if len(task_names) != 20 or len(set(task_names)) != 20:
-        raise RuntimeError("each schema must contain exactly 20 unique tasks")
+    if not task_names or len(set(task_names)) != len(task_names):
+        raise RuntimeError("each schema must contain a nonempty unique task grid")
     if any(task not in TASK_SPECS for task in task_names):
         raise RuntimeError("math and Passage task registries disagree")
     if count % len(task_names):
-        raise ValueError("count must be divisible by 20 for exact task balance")
-    if (count // len(task_names)) % 2:
+        raise ValueError(
+            f"count must be divisible by {len(task_names)} for exact task balance"
+        )
+    if schema_version in {V2_SCHEMA_VERSION, V3_SCHEMA_VERSION} and (
+        count // len(task_names)
+    ) % 2:
         raise ValueError(
             "count must be divisible by 40 for exact binary-label balance"
         )
@@ -297,7 +304,8 @@ def build_record(
     """Build one compact record, deterministically addressed by ``record_id``."""
 
     _checked_int("record_id", record_id, minimum=0)
-    _checked_int("max_entries", max_entries, minimum=3)
+    minimum_entries = 2 if schema_version == PROPERTY32_SCHEMA_VERSION else 3
+    _checked_int("max_entries", max_entries, minimum=minimum_entries)
     if base != 100:
         raise ValueError("the Passage Math grammar currently requires base=100")
 
@@ -324,7 +332,9 @@ def build_record(
     render_kwargs: dict[str, object] = {}
     inputs: dict[str, object] = {"primary": primary}
 
-    if task == "to_cycle":
+    if schema_version == PROPERTY32_SCHEMA_VERSION:
+        answer = ops.PROPERTY_FUNCTIONS[task](primary)
+    elif task == "to_cycle":
         answer = ops.canonical_cycles(primary)
     elif task == "to_lehmer":
         answer = ops.lehmer_code(primary)
@@ -811,6 +821,7 @@ __all__ = [
     "DEFAULT_SHARD_SIZE",
     "DEFAULT_WORKERS",
     "SCHEMA_VERSION",
+    "PROPERTY32_SCHEMA_VERSION",
     "TASKS_BY_SCHEMA",
     "V2_SCHEMA_VERSION",
     "V3_SCHEMA_VERSION",

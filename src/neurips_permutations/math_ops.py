@@ -15,7 +15,7 @@ multiplications.
 from __future__ import annotations
 
 from bisect import bisect_left
-from collections.abc import Iterable, Sequence
+from collections.abc import Callable, Iterable, Sequence
 from itertools import combinations
 
 
@@ -72,6 +72,45 @@ V3_TASK_NAMES = (
     "bruhat_leq",
 )
 
+# Scalar-only protocol for the zero-overlap representation-similarity study.
+# All answers lie in 0, ..., n and therefore use exactly one base-100 token
+# for the frozen n <= 30 data regime.  The registry groups four property
+# families and every 80,000-record shard is exactly balanced across all tasks.
+PROPERTY32_TASK_NAMES = (
+    "descents",
+    "recoils",
+    "peaks",
+    "valleys",
+    "double_ascents",
+    "double_descents",
+    "successions",
+    "adjacencies",
+    "fixed_points",
+    "anti_fixed_points",
+    "exceedances",
+    "deficiencies",
+    "left_to_right_maxima",
+    "left_to_right_minima",
+    "right_to_left_maxima",
+    "right_to_left_minima",
+    "cycle_count",
+    "two_cycle_count",
+    "three_cycle_count",
+    "even_cycle_count",
+    "odd_cycle_count",
+    "longest_cycle",
+    "shortest_cycle",
+    "nontrivial_cycle_count",
+    "lis_length",
+    "lds_length",
+    "longest_increasing_run",
+    "longest_decreasing_run",
+    "global_descents",
+    "components",
+    "max_displacement",
+    "displacement_one_count",
+)
+
 TASK_NAMES = V2_TASK_NAMES
 
 __all__ = [
@@ -79,6 +118,10 @@ __all__ = [
     "TASK_NAMES",
     "V2_TASK_NAMES",
     "V3_TASK_NAMES",
+    "PROPERTY32_TASK_NAMES",
+    "PROPERTY_FUNCTIONS",
+    "adjacency_count",
+    "anti_fixed_point_count",
     "avoids_pattern",
     "bruhat_leq",
     "canonical_cycles",
@@ -86,15 +129,31 @@ __all__ = [
     "compose",
     "conjugate",
     "cycle_type",
+    "cycle_count",
+    "cycle_length_count",
+    "deficiency_count",
     "descent_count",
+    "displacement_one_count",
+    "double_ascent_count",
+    "double_descent_count",
+    "even_cycle_count",
     "exceedance_count",
     "fixed_point_count",
+    "global_descent_count",
     "inverse",
     "inversion_count",
     "inversion_vector",
+    "left_to_right_maximum_count",
+    "left_to_right_minimum_count",
     "lds_length",
     "lehmer_code",
     "lis_length",
+    "longest_cycle_length",
+    "longest_decreasing_run_length",
+    "longest_increasing_run_length",
+    "max_displacement",
+    "nontrivial_cycle_count",
+    "odd_cycle_count",
     "parity",
     "peak_count",
     "contains_pattern",
@@ -102,9 +161,17 @@ __all__ = [
     "power",
     "reduced_coxeter_word",
     "recoil_count",
+    "right_to_left_maximum_count",
+    "right_to_left_minimum_count",
     "right_multiply_simple",
     "rsk_shape",
+    "shortest_cycle_length",
+    "three_cycle_count",
+    "two_cycle_count",
+    "component_count",
+    "succession_count",
     "validate_permutation",
+    "valley_count",
 ]
 
 
@@ -295,11 +362,110 @@ def recoil_count(permutation: Sequence[int]) -> int:
     )
 
 
+def valley_count(permutation: Sequence[int]) -> int:
+    """Return the number of interior valleys ``p(i-1) > p(i) < p(i+1)``."""
+
+    p = validate_permutation(permutation)
+    return sum(
+        left > center < right
+        for left, center, right in zip(p, p[1:], p[2:])
+    )
+
+
+def double_ascent_count(permutation: Sequence[int]) -> int:
+    """Return the number of strictly increasing contiguous triples."""
+
+    p = validate_permutation(permutation)
+    return sum(
+        left < center < right
+        for left, center, right in zip(p, p[1:], p[2:])
+    )
+
+
+def double_descent_count(permutation: Sequence[int]) -> int:
+    """Return the number of strictly decreasing contiguous triples."""
+
+    p = validate_permutation(permutation)
+    return sum(
+        left > center > right
+        for left, center, right in zip(p, p[1:], p[2:])
+    )
+
+
+def succession_count(permutation: Sequence[int]) -> int:
+    """Return adjacent pairs whose right value is one larger than the left."""
+
+    p = validate_permutation(permutation)
+    return sum(right == left + 1 for left, right in zip(p, p[1:]))
+
+
+def adjacency_count(permutation: Sequence[int]) -> int:
+    """Return adjacent pairs whose values differ by exactly one."""
+
+    p = validate_permutation(permutation)
+    return sum(abs(right - left) == 1 for left, right in zip(p, p[1:]))
+
+
 def fixed_point_count(permutation: Sequence[int]) -> int:
     """Return ``# {i : p(i) = i}``."""
 
     p = validate_permutation(permutation)
     return sum(value == index for index, value in enumerate(p, start=1))
+
+
+def anti_fixed_point_count(permutation: Sequence[int]) -> int:
+    """Return ``# {i : p(i) = n + 1 - i}``."""
+
+    p = validate_permutation(permutation)
+    size = len(p)
+    return sum(value == size + 1 - index for index, value in enumerate(p, 1))
+
+
+def deficiency_count(permutation: Sequence[int]) -> int:
+    """Return ``# {i : p(i) < i}``, with positions numbered from one."""
+
+    p = validate_permutation(permutation)
+    return sum(value < index for index, value in enumerate(p, start=1))
+
+
+def left_to_right_maximum_count(permutation: Sequence[int]) -> int:
+    """Return the number of left-to-right maxima (upper records)."""
+
+    p = validate_permutation(permutation)
+    best = 0
+    total = 0
+    for value in p:
+        if value > best:
+            best = value
+            total += 1
+    return total
+
+
+def left_to_right_minimum_count(permutation: Sequence[int]) -> int:
+    """Return the number of left-to-right minima (lower records)."""
+
+    p = validate_permutation(permutation)
+    best = len(p) + 1
+    total = 0
+    for value in p:
+        if value < best:
+            best = value
+            total += 1
+    return total
+
+
+def right_to_left_maximum_count(permutation: Sequence[int]) -> int:
+    """Return the number of right-to-left maxima."""
+
+    p = validate_permutation(permutation)
+    return left_to_right_maximum_count(tuple(reversed(p)))
+
+
+def right_to_left_minimum_count(permutation: Sequence[int]) -> int:
+    """Return the number of right-to-left minima."""
+
+    p = validate_permutation(permutation)
+    return left_to_right_minimum_count(tuple(reversed(p)))
 
 
 def parity(permutation: Sequence[int]) -> int:
@@ -317,6 +483,71 @@ def cycle_type(permutation: Sequence[int]) -> tuple[int, ...]:
             (len(cycle) for cycle in _canonical_cycles_validated(p)), reverse=True
         )
     )
+
+
+def cycle_count(permutation: Sequence[int]) -> int:
+    """Return the number of cycles, including singleton cycles."""
+
+    p = validate_permutation(permutation)
+    return len(_canonical_cycles_validated(p))
+
+
+def cycle_length_count(permutation: Sequence[int], length: int) -> int:
+    """Return the number of cycles having exactly ``length`` elements."""
+
+    if isinstance(length, bool) or not isinstance(length, int):
+        raise TypeError("cycle length must be an integer")
+    if length < 1:
+        raise ValueError("cycle length must be at least one")
+    p = validate_permutation(permutation)
+    return sum(len(cycle) == length for cycle in _canonical_cycles_validated(p))
+
+
+def two_cycle_count(permutation: Sequence[int]) -> int:
+    """Return the number of transpositions in the disjoint cycle form."""
+
+    return cycle_length_count(permutation, 2)
+
+
+def three_cycle_count(permutation: Sequence[int]) -> int:
+    """Return the number of cycles having length three."""
+
+    return cycle_length_count(permutation, 3)
+
+
+def even_cycle_count(permutation: Sequence[int]) -> int:
+    """Return the number of cycles with even length."""
+
+    p = validate_permutation(permutation)
+    return sum(len(cycle) % 2 == 0 for cycle in _canonical_cycles_validated(p))
+
+
+def odd_cycle_count(permutation: Sequence[int]) -> int:
+    """Return the number of cycles with odd length, including fixed points."""
+
+    p = validate_permutation(permutation)
+    return sum(len(cycle) % 2 == 1 for cycle in _canonical_cycles_validated(p))
+
+
+def longest_cycle_length(permutation: Sequence[int]) -> int:
+    """Return the longest cycle length, or zero for the empty permutation."""
+
+    p = validate_permutation(permutation)
+    return max((len(cycle) for cycle in _canonical_cycles_validated(p)), default=0)
+
+
+def shortest_cycle_length(permutation: Sequence[int]) -> int:
+    """Return the shortest cycle length, or zero for the empty permutation."""
+
+    p = validate_permutation(permutation)
+    return min((len(cycle) for cycle in _canonical_cycles_validated(p)), default=0)
+
+
+def nontrivial_cycle_count(permutation: Sequence[int]) -> int:
+    """Return the number of cycles with length at least two."""
+
+    p = validate_permutation(permutation)
+    return sum(len(cycle) > 1 for cycle in _canonical_cycles_validated(p))
 
 
 def rsk_shape(permutation: Sequence[int]) -> tuple[int, ...]:
@@ -361,6 +592,83 @@ def lds_length(permutation: Sequence[int]) -> int:
 
     p = validate_permutation(permutation)
     return _strict_lis_length(tuple(-value for value in p))
+
+
+def longest_increasing_run_length(permutation: Sequence[int]) -> int:
+    """Return the longest contiguous strictly increasing run length."""
+
+    p = validate_permutation(permutation)
+    if not p:
+        return 0
+    longest = current = 1
+    for left, right in zip(p, p[1:]):
+        current = current + 1 if left < right else 1
+        longest = max(longest, current)
+    return longest
+
+
+def longest_decreasing_run_length(permutation: Sequence[int]) -> int:
+    """Return the longest contiguous strictly decreasing run length."""
+
+    p = validate_permutation(permutation)
+    if not p:
+        return 0
+    longest = current = 1
+    for left, right in zip(p, p[1:]):
+        current = current + 1 if left > right else 1
+        longest = max(longest, current)
+    return longest
+
+
+def global_descent_count(permutation: Sequence[int]) -> int:
+    """Return splits where every prefix value exceeds every suffix value."""
+
+    p = validate_permutation(permutation)
+    if len(p) < 2:
+        return 0
+    suffix_maxima = [0] * len(p)
+    suffix_maxima[-1] = p[-1]
+    for index in range(len(p) - 2, -1, -1):
+        suffix_maxima[index] = max(p[index], suffix_maxima[index + 1])
+    prefix_minimum = p[0]
+    total = 0
+    for index in range(1, len(p)):
+        if prefix_minimum > suffix_maxima[index]:
+            total += 1
+        prefix_minimum = min(prefix_minimum, p[index])
+    return total
+
+
+def component_count(permutation: Sequence[int]) -> int:
+    """Return the number of direct-sum indecomposable components."""
+
+    p = validate_permutation(permutation)
+    prefix_maximum = 0
+    total = 0
+    for index, value in enumerate(p, start=1):
+        prefix_maximum = max(prefix_maximum, value)
+        if prefix_maximum == index:
+            total += 1
+    return total
+
+
+def max_displacement(permutation: Sequence[int]) -> int:
+    """Return ``max_i |p(i)-i|``, or zero for the empty permutation."""
+
+    p = validate_permutation(permutation)
+    return max(
+        (abs(value - index) for index, value in enumerate(p, start=1)),
+        default=0,
+    )
+
+
+def displacement_one_count(permutation: Sequence[int]) -> int:
+    """Return ``# {i : |p(i)-i| = 1}``."""
+
+    p = validate_permutation(permutation)
+    return sum(
+        abs(value - index) == 1 for index, value in enumerate(p, start=1)
+    )
 
 
 def _standardize(values: Sequence[int]) -> tuple[int, ...]:
@@ -509,3 +817,45 @@ def bruhat_leq(first: Sequence[int], second: Sequence[int]) -> bool:
             if u_rank < v_rank:
                 return False
     return True
+
+
+# Authoritative dispatch for the scalar-property protocol.  Keeping the
+# mapping beside the mathematical definitions lets generation and independent
+# record verification share task names without duplicating formulas.
+PROPERTY_FUNCTIONS: dict[str, Callable[[Sequence[int]], int]] = {
+    "descents": descent_count,
+    "recoils": recoil_count,
+    "peaks": peak_count,
+    "valleys": valley_count,
+    "double_ascents": double_ascent_count,
+    "double_descents": double_descent_count,
+    "successions": succession_count,
+    "adjacencies": adjacency_count,
+    "fixed_points": fixed_point_count,
+    "anti_fixed_points": anti_fixed_point_count,
+    "exceedances": exceedance_count,
+    "deficiencies": deficiency_count,
+    "left_to_right_maxima": left_to_right_maximum_count,
+    "left_to_right_minima": left_to_right_minimum_count,
+    "right_to_left_maxima": right_to_left_maximum_count,
+    "right_to_left_minima": right_to_left_minimum_count,
+    "cycle_count": cycle_count,
+    "two_cycle_count": two_cycle_count,
+    "three_cycle_count": three_cycle_count,
+    "even_cycle_count": even_cycle_count,
+    "odd_cycle_count": odd_cycle_count,
+    "longest_cycle": longest_cycle_length,
+    "shortest_cycle": shortest_cycle_length,
+    "nontrivial_cycle_count": nontrivial_cycle_count,
+    "lis_length": lis_length,
+    "lds_length": lds_length,
+    "longest_increasing_run": longest_increasing_run_length,
+    "longest_decreasing_run": longest_decreasing_run_length,
+    "global_descents": global_descent_count,
+    "components": component_count,
+    "max_displacement": max_displacement,
+    "displacement_one_count": displacement_one_count,
+}
+
+if tuple(PROPERTY_FUNCTIONS) != PROPERTY32_TASK_NAMES:  # pragma: no cover
+    raise RuntimeError("scalar-property function registry order drifted")

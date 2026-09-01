@@ -259,8 +259,8 @@ def test_boolean_tasks_use_00_or_01(task: str) -> None:
 
 
 def test_all_v2_and_v3_tasks_have_unique_task_tokens() -> None:
-    assert len(TASK_SPECS) == 23
-    assert len({spec.token for spec in TASK_SPECS.values()}) == 23
+    assert len(TASK_SPECS) == 48
+    assert len({spec.token for spec in TASK_SPECS.values()}) == 48
     assert {
         task: (TASK_SPECS[task].token, TASK_SPECS[task].answer_kind)
         for task in ("peaks", "exceedances", "recoils")
