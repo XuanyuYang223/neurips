@@ -56,3 +56,18 @@ diagnostics and direct confirmation that training succeeded.
 
 Raw accuracy values in CSV files are fractions in `[0, 1]`; Markdown reports
 display percentages.
+
+## 32-property zero-overlap pilot
+
+- [Combined report](property32-zero-overlap/README.md)
+- [Behavioral results](property32-zero-overlap/behavior/README.md)
+- [All 320 model-task validation rows](property32-zero-overlap/behavior/MODEL_TASK_ACCURACIES.csv)
+- [Layerwise CKA results](property32-zero-overlap/cka/README.md)
+
+This exploratory extension uses 32 scalar permutation properties divided into
+two disjoint 16-task pools. It trains ten Transformers: Pool A and Pool B at
+`k = 1, 2, 4, 8, 16`, one seed per cell. Every checkpoint is evaluated on all
+32 properties, producing 10 x 32 = 320 validation rows. Behavioral exact
+accuracy is compared with a per-task majority-answer baseline because several
+property distributions are highly imbalanced. CKA uses 4,096 task-free
+validation prefixes and does not read the test split.

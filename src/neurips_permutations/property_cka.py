@@ -327,7 +327,7 @@ def _render_readme(
             "",
         ]
     )
-    return "\n".join(rows)
+    return "\n".join(row.rstrip() for row in rows)
 
 
 def run_property_cka(

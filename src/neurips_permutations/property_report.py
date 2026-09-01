@@ -353,7 +353,7 @@ def _render_readme(summary_rows: Sequence[Mapping[str, Any]]) -> str:
             "",
         ]
     )
-    return "\n".join(lines)
+    return "\n".join(line.rstrip() for line in lines)
 
 
 def run_property_report(

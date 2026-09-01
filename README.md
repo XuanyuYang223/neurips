@@ -24,6 +24,8 @@ The shareable result packages are separated by protocol version:
   model-by-task validation rows;
 - [v3 revised results](results/v3/README.md), including all 960 validation and
   960 independent-test model-by-task rows;
+- [32-property zero-overlap results](results/property32-zero-overlap/README.md),
+  including all 320 validation model-by-task rows and layerwise CKA;
 - [32-property protocol](PROPERTY32_PROTOCOL.md), with its frozen task pools,
   data specification, model design, and CKA analysis plan;
 - [result-file index](results/README.md), which explains every CSV.
@@ -54,6 +56,14 @@ task overlap; the MLP does not show the same pattern.
 The [disjoint-category follow-up](results/v3/cka/category/README.md) fixes
 `k=4` and finds substantially higher CKA within the same training family than
 between zero-overlap task families for both architectures.
+
+The [32-property zero-overlap pilot](results/property32-zero-overlap/README.md)
+trains Pool A and Pool B independently at five values of `k`. Opposite-pool
+exact accuracy averaged across both directions rises from 9.18% at `k=1` to
+17.75% at `k=16`, but remains below a task-specific majority baseline at every
+`k`. Final-layer A-vs-B CKA is 0.2238, 0.3304, 0.3192, 0.8033, and 0.4328, so
+the representation signal is positively associated with `k` but clearly not
+monotonic. This is a one-seed exploratory result, not a confirmatory claim.
 
 ## v3 revision
 
