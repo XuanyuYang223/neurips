@@ -40,6 +40,13 @@ entirely due to Boolean `parity`; exact accuracy on the three structured
 holdouts remains at or below 0.113%. See the
 [few-shot report](results/v3/fewshot/README.md).
 
+The [CKA representation analysis](results/v3/cka/README.md) is also complete.
+Using the same 4,096 task-free validation prefixes for every model, it finds
+no consistent monotonic increase in cross-seed representation similarity as
+the nested task count grows. The Transformer becomes progressively closer to
+its same-seed `k=16` reference, but that comparison is confounded by increasing
+task overlap; the MLP does not show the same pattern.
+
 ## v3 revision
 
 Henry suggested removing the unusually slow `power`, `conjugate`, and
@@ -88,6 +95,8 @@ are in [PROTOCOL.md](PROTOCOL.md).
   adaptation against a random-initialization control;
 - [20-shot results](results/v3/fewshot/README.md): 144 audited adaptations and
   paired zero-shot/random-init comparisons;
+- [CKA results](results/v3/cka/README.md): layerwise representation similarity
+  across nested task counts, seeds, architectures, and random-init controls;
 - [TRAINING_PROCESS.md](TRAINING_PROCESS.md): full data, architecture,
   training, recovery, audit, and evaluation record;
 - [EXPERIMENTS.md](EXPERIMENTS.md): experimental designs and limitations;
@@ -113,6 +122,13 @@ permutation-results \
   --config configs/henry_permutation_revised.toml \
   --output-dir results/v3 \
   --test-evaluation-dir results/v3/evaluation
+
+# Recompute CKA from the 30 completed nested checkpoints and validation shard 098.
+permutation-cka \
+  --config configs/henry_permutation_revised.toml \
+  --output-dir results/v3/cka \
+  --probe-count 4096 \
+  --device auto
 ```
 
 Production data shards and checkpoints are intentionally ignored by Git. The
