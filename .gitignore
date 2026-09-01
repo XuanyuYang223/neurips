@@ -8,6 +8,7 @@ runs/
 results/v3/cka/cache/
 results/property32-zero-overlap/cka/cache/
 results/property32-zero-overlap/replicates/*/cka/cache/
+results/property32-relation-controlled/cka/cache/
 
 # The generated corpus is intentionally local: 10M records are too large for GitHub.
 data/**/*.jsonl

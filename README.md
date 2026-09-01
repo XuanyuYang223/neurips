@@ -30,6 +30,9 @@ The shareable result packages are separated by protocol version:
   error bars, and layerwise CKA;
 - [three-replicate protocol](PROPERTY32_REPLICATES.md), with the frozen task
   splits, model seeds, and aggregation rules;
+- [relation-controlled CKA protocol](PROPERTY32_RELATION_CONTROLLED.md), which
+  removes co-selected natural duals and crosses three low-correlation task
+  selections with three model seeds;
 - [32-property protocol](PROPERTY32_PROTOCOL.md), with its frozen task pools,
   data specification, model design, and CKA analysis plan;
 - [result-file index](results/README.md), which explains every CSV.
@@ -124,6 +127,8 @@ are in [PROTOCOL.md](PROTOCOL.md).
   properties and two disjoint balanced pools;
 - [three-replicate protocol](PROPERTY32_REPLICATES.md): the 30-model
   confirmatory extension and frozen aggregation;
+- [relation-controlled protocol](PROPERTY32_RELATION_CONTROLLED.md): the
+  72-model low-correlation 3x3 CKA follow-up;
 - [TRAINING_PROCESS.md](TRAINING_PROCESS.md): full data, architecture,
   training, recovery, audit, and evaluation record;
 - [EXPERIMENTS.md](EXPERIMENTS.md): experimental designs and limitations;

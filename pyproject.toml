@@ -31,6 +31,8 @@ permutation-property-report = "neurips_permutations.property_report:main"
 permutation-property-cka = "neurips_permutations.property_cka:main"
 permutation-property-replicates = "neurips_permutations.property_replicates:main"
 permutation-property-replicate-results = "neurips_permutations.property_replicate_results:main"
+permutation-property-relation-experiments = "neurips_permutations.property_relation_experiments:main"
+permutation-property-relation-cka = "neurips_permutations.property_relation_cka:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

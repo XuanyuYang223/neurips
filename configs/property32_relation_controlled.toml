@@ -1,0 +1,159 @@
+# Relation-controlled zero-overlap CKA study. Each split selects exactly one
+# member from every predefined natural-dual pair, then divides the 16 selected
+# properties into disjoint 8-task pools. Thus no natural dual is co-selected.
+
+protocol_version = "property32-relation-controlled/v1"
+dataset_protocol_version = "permutation-properties-32/v1"
+status = "frozen_before_launch"
+dataset_manifest = "data/permutation-properties-16m-v1/train_manifest.json"
+validation_manifest = "data/permutation-properties-16m-v1/validation_manifest.json"
+test_manifest = "data/permutation-properties-16m-v1/test_manifest.json"
+output_dir = "runs/property32-relation-controlled"
+task_subset_sizes = [1, 2, 4, 8]
+architectures = ["transformer"]
+model_seeds = [17, 42, 101]
+split_ids = ["s0", "s1", "s2"]
+
+[dataset_artifact]
+parent_records = 16000000
+train_records = 15680000
+validation_records = 160000
+test_records = 160000
+records_per_property = 500000
+validation_records_per_property = 5000
+test_records_per_property = 5000
+compressed_bytes = 1306942428
+parent_manifest_sha256 = "2b6e92965f2070684dbc660087ad5aaa078c91f0c2aecac72a9c05b1999ca31d"
+train_manifest_sha256 = "f93ad5624b2c8d7e7e866ce99bf75527691de51cc4806be2f40cca415958054e"
+validation_manifest_sha256 = "b60539df6456fdb9e9a78623134ed279f90909d0c2433f8f770c9e5b8c95ec9d"
+test_manifest_sha256 = "257ff2ea900b90cd6f1edf3c9f0fcea5d2891c746c94440d744f6968dd817979"
+
+[selection]
+source_split = "train"
+source_shard = 0
+source_first_record_id = 0
+source_record_count = 50000
+length_control = "standardize_each_property_within_each_permutation_length"
+correlation = "pearson_after_within_length_standardization"
+search_seed = 20260903
+random_candidates = 600000
+selected_split_count = 3
+minimum_pair_state_distance = 10
+objective = "max_abs + 0.35 * q95_abs + 0.15 * mean_abs"
+natural_dual_policy = "select_exactly_one_member_from_each_pair"
+
+[data]
+shuffle_buffer = 10000
+max_sequence_length = 128
+
+[model]
+d_model = 256
+transformer_layers = 4
+mlp_layers = 1
+num_heads = 8
+ff_multiplier = 4
+dropout = 0.1
+tie_embeddings = true
+
+[training]
+max_steps = 20000
+micro_batch_size = 16
+gradient_accumulation_steps = 4
+max_tokens_per_batch = 4096
+learning_rate = 0.0003
+min_learning_rate_ratio = 0.1
+weight_decay = 0.01
+warmup_steps = 1000
+gradient_clip_norm = 1.0
+precision = "bf16"
+validate_every_steps = 1000
+validation_batches_per_task = 5
+checkpoint_every_steps = 1000
+num_workers = 0
+
+[analysis]
+activation_landmark = "<ONE_END>"
+probe_examples = 4096
+probe_seed = 20260902
+primary_metric = "final_layer_linear_cka_between_disjoint_pools_at_equal_k"
+primary_endpoint = "paired_final_layer_cka_k8_minus_k1"
+secondary_trend = "spearman_rho_between_k_rank_and_final_layer_cka"
+strict_monotonicity = "diagnostic_only"
+aggregation = "cell_curve_then_mean_and_sample_sd_over_nine_split_seed_cells"
+variance_analysis = "two_way_split_and_seed_effects"
+test_split_policy = "do_not_read"
+
+[splits.s0]
+conditional_cross_mean_abs_correlation = 0.12787859268906343
+conditional_cross_q95_abs_correlation = 0.33594389216668535
+conditional_cross_max_abs_correlation = 0.3661643743107945
+pool_a = [
+  "recoils",
+  "left_to_right_minima",
+  "three_cycle_count",
+  "lds_length",
+  "adjacencies",
+  "right_to_left_minima",
+  "even_cycle_count",
+  "components",
+]
+pool_b = [
+  "valleys",
+  "anti_fixed_points",
+  "cycle_count",
+  "longest_increasing_run",
+  "double_ascents",
+  "deficiencies",
+  "shortest_cycle",
+  "displacement_one_count",
+]
+
+[splits.s1]
+conditional_cross_mean_abs_correlation = 0.1295625731925035
+conditional_cross_q95_abs_correlation = 0.32125461404992417
+conditional_cross_max_abs_correlation = 0.3747036012757959
+pool_a = [
+  "recoils",
+  "left_to_right_maxima",
+  "nontrivial_cycle_count",
+  "lis_length",
+  "successions",
+  "right_to_left_minima",
+  "two_cycle_count",
+  "global_descents",
+]
+pool_b = [
+  "valleys",
+  "fixed_points",
+  "odd_cycle_count",
+  "longest_decreasing_run",
+  "double_descents",
+  "deficiencies",
+  "shortest_cycle",
+  "displacement_one_count",
+]
+
+[splits.s2]
+conditional_cross_mean_abs_correlation = 0.135622640228266
+conditional_cross_q95_abs_correlation = 0.3401474899302235
+conditional_cross_max_abs_correlation = 0.3702679523039138
+pool_a = [
+  "peaks",
+  "anti_fixed_points",
+  "cycle_count",
+  "longest_decreasing_run",
+  "double_descents",
+  "deficiencies",
+  "shortest_cycle",
+  "global_descents",
+]
+pool_b = [
+  "recoils",
+  "left_to_right_minima",
+  "three_cycle_count",
+  "lis_length",
+  "adjacencies",
+  "right_to_left_maxima",
+  "even_cycle_count",
+  "displacement_one_count",
+]
