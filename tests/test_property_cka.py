@@ -7,6 +7,7 @@ import torch
 from neurips_permutations.cka import ActivationSet
 from neurips_permutations.property_cka import (
     build_property_cka_rows,
+    summarize_final_layer_controls,
     summarize_primary_trend,
 )
 
@@ -61,3 +62,27 @@ def test_primary_summary_reports_monotonic_trend() -> None:
     assert summary["monotonic_non_decreasing"] is True
     assert summary["spearman_rho"] == 1.0
     assert abs(summary["delta_k16_minus_k1"] - 0.6) < 1e-12
+
+
+def test_final_layer_control_summary() -> None:
+    rows = [
+        {
+            "comparison": "random_cross_seed",
+            "layer": "final_norm",
+            "linear_cka": 0.9,
+        }
+    ]
+    rows.extend(
+        {
+            "comparison": "within_pool_k16_alignment",
+            "layer": "final_norm",
+            "pool_a": pool,
+            "task_count_a": task_count,
+            "linear_cka": task_count / 20,
+        }
+        for pool in ("a", "b")
+        for task_count in (1, 2, 4, 8)
+    )
+    summary = summarize_final_layer_controls(rows)
+    assert summary["random_cross_seed"] == 0.9
+    assert summary["within_pool_k16_alignment"]["a"]["8"] == 0.4

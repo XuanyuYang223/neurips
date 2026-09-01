@@ -204,6 +204,35 @@ def summarize_primary_trend(rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]
     }
 
 
+def summarize_final_layer_controls(
+    rows: Sequence[Mapping[str, Any]],
+) -> dict[str, Any]:
+    """Return explicitly labeled final-layer random and overlap controls."""
+
+    random_rows = [
+        row
+        for row in rows
+        if row["comparison"] == "random_cross_seed" and row["layer"] == "final_norm"
+    ]
+    if len(random_rows) != 1:
+        raise ValueError("final-layer controls require one random cross-seed row")
+    within: dict[str, dict[str, float]] = {"a": {}, "b": {}}
+    for row in rows:
+        if (
+            row["comparison"] == "within_pool_k16_alignment"
+            and row["layer"] == "final_norm"
+        ):
+            within[str(row["pool_a"])][str(int(row["task_count_a"]))] = float(
+                row["linear_cka"]
+            )
+    if any(set(values) != {"1", "2", "4", "8"} for values in within.values()):
+        raise ValueError("within-pool final-layer control grid is incomplete")
+    return {
+        "random_cross_seed": float(random_rows[0]["linear_cka"]),
+        "within_pool_k16_alignment": within,
+    }
+
+
 def _rank(values: Sequence[float]) -> list[float]:
     order = sorted(range(len(values)), key=values.__getitem__)
     ranks = [0.0] * len(values)
@@ -233,7 +262,12 @@ def _run_mapping(run: PropertyExperimentRun) -> dict[str, Any]:
     }
 
 
-def _render_readme(trend: Mapping[str, Any], *, probe_count: int) -> str:
+def _render_readme(
+    trend: Mapping[str, Any],
+    controls: Mapping[str, Any],
+    *,
+    probe_count: int,
+) -> str:
     rows = [
         "# Zero-overlap 32-property CKA pilot",
         "",
@@ -259,6 +293,34 @@ def _render_readme(trend: Mapping[str, Any], *, probe_count: int) -> str:
             f"Spearman rho across k: {trend['spearman_rho']:.6f}.",
             f"Pearson r against log2(k): {trend['pearson_r_log2_k']:.6f}.",
             f"k=16 minus k=1: {trend['delta_k16_minus_k1']:+.6f}.",
+            "",
+            "The sequence is not monotonic: the largest value occurs at `k=8`, ",
+            "followed by a substantial decline at `k=16`. Thus the pilot shows a ",
+            "positive descriptive association, not stable convergence as tasks grow.",
+            "",
+            "## Controls",
+            "",
+            f"Random-initialization cross-seed final-layer CKA: "
+            f"{float(controls['random_cross_seed']):.6f}.",
+            "",
+            "| Pool | k vs 16 final-layer CKA |",
+            "|---|---:|",
+        ]
+    )
+    for pool in ("a", "b"):
+        for task_count in (1, 2, 4, 8):
+            value = controls["within_pool_k16_alignment"][pool][str(task_count)]
+            rows.append(f"| {pool.upper()} {task_count} vs {pool.upper()} 16 | {value:.6f} |")
+    rows.extend(
+        [
+            "",
+            "The within-pool rows are overlapping-task controls and are not primary ",
+            "zero-overlap evidence. The random baseline is also not a performance ",
+            "baseline: high CKA can arise from common architecture and input geometry.",
+            "",
+            "Pool A and Pool B share no task names, but several properties are natural ",
+            "duals (for example descents/recoils and LIS/LDS). The `k=8` spike may ",
+            "therefore reflect conceptual symmetry rather than generic task diversity.",
             "",
             "This is a one-seed pilot. It establishes a descriptive trend, not ",
             "an error-bar-supported population claim. Test data were not used.",
@@ -334,10 +396,13 @@ def run_property_cka(
         activations, pools_by_run, random_baselines, device=device
     )
     trend = summarize_primary_trend(rows)
+    controls = summarize_final_layer_controls(rows)
     pair_path = output_dir / "pairwise_layer_cka.csv"
     readme_path = output_dir / "README.md"
     _atomic_csv(rows, PAIR_FIELDS, pair_path)
-    _atomic_text(_render_readme(trend, probe_count=probe_count), readme_path)
+    _atomic_text(
+        _render_readme(trend, controls, probe_count=probe_count), readme_path
+    )
     result = {
         "status": "completed",
         "protocol_version": "property32-zero-overlap-cka/v1",
@@ -346,6 +411,7 @@ def run_property_cka(
         "config_sha256": summary["config_sha256"],
         "probe": probe,
         "primary_trend": trend,
+        "final_layer_controls": controls,
         "test_split_used": False,
         "artifacts": {
             pair_path.name: _sha256(pair_path),
@@ -402,5 +468,6 @@ __all__ = [
     "build_property_cka_rows",
     "main",
     "run_property_cka",
+    "summarize_final_layer_controls",
     "summarize_primary_trend",
 ]
