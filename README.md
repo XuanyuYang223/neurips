@@ -46,6 +46,9 @@ no consistent monotonic increase in cross-seed representation similarity as
 the nested task count grows. The Transformer becomes progressively closer to
 its same-seed `k=16` reference, but that comparison is confounded by increasing
 task overlap; the MLP does not show the same pattern.
+The [disjoint-category follow-up](results/v3/cka/category/README.md) fixes
+`k=4` and finds substantially higher CKA within the same training family than
+between zero-overlap task families for both architectures.
 
 ## v3 revision
 

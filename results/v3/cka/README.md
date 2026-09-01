@@ -1,5 +1,9 @@
 # V3 representation similarity with linear CKA
 
+The companion [disjoint-category analysis](category/README.md) holds `k=4`
+fixed and compares the pairwise-disjoint Encoding E4, Statistics S4, and
+Algebra A4 training families.
+
 This analysis tests whether increasing the number of nested training tasks
 makes the learned permutation representation more reproducible across random
 seeds. It does not compare raw parameters. Every model is frozen, receives

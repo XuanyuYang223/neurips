@@ -1214,6 +1214,42 @@ def _render_category_readme(
         "All models receive the same task-free validation prefixes and are measured at",
         "`<ONE_END>` before any task token appears.",
         "",
+        "## Conclusion",
+        "",
+        "The existing category models show a clear family-dependent representation",
+        "signal. Same-family models are substantially more similar across seeds than",
+        "models trained on disjoint families. Matching the initialization seed does",
+        "not recover the lost similarity between disjoint families:",
+        "",
+    ]
+    for architecture in ("transformer", "mlp"):
+        label = "Transformer" if architecture == "transformer" else "MLP"
+        within = float(
+            overall_lookup[
+                ("within_condition_cross_seed", architecture, "final_norm")
+            ]["cka_mean"]
+        )
+        disjoint = float(
+            overall_lookup[
+                ("disjoint_condition_cross_seed", architecture, "final_norm")
+            ]["cka_mean"]
+        )
+        matched = float(
+            overall_lookup[
+                ("disjoint_condition_same_seed", architecture, "final_norm")
+            ]["cka_mean"]
+        )
+        lines.append(
+            f"- {label}: same-family {within:.4f}; disjoint/different-seed "
+            f"{disjoint:.4f}; disjoint/same-seed {matched:.4f}."
+        )
+    lines.extend(
+        [
+            "",
+            "This supports proceeding to a larger controlled-overlap study. It does not",
+            "yet establish a causal task-family effect because family is still tied to",
+            "specific operations, output formats, and difficulty.",
+            "",
         "## Main comparison",
         "",
         "The table aggregates final-layer comparisons across the three task families.",
@@ -1222,8 +1258,9 @@ def _render_category_readme(
         "different seeds.",
         "",
         "| Architecture | Comparison | Pairs | Final-layer CKA |",
-        "|---|---|---:|---:|",
-    ]
+            "|---|---|---:|---:|",
+        ]
+    )
     comparison_labels = (
         ("within_condition_cross_seed", "Same family, different seed"),
         ("disjoint_condition_same_seed", "Disjoint families, same seed"),
@@ -1333,6 +1370,8 @@ def _render_category_readme(
             "tests whether these three existing families produce different geometries;",
             "it does not yet estimate a general causal effect of task count. A larger",
             "controlled-overlap study would need multiple balanced task subsets at each k.",
+            "The reported SDs summarize correlated model pairs and are descriptive; they",
+            "are not independent-replicate confidence intervals.",
             "",
             "## Protocol and files",
             "",

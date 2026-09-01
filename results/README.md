@@ -19,6 +19,7 @@ validation results, not an untouched final test evaluation.
 - [Henry-style 20-shot follow-up protocol](v3/FEW_SHOT_PROTOCOL.md)
 - [Henry-style 20-shot results](v3/fewshot/README.md)
 - [Layerwise CKA representation analysis](v3/cka/README.md)
+- [Disjoint-category CKA follow-up](v3/cka/category/README.md)
 - [Data and model scaling protocol](v3/SCALING_PROTOCOL.md)
 - [All 960 independent-test model-task rows](v3/test_model_task_accuracies.csv)
 - [Nested generalization only](v3/test_nested_generalization.csv)
