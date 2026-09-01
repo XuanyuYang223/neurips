@@ -1,0 +1,300 @@
+{
+  "analysis_commit": "d0a9a3df7e162e1b4d1b1d6eb59a4d9709bfc8f6",
+  "artifacts": {
+    "README.md": "41069034805435cf18cc34b4f89a76139ea0270cebda647dc89b345636217181",
+    "behavior_replicates.csv": "e7569a184a31efae98550abba14b4da14a899f9c66f663a3a30221ddd5c2a423",
+    "behavior_summary.csv": "74689033bfb3c6c8cf55a8d87a95063c6efc306d605402c478e7a7ed9dfb4616",
+    "cka_replicates.csv": "cc377234cbb518b0d669accb73603674b492537e2382e89ccd8045d8d9844f80",
+    "cka_summary.csv": "6c123157c7d191706a1f1b8a733ef9c7124c477b78d63f5141f4a98ea0701415",
+    "r0/behavior/manifest.json": "64fdce489e518f057906a53de8a03f503c550799863ddd1901b19f931bef2a59",
+    "r0/cka/manifest.json": "cb7db01c3e877ac573efe36c2e37d445f7ba1fa7c88a9903ee791bec44704e62",
+    "r1/behavior/manifest.json": "05697745499546e9e0003ba7e5dbbaa3d7d45eadf22b1b2affe296965ee51924",
+    "r1/cka/manifest.json": "7642af70b544c734ac68196729561dc9460d614781c4b6790d728d55ec638b81",
+    "r2/behavior/manifest.json": "9b17e8167bf7852c9118dc870c03feda08a4fb26806ffbdee2f96eab081ee662",
+    "r2/cka/manifest.json": "9f44dc77fbc8efbf11ec870d46cc6414e71e769a1ac6d72aed5403c1f9b4e0a1"
+  },
+  "design": {
+    "property_memberships": {
+      "adjacencies": [
+        "b",
+        "b",
+        "a"
+      ],
+      "anti_fixed_points": [
+        "b",
+        "a",
+        "b"
+      ],
+      "components": [
+        "b",
+        "a",
+        "a"
+      ],
+      "cycle_count": [
+        "a",
+        "a",
+        "b"
+      ],
+      "deficiencies": [
+        "b",
+        "b",
+        "a"
+      ],
+      "descents": [
+        "a",
+        "a",
+        "b"
+      ],
+      "displacement_one_count": [
+        "b",
+        "b",
+        "a"
+      ],
+      "double_ascents": [
+        "a",
+        "b",
+        "b"
+      ],
+      "double_descents": [
+        "b",
+        "a",
+        "a"
+      ],
+      "even_cycle_count": [
+        "b",
+        "a",
+        "a"
+      ],
+      "exceedances": [
+        "a",
+        "b",
+        "a"
+      ],
+      "fixed_points": [
+        "a",
+        "a",
+        "b"
+      ],
+      "global_descents": [
+        "a",
+        "b",
+        "b"
+      ],
+      "lds_length": [
+        "b",
+        "a",
+        "a"
+      ],
+      "left_to_right_maxima": [
+        "a",
+        "a",
+        "b"
+      ],
+      "left_to_right_minima": [
+        "b",
+        "a",
+        "a"
+      ],
+      "lis_length": [
+        "a",
+        "b",
+        "b"
+      ],
+      "longest_cycle": [
+        "a",
+        "a",
+        "b"
+      ],
+      "longest_decreasing_run": [
+        "b",
+        "a",
+        "b"
+      ],
+      "longest_increasing_run": [
+        "a",
+        "a",
+        "b"
+      ],
+      "max_displacement": [
+        "a",
+        "b",
+        "a"
+      ],
+      "nontrivial_cycle_count": [
+        "b",
+        "a",
+        "b"
+      ],
+      "odd_cycle_count": [
+        "a",
+        "b",
+        "a"
+      ],
+      "peaks": [
+        "a",
+        "a",
+        "b"
+      ],
+      "recoils": [
+        "b",
+        "b",
+        "a"
+      ],
+      "right_to_left_maxima": [
+        "a",
+        "b",
+        "b"
+      ],
+      "right_to_left_minima": [
+        "b",
+        "b",
+        "a"
+      ],
+      "shortest_cycle": [
+        "b",
+        "b",
+        "a"
+      ],
+      "successions": [
+        "a",
+        "b",
+        "a"
+      ],
+      "three_cycle_count": [
+        "a",
+        "b",
+        "b"
+      ],
+      "two_cycle_count": [
+        "b",
+        "b",
+        "a"
+      ],
+      "valleys": [
+        "b",
+        "a",
+        "b"
+      ]
+    },
+    "replicates": {
+      "r0": {
+        "config": "configs/property32_zero_overlap_pilot.toml",
+        "dual_pairs_across_pools": 16,
+        "dual_pairs_within_pools": 0,
+        "model_seed": 17,
+        "pool_split_seed": null,
+        "run_count": 10
+      },
+      "r1": {
+        "config": "configs/property32_zero_overlap_r1.toml",
+        "dual_pairs_across_pools": 6,
+        "dual_pairs_within_pools": 10,
+        "model_seed": 42,
+        "pool_split_seed": 20260941,
+        "run_count": 10
+      },
+      "r2": {
+        "config": "configs/property32_zero_overlap_r2.toml",
+        "dual_pairs_across_pools": 8,
+        "dual_pairs_within_pools": 8,
+        "model_seed": 101,
+        "pool_split_seed": 20261075,
+        "run_count": 10
+      }
+    },
+    "run_count": 30
+  },
+  "mean_cka_trend": {
+    "delta_k16_minus_k1": 0.3238013958634486,
+    "final_layer_linear_cka": [
+      0.17231328145408456,
+      0.19195727206207414,
+      0.21276073589717995,
+      0.6190409293394183,
+      0.4961146773175331
+    ],
+    "k8_peak_replicate_count": 2,
+    "monotonic_non_decreasing": false,
+    "pearson_r_log2_k": 0.8280334678635882,
+    "per_replicate": {
+      "r0": {
+        "delta_k16_minus_k1": 0.20894973009918075,
+        "final_layer_linear_cka": [
+          0.22384582077792706,
+          0.3303524888153667,
+          0.3192263593511833,
+          0.8033356166098011,
+          0.4327955508771078
+        ],
+        "monotonic_non_decreasing": false,
+        "pearson_r_log2_k": 0.624109615333738,
+        "spearman_rho": 0.8,
+        "task_counts": [
+          1,
+          2,
+          4,
+          8,
+          16
+        ]
+      },
+      "r1": {
+        "delta_k16_minus_k1": 0.18254838516856378,
+        "final_layer_linear_cka": [
+          0.20533536941630529,
+          0.12282861731584731,
+          0.162158002790043,
+          0.6738280745041706,
+          0.38788375458486907
+        ],
+        "monotonic_non_decreasing": false,
+        "pearson_r_log2_k": 0.6378396225362265,
+        "spearman_rho": 0.6,
+        "task_counts": [
+          1,
+          2,
+          4,
+          8,
+          16
+        ]
+      },
+      "r2": {
+        "delta_k16_minus_k1": 0.5799060723226009,
+        "final_layer_linear_cka": [
+          0.08775865416802138,
+          0.12269071005500837,
+          0.15689784555031352,
+          0.3799590969042832,
+          0.6676647264906224
+        ],
+        "monotonic_non_decreasing": true,
+        "pearson_r_log2_k": 0.9203218306238575,
+        "spearman_rho": 1.0,
+        "task_counts": [
+          1,
+          2,
+          4,
+          8,
+          16
+        ]
+      }
+    },
+    "replicate_peak_k": {
+      "r0": 8,
+      "r1": 8,
+      "r2": 16
+    },
+    "spearman_rho": 0.9,
+    "task_counts": [
+      1,
+      2,
+      4,
+      8,
+      16
+    ]
+  },
+  "protocol_version": "property32-zero-overlap-replicates/v1",
+  "replicate_count": 3,
+  "run_count": 30,
+  "status": "completed",
+  "test_split_used": false
+}
