@@ -78,6 +78,12 @@ by Henry:
 3. **Linear probing:** not yet run. It requires a separately frozen protocol
    that extracts hidden states while leaving every base-model weight fixed.
 
+As an additional representation-level analysis, the completed
+[linear CKA study](cka/README.md) compares task-free `<ONE_END>` hidden states
+across seeds, task counts, layers, and architectures. CKA is not a substitute
+for linear probing: it measures similarity between representation geometries,
+whereas a probe tests whether a particular property is linearly decodable.
+
 The 48 independently trained base models comprise 30 nested models and 18
 category-comparison models. The fine-tuning follow-up adds 120 warm-start
 adaptations and 24 random-init controls; these 144 adapted checkpoints are not

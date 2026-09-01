@@ -762,6 +762,24 @@ def _render_readme(
             f"- {label}: k=1 to k=16 change {delta:+.4f}; Spearman rho "
             f"{rho:+.3f}; {increases}/4 adjacent steps increased."
         )
+    random_final = {
+        architecture: float(
+            lookup[("random_baseline", architecture, 0, "final_norm")]["cka_mean"]
+        )
+        for architecture in ("transformer", "mlp")
+    }
+    transformer_values = [
+        float(lookup[("seed_stability", "transformer", k, "final_norm")]["cka_mean"])
+        for k in task_counts
+    ]
+    mlp_values = [
+        float(lookup[("seed_stability", "mlp", k, "final_norm")]["cka_mean"])
+        for k in task_counts
+    ]
+    transformer_peak_index = max(
+        range(len(transformer_values)), key=transformer_values.__getitem__
+    )
+    mlp_low_index = min(range(len(mlp_values)), key=mlp_values.__getitem__)
     lines = [
         "# V3 representation similarity with linear CKA",
         "",
@@ -771,13 +789,38 @@ def _render_readme(
         "the same task-free one-line prefix, and is measured at `<ONE_END>` before a",
         "task token appears.",
         "",
+        "## Conclusion",
+        "",
+        "The final-layer results do **not** show a consistent monotonic increase in",
+        "representation similarity as k grows.",
+        "",
+        f"- Transformer CKA changes from {transformer_values[0]:.4f} at k=1 to",
+        f"  {transformer_values[-1]:.4f} at k=16, but peaks at",
+        f"  {transformer_values[transformer_peak_index]:.4f} for",
+        f"  k={task_counts[transformer_peak_index]} and rises in only 2/4 adjacent steps.",
+        f"- MLP CKA changes only from {mlp_values[0]:.4f} to",
+        f"  {mlp_values[-1]:.4f}, with a pronounced minimum of",
+        f"  {mlp_values[mlp_low_index]:.4f} at k={task_counts[mlp_low_index]}.",
+        f"- Random-init final-layer CKA is already {random_final['transformer']:.4f}",
+        f"  for the Transformer and {random_final['mlp']:.4f} for the MLP. Shared",
+        "  token identities, sequence positions, and architecture therefore create a",
+        "  substantial similarity baseline even before training.",
+        "- The same-seed Transformer becomes progressively closer to its k=16 model",
+        "  as k increases, but this secondary comparison is confounded by increasing",
+        "  overlap with the nested k=16 task set. The MLP does not show that pattern.",
+        "",
+        "The defensible observation is that task count changes representation geometry,",
+        "sometimes substantially, but the current single task order does not support",
+        "the claim that adding tasks generally makes independently trained models",
+        "converge to one common representation.",
+        "",
         "## Primary result: cross-seed stability",
         "",
         "Values are mean +/- sample SD over the three seed pairs (17-42, 17-314159,",
         "42-314159). Higher linear CKA means more similar representation geometry.",
         "",
-        "| Architecture | Trained tasks (k) | Final-layer CKA |",
-        "|---|---:|---:|",
+        "| Architecture | Trained tasks (k) | Final-layer CKA | Delta from random init |",
+        "|---|---:|---:|---:|",
     ]
     for architecture in ("transformer", "mlp"):
         label = "Transformer" if architecture == "transformer" else "MLP"
@@ -785,7 +828,8 @@ def _render_readme(
             row = lookup[("seed_stability", architecture, task_count, "final_norm")]
             lines.append(
                 f"| {label} | {task_count} | "
-                f"{float(row['cka_mean']):.4f} +/- {float(row['cka_sample_sd']):.4f} |"
+                f"{float(row['cka_mean']):.4f} +/- {float(row['cka_sample_sd']):.4f} | "
+                f"{float(row['cka_mean']) - random_final[architecture]:+.4f} |"
             )
     lines.extend(
         [
@@ -840,6 +884,27 @@ def _render_readme(
     lines.extend(
         [
             "",
+            "## Exploratory cross-architecture comparison",
+            "",
+            "These final-layer values compare the Transformer and MLP trained with the",
+            "same k and seed. They are exploratory because CKA is easiest to interpret",
+            "within a shared architecture.",
+            "",
+            "| Trained tasks (k) | Transformer-MLP final-layer CKA |",
+            "|---:|---:|",
+        ]
+    )
+    for task_count in task_counts:
+        row = lookup[
+            ("cross_architecture", "transformer_vs_mlp", task_count, "final_norm")
+        ]
+        lines.append(
+            f"| {task_count} | {float(row['cka_mean']):.4f} +/- "
+            f"{float(row['cka_sample_sd']):.4f} |"
+        )
+    lines.extend(
+        [
+            "",
             "## Protocol",
             "",
             f"- Probe split: validation shard 098; test shard 099 was not read.",
@@ -848,7 +913,8 @@ def _render_readme(
             "- Landmark: the hidden vector at `<ONE_END>` from the embedding output,",
             "  every model block, and final layer normalization.",
             "- Metric: biased linear CKA over examples, accumulated in float64.",
-            "- Reference implementation: Ristori's `ckatorch` at commit",
+            "- Reference implementation: [Ristori's `ckatorch`](https://github.com/RistoAle97/centered-kernel-alignment)",
+            "  at commit",
             f"  `{REFERENCE_IMPLEMENTATION_COMMIT}`; the local Gram-free formula is",
             "  regression-tested against direct centered-Gram CKA.",
             "- Primary units: three pairwise comparisons among three independently",
