@@ -1,12 +1,15 @@
 # Permutation multitask generalization
 
-This repository contains two completed permutation-language-model studies for
+This repository contains three permutation-language-model studies for
 the NeurIPS workshop project:
 
 - **v2 baseline:** 30 models trained on nested subsets of 20 tasks;
 - **v3 revision:** 48 models trained after incorporating Henry Kvinge's
   feedback, including both a 30-model nested study and an 18-model
-  encoding/statistics/algebra category comparison.
+  encoding/statistics/algebra category comparison;
+- **32-property zero-overlap pilot:** ten independently trained Transformers
+  on two disjoint task pools at `k = 1, 2, 4, 8, 16`, designed to remove the
+  direct task-overlap confound from the CKA trend comparison.
 
 All public documentation and result tables are in English. The large generated
 datasets and model checkpoints remain local research artifacts; the repository
@@ -21,6 +24,8 @@ The shareable result packages are separated by protocol version:
   model-by-task validation rows;
 - [v3 revised results](results/v3/README.md), including all 960 validation and
   960 independent-test model-by-task rows;
+- [32-property protocol](PROPERTY32_PROTOCOL.md), with its frozen task pools,
+  data specification, model design, and CKA analysis plan;
 - [result-file index](results/README.md), which explains every CSV.
 
 The primary v3 generalization summaries exclude every task used to train the
@@ -100,6 +105,8 @@ are in [PROTOCOL.md](PROTOCOL.md).
   paired zero-shot/random-init comparisons;
 - [CKA results](results/v3/cka/README.md): layerwise representation similarity
   across nested task counts, seeds, architectures, and random-init controls;
+- [32-property zero-overlap protocol](PROPERTY32_PROTOCOL.md): 32 scalar
+  properties, two disjoint balanced pools, and the ten-model trend pilot;
 - [TRAINING_PROCESS.md](TRAINING_PROCESS.md): full data, architecture,
   training, recovery, audit, and evaluation record;
 - [EXPERIMENTS.md](EXPERIMENTS.md): experimental designs and limitations;
@@ -131,6 +138,17 @@ permutation-cka \
   --config configs/henry_permutation_revised.toml \
   --output-dir results/v3/cka \
   --probe-count 4096 \
+  --device auto
+
+# Run the frozen zero-overlap property matrix and its two analyses.
+permutation-property-experiments \
+  --config configs/property32_zero_overlap_pilot.toml --run
+permutation-property-report \
+  --config configs/property32_zero_overlap_pilot.toml \
+  --output-dir results/property32-zero-overlap/behavior
+permutation-property-cka \
+  --config configs/property32_zero_overlap_pilot.toml \
+  --output-dir results/property32-zero-overlap/cka \
   --device auto
 ```
 

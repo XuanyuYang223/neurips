@@ -290,6 +290,36 @@ def _render_readme(summary_rows: Sequence[Mapping[str, Any]]) -> str:
     lines.extend(
         [
             "",
+            "## Opposite-pool average across A and B",
+            "",
+            "| k | Loss | Token accuracy | Exact accuracy | Majority baseline | Exact minus baseline |",
+            "|---:|---:|---:|---:|---:|---:|",
+        ]
+    )
+    for task_count in (1, 2, 4, 8, 16):
+        pair = [
+            lookup[pool, task_count, "opposite_pool"] for pool in ("A", "B")
+        ]
+        loss = statistics.fmean(float(row["macro_loss"]) for row in pair)
+        token = statistics.fmean(
+            float(row["macro_token_accuracy"]) for row in pair
+        )
+        exact = statistics.fmean(
+            float(row["macro_sequence_accuracy"]) for row in pair
+        )
+        baseline = statistics.fmean(
+            float(row["macro_majority_baseline_sequence_accuracy"]) for row in pair
+        )
+        delta = statistics.fmean(
+            float(row["macro_sequence_accuracy_minus_majority"]) for row in pair
+        )
+        lines.append(
+            f"| {task_count} | {loss:.4f} | {_percent(token)} | {_percent(exact)} | "
+            f"{_percent(baseline)} | {100.0 * delta:+.2f} pp |"
+        )
+    lines.extend(
+        [
+            "",
             "## Seen-task performance",
             "",
             "| Pool | k | Loss | Token accuracy | Exact accuracy | Majority baseline | Exact minus baseline |",

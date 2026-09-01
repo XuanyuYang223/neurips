@@ -107,12 +107,29 @@ every gzip hash, and confirmed exactly 500,000 records for each property.
 The pilot trains ten independent Transformer checkpoints: Pool A and Pool B at
 each `k = 1, 2, 4, 8, 16`, using seed 17. Each run uses a standard four-layer,
 pre-LN causal Transformer with `d_model=256`, eight heads, FFN multiplier four,
-dropout 0.1, tied embeddings, and 128-token context. Training uses 20,000 AdamW
+dropout 0.1, tied embeddings, 128-token context, and 3,240,448 trainable
+parameters. Training uses 20,000 AdamW
 updates, effective batch size 64, peak learning rate 3e-4, 1,000 warmup updates,
 cosine decay, bf16, and identical optimizer/update budgets.
 
 This one-seed matrix is a trend pilot. A confirmatory study needs at least two
 additional seeds per cell for error bars.
+
+The fixed update budget gives every run about 1.28 million training examples,
+so exposure per trained property falls from about 1.28 million at `k=1` to
+about 80,000 at `k=16`. The pilot therefore varies property diversity and
+per-property exposure together; a confirmatory study should include a
+matched-per-property-exposure control.
+
+## Behavioral controls
+
+Every target is one scalar answer token followed by EOS, but the scalar answer
+distributions are not uniform. On the exact 160 examples used for each final
+validation metric, a constant predictor that emits the most common answer
+ranges from 7.5% to 83.75% exact accuracy across properties. Behavioral results
+therefore report both raw exact accuracy and exact accuracy minus this
+task-specific majority baseline. Raw unseen-task accuracy alone must not be
+interpreted as mathematical generalization.
 
 ## CKA analysis
 
