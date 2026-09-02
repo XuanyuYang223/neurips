@@ -33,7 +33,8 @@ This controlled experiment does not support a monotonic CKA dose-response as dir
 
 Correct minus identity CKA: +0.383165 +/- 0.251034.
 Correct minus wrong-transform CKA: +0.415232 +/- 0.232887.
-Both contrasts are positive in 24/24 and 24/24 pair-seed units; their two-sided exact sign-test p-values are 1.192e-07 and 1.192e-07.
+Descriptively, both contrasts are positive in 24/24 and 24/24 pair-seed units. Treating those units as independent would give two-sided exact sign-test p-values of 1.192e-07 and 1.192e-07; these are descriptive because seeds are clustered within relations.
+After averaging over seeds, both contrasts remain positive in 8/8 and 8/8 mathematical relations. The primary relation-level two-sided exact sign-test p-values are 0.007812 and 0.007812.
 The strongest result is therefore transformation-specific: models trained on known dual properties align when their inputs are related by the corresponding combinatorial symmetry.
 
 CKA is a representation diagnostic, not a behavioral accuracy metric or proof of a shared algorithm. See the raw CSV files for every model, task pair, seed, condition, and layer.

@@ -1,7 +1,7 @@
 {
-  "analysis_commit": "4a3e752c9f55a52af19ae376cb4dd568ab536cc1",
+  "analysis_commit": "28cee0de294af37975acb3bb7c8104609fc5ae98",
   "artifacts": {
-    "README.md": "0f0b6f98ae4517b9d957bd5f12aac607eb9e14dbe7261d0aa9f89cb50fbad3a9",
+    "README.md": "5fa8ead03c4f1269893018919c43529f81ab0e25a3f3b7d7ccf429baa6196476",
     "bundle_cell_cka.csv": "ec4f7998b482c61d26e02d81736695e38caca154f49bf290f448ab4b83b7a5b5",
     "bundle_summary.csv": "f8f710a09e42687e90c52b8cc0f12fd6896d4e23942067376a6ee46395439dcd",
     "probe_manifests.json": "0168cbc7c0af2ab5f3384c128a156cb9fb1b22858e24b90396a385ab05cdc093",
@@ -12598,8 +12598,47 @@
     "pair_seed_units": 24,
     "positive_correct_minus_identity_units": 24,
     "positive_correct_minus_wrong_units": 24,
+    "positive_relation_mean_correct_minus_identity": 8,
+    "positive_relation_mean_correct_minus_wrong": 8,
+    "relation_mean_deltas": {
+      "decomposition_complement": {
+        "correct_minus_identity": 0.2810676627529137,
+        "correct_minus_wrong": 0.2804057226550551
+      },
+      "descent_inverse": {
+        "correct_minus_identity": 0.26706254658795997,
+        "correct_minus_wrong": 0.35713359457026445
+      },
+      "exceedance_inverse": {
+        "correct_minus_identity": 0.6333979479476612,
+        "correct_minus_wrong": 0.6369306339536407
+      },
+      "fixed_complement": {
+        "correct_minus_identity": 0.18704963616652523,
+        "correct_minus_wrong": 0.18666550917782357
+      },
+      "peak_complement": {
+        "correct_minus_identity": 0.13786488458119747,
+        "correct_minus_wrong": 0.30788170184079083
+      },
+      "record_complement": {
+        "correct_minus_identity": 0.3274433878848662,
+        "correct_minus_wrong": 0.3234150535272308
+      },
+      "run_complement": {
+        "correct_minus_identity": 0.8720478326344067,
+        "correct_minus_wrong": 0.8695423370955587
+      },
+      "subsequence_complement": {
+        "correct_minus_identity": 0.3593822581099924,
+        "correct_minus_wrong": 0.35988370942288106
+      }
+    },
+    "relation_units": 8,
     "two_sided_exact_sign_test_p_correct_minus_identity": 1.1920928955078125e-07,
-    "two_sided_exact_sign_test_p_correct_minus_wrong": 1.1920928955078125e-07
+    "two_sided_exact_sign_test_p_correct_minus_wrong": 1.1920928955078125e-07,
+    "two_sided_relation_level_sign_test_p_correct_minus_identity": 0.0078125,
+    "two_sided_relation_level_sign_test_p_correct_minus_wrong": 0.0078125
   },
   "test_split_used": false
 }
