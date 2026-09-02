@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pytest
 
+from neurips_permutations import property_relation_experiments as relation_module
 from neurips_permutations.property_relation_experiments import (
     MODEL_SEEDS,
     SPLIT_IDS,
@@ -60,8 +61,11 @@ def test_relation_cell_dry_run_emits_only_unique_commands(capsys: pytest.Capture
 
 
 def test_relation_full_dry_run_emits_sixty_unique_models(
-    capsys: pytest.CaptureFixture[str],
+    capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    # Dry-run command coverage must not depend on completed runs in the
+    # developer's local ignored ``runs/`` tree.
+    monkeypatch.setattr(relation_module, "_completed", lambda *args, **kwargs: False)
     run_relation_matrix(dry_run=True)
     lines = capsys.readouterr().out.splitlines()
     assert len(lines) == 60

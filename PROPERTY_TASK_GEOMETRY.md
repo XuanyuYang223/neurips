@@ -112,6 +112,16 @@ consistent with the known combinatorial symmetry.
 - 16M-record scalar-property corpus with 500,000 records per property;
 - 15.68M/160k/160k train/validation/test split.
 
+Every 1,000 updates, validation evaluates the same first 160 records for each
+of the 32 properties. The implementation collects those task-specific
+prefixes in one physical shard scan and then retains the original independent
+token-budget batches, bf16 forwards, and metric accumulation. On a completed
+legacy checkpoint, all 160 scalar fields across 32 tasks and five metrics
+matched the historical one-scan-per-task path exactly (`max_abs_diff = 0`),
+while full validation took 1.41 seconds. This is an I/O optimization only; it
+does not change training examples, optimization, validation examples, or CKA
+probes.
+
 There are 48 specialist positions and 60 four-task positions, totaling 108
 unique model designs. Exact task/seed checkpoints from earlier protocols are
 reused only after their data, architecture, optimizer schedule, task, seed,

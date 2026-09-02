@@ -819,21 +819,44 @@ def validate_per_task(
     amp_enabled: bool,
     amp_dtype: torch.dtype,
 ) -> dict[str, dict[str, float | int]]:
-    """Return independent validation metrics for every requested task."""
+    """Return independent validation metrics for every requested task.
+
+    The validation records are collected for all tasks in one physical shard
+    scan.  Each task still receives the same prefix of its own record stream,
+    the same token-budget batching, and the same independent metric pass as in
+    the historical one-scan-per-task implementation.  Collecting
+    ``batch_size * max_batches`` records is an upper bound on the number any
+    task can consume, including when the padded-token budget shortens a batch.
+    """
 
     metrics: dict[str, dict[str, float | int]] = {}
     collator = AnswerOnlyCollator(max_seq_len=config.max_seq_len)
-    for task in tasks:
-        dataset = StreamingPermutationDataset(
-            shards,
-            tasks=(task,),
-            shuffle_buffer_size=1,
-            seed=config.seed,
-            rank=0,
-            world_size=1,
-        )
+    requested_tasks = tuple(dict.fromkeys(tasks))
+    if not requested_tasks:
+        return metrics
+    record_limit = config.validation_batch_size * config.validation_batches_per_task
+    records_by_task: dict[str, list[Record]] = {
+        task: [] for task in requested_tasks
+    }
+    dataset = StreamingPermutationDataset(
+        shards,
+        tasks=requested_tasks,
+        shuffle_buffer_size=1,
+        seed=config.seed,
+        rank=0,
+        world_size=1,
+    )
+    for record in dataset:
+        task = record["task"]
+        bucket = records_by_task[task]
+        if len(bucket) < record_limit:
+            bucket.append(record)
+        if all(len(values) >= record_limit for values in records_by_task.values()):
+            break
+
+    for task in requested_tasks:
         batches = TokenBudgetBatcher(
-            dataset,
+            records_by_task[task],
             max_examples=config.validation_batch_size,
             max_padded_tokens=config.max_tokens_per_batch,
         )

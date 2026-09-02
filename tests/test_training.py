@@ -278,6 +278,80 @@ def _training_config(shard: Path, output_dir: Path, *, max_steps: int) -> TrainC
     )
 
 
+def test_validation_scans_once_and_matches_per_task_reference(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    records = [
+        _record(
+            index,
+            "descents" if index % 2 == 0 else "length",
+            answer=index % 4,
+        )
+        for index in range(16)
+    ]
+    shard = _write_shard(tmp_path / "validation.jsonl.gz", records)
+    config = replace(
+        _training_config(shard, tmp_path / "run", max_steps=1),
+        validation_batch_size=3,
+        validation_batches_per_task=2,
+        max_tokens_per_batch=40,
+    )
+    model = _TinyLM()
+    real_open = training_module.gzip.open
+    opened: list[Path] = []
+
+    def counting_open(path: str | Path, *args: object, **kwargs: object) -> object:
+        opened.append(Path(path))
+        return real_open(path, *args, **kwargs)
+
+    monkeypatch.setattr(training_module.gzip, "open", counting_open)
+    actual = training_module.validate_per_task(
+        model,
+        (shard,),
+        tasks=("descents", "length"),
+        config=config,
+        device=torch.device("cpu"),
+        amp_enabled=False,
+        amp_dtype=torch.float32,
+    )
+    assert opened == [shard]
+
+    opened.clear()
+    expected: dict[str, dict[str, float | int]] = {}
+    collator = AnswerOnlyCollator(max_seq_len=config.max_seq_len)
+    for task in ("descents", "length"):
+        dataset = StreamingPermutationDataset(
+            (shard,),
+            tasks=(task,),
+            shuffle_buffer_size=1,
+            seed=config.seed,
+            rank=0,
+            world_size=1,
+        )
+        batches = TokenBudgetBatcher(
+            dataset,
+            max_examples=config.validation_batch_size,
+            max_padded_tokens=config.max_tokens_per_batch,
+        )
+        loader = torch.utils.data.DataLoader(
+            batches,
+            batch_size=None,
+            collate_fn=collator,
+            num_workers=0,
+        )
+        expected[task] = training_module._evaluate_loader(
+            model,
+            loader,
+            device=torch.device("cpu"),
+            max_batches=config.validation_batches_per_task,
+            amp_enabled=False,
+            amp_dtype=torch.float32,
+        )
+
+    assert opened == [shard, shard]
+    assert actual == expected
+
+
 def test_one_cpu_train_step_checkpoints_and_validates(tmp_path: Path) -> None:
     records = [
         _record(index, "descents" if index % 2 == 0 else "length", answer=index % 4)
