@@ -1,0 +1,229 @@
+# Fixed-task-count study of whether learned geometry recovers known
+# combinatorial relations. Frozen before any model from this protocol is run.
+
+protocol_version = "property-task-geometry/v1"
+dataset_protocol_version = "permutation-properties-32/v1"
+status = "frozen_before_launch"
+dataset_manifest = "data/permutation-properties-16m-v1/train_manifest.json"
+validation_manifest = "data/permutation-properties-16m-v1/validation_manifest.json"
+test_manifest = "data/permutation-properties-16m-v1/test_manifest.json"
+output_dir = "runs/property-task-geometry"
+model_seeds = [17, 42, 101]
+bundle_split_ids = ["s0", "s1", "s2", "s3"]
+related_pair_counts = [0, 1, 2, 4]
+
+[dataset_artifact]
+parent_records = 16000000
+train_records = 15680000
+validation_records = 160000
+test_records = 160000
+records_per_property = 500000
+validation_records_per_property = 5000
+test_records_per_property = 5000
+compressed_bytes = 1306942428
+parent_manifest_sha256 = "2b6e92965f2070684dbc660087ad5aaa078c91f0c2aecac72a9c05b1999ca31d"
+train_manifest_sha256 = "f93ad5624b2c8d7e7e866ce99bf75527691de51cc4806be2f40cca415958054e"
+validation_manifest_sha256 = "b60539df6456fdb9e9a78623134ed279f90909d0c2433f8f770c9e5b8c95ec9d"
+test_manifest_sha256 = "257ff2ea900b90cd6f1edf3c9f0fcea5d2891c746c94440d744f6968dd817979"
+
+[selection]
+source_split = "train"
+source_shard = 0
+source_first_record_id = 0
+source_record_count = 50000
+length_control = "standardize_each_property_within_each_permutation_length"
+correlation = "pearson_after_within_length_standardization"
+search_seed = 20260907
+anchor_random_candidates = 60000
+anchor_shortlist_size = 300
+anchor_objective = "max(score_r0, score_r4) + 0.25 * abs(score_r0 - score_r4)"
+condition_objective = "max_nondual_abs + 0.35 * q95_nondual_abs + 0.15 * mean_nondual_abs + 0.20 * max_cell_entropy_gap"
+direct_relation_policy = "exact_value_after_input_transform_except_declared_affine_offset"
+bundle_policy = "each_condition_uses_every_task_once_across_four_b_bundles"
+nondual_edge_policy = "exclude_direct_pair_edges_when_reporting_selection_correlations"
+
+[data]
+shuffle_buffer = 10000
+max_sequence_length = 128
+
+[model]
+d_model = 256
+transformer_layers = 4
+mlp_layers = 1
+num_heads = 8
+ff_multiplier = 4
+dropout = 0.1
+tie_embeddings = true
+
+[training]
+max_steps = 20000
+micro_batch_size = 16
+gradient_accumulation_steps = 4
+max_tokens_per_batch = 4096
+learning_rate = 0.0003
+min_learning_rate_ratio = 0.1
+weight_decay = 0.01
+warmup_steps = 1000
+gradient_clip_norm = 1.0
+precision = "bf16"
+validate_every_steps = 1000
+validation_batches_per_task = 5
+checkpoint_every_steps = 1000
+num_workers = 0
+
+[analysis]
+activation_landmark = "<ONE_END>"
+probe_examples = 4096
+probe_seed = 20260908
+primary_specialist_contrast = "same_task_vs_direct_relation_vs_no_direct_relation"
+primary_bundle_endpoint = "paired_final_layer_cka_r4_minus_r0"
+bundle_trend = "spearman_rho_between_r_and_final_layer_cka"
+symmetry_probe_transforms = ["identity", "inverse", "complement"]
+task_pair_permutations = 100000
+test_split_policy = "do_not_read"
+
+[[relation_pairs]]
+pair_id = "descent_inverse"
+left = "descents"
+right = "recoils"
+input_transform = "inverse"
+right_label_offset = 0
+
+[[relation_pairs]]
+pair_id = "peak_complement"
+left = "peaks"
+right = "valleys"
+input_transform = "complement"
+right_label_offset = 0
+
+[[relation_pairs]]
+pair_id = "fixed_complement"
+left = "fixed_points"
+right = "anti_fixed_points"
+input_transform = "complement"
+right_label_offset = 0
+
+[[relation_pairs]]
+pair_id = "exceedance_inverse"
+left = "exceedances"
+right = "deficiencies"
+input_transform = "inverse"
+right_label_offset = 0
+
+[[relation_pairs]]
+pair_id = "subsequence_complement"
+left = "lis_length"
+right = "lds_length"
+input_transform = "complement"
+right_label_offset = 0
+
+[[relation_pairs]]
+pair_id = "run_complement"
+left = "longest_increasing_run"
+right = "longest_decreasing_run"
+input_transform = "complement"
+right_label_offset = 0
+
+[[relation_pairs]]
+pair_id = "record_complement"
+left = "left_to_right_maxima"
+right = "left_to_right_minima"
+input_transform = "complement"
+right_label_offset = 0
+
+[[relation_pairs]]
+pair_id = "decomposition_complement"
+left = "global_descents"
+right = "components"
+input_transform = "complement"
+right_label_offset = 1
+
+[[bundles]]
+split_id = "s0"
+anchor = ["descents", "anti_fixed_points", "left_to_right_maxima", "global_descents"]
+b_r0 = ["peaks", "exceedances", "lis_length", "longest_increasing_run"]
+b_r1 = ["peaks", "exceedances", "lis_length", "components"]
+b_r2 = ["deficiencies", "lds_length", "left_to_right_minima", "components"]
+b_r4 = ["recoils", "fixed_points", "left_to_right_minima", "components"]
+
+[[bundles]]
+split_id = "s1"
+anchor = ["recoils", "fixed_points", "exceedances", "components"]
+b_r0 = ["valleys", "lds_length", "longest_decreasing_run", "left_to_right_maxima"]
+b_r1 = ["descents", "valleys", "lds_length", "longest_increasing_run"]
+b_r2 = ["descents", "peaks", "anti_fixed_points", "longest_decreasing_run"]
+b_r4 = ["descents", "anti_fixed_points", "deficiencies", "global_descents"]
+
+[[bundles]]
+split_id = "s2"
+anchor = ["peaks", "lis_length", "longest_decreasing_run", "left_to_right_minima"]
+b_r0 = ["descents", "fixed_points", "deficiencies", "global_descents"]
+b_r1 = ["fixed_points", "deficiencies", "left_to_right_maxima", "global_descents"]
+b_r2 = ["recoils", "valleys", "fixed_points", "longest_increasing_run"]
+b_r4 = ["valleys", "lds_length", "longest_increasing_run", "left_to_right_maxima"]
+
+[[bundles]]
+split_id = "s3"
+anchor = ["valleys", "deficiencies", "lds_length", "longest_increasing_run"]
+b_r0 = ["recoils", "anti_fixed_points", "left_to_right_minima", "components"]
+b_r1 = ["recoils", "anti_fixed_points", "longest_decreasing_run", "left_to_right_minima"]
+b_r2 = ["exceedances", "lis_length", "left_to_right_maxima", "global_descents"]
+b_r4 = ["peaks", "exceedances", "lis_length", "longest_decreasing_run"]
+
+# Exact task/seed designs that already exist under the identical data, model,
+# and optimization protocol. They are referenced, never retrained.
+[[checkpoint_reuse]]
+task = "descents"
+seed = 17
+run_id = "property-a-transformer-tasks01-seed17"
+output_dir = "runs/property32-zero-overlap-pilot/property-a-transformer-tasks01-seed17"
+experiment_config = "configs/property32_zero_overlap_pilot.toml"
+
+[[checkpoint_reuse]]
+task = "descents"
+seed = 101
+run_id = "property-b-transformer-tasks01-seed101"
+output_dir = "runs/property32-zero-overlap-replicates/r2/property-b-transformer-tasks01-seed101"
+experiment_config = "configs/property32_zero_overlap_r2.toml"
+
+[[checkpoint_reuse]]
+task = "recoils"
+seed = 17
+run_id = "property-b-transformer-tasks01-seed17"
+output_dir = "runs/property32-zero-overlap-pilot/property-b-transformer-tasks01-seed17"
+experiment_config = "configs/property32_zero_overlap_pilot.toml"
+
+[[checkpoint_reuse]]
+task = "recoils"
+seed = 42
+run_id = "relation-s0-a-transformer-tasks01-seed42"
+output_dir = "runs/property32-relation-controlled/s0-seed42/relation-s0-a-transformer-tasks01-seed42"
+experiment_config = "configs/property32_relation_controlled.toml"
+
+[[checkpoint_reuse]]
+task = "recoils"
+seed = 101
+run_id = "relation-s0-a-transformer-tasks01-seed101"
+output_dir = "runs/property32-relation-controlled/s0-seed101/relation-s0-a-transformer-tasks01-seed101"
+experiment_config = "configs/property32_relation_controlled.toml"
+
+[[checkpoint_reuse]]
+task = "peaks"
+seed = 17
+run_id = "relation-s2-a-transformer-tasks01-seed17"
+output_dir = "runs/property32-relation-controlled/s2-seed17/relation-s2-a-transformer-tasks01-seed17"
+experiment_config = "configs/property32_relation_controlled.toml"
+
+[[checkpoint_reuse]]
+task = "peaks"
+seed = 42
+run_id = "property-a-transformer-tasks01-seed42"
+output_dir = "runs/property32-zero-overlap-replicates/r1/property-a-transformer-tasks01-seed42"
+experiment_config = "configs/property32_zero_overlap_r1.toml"
+
+[[checkpoint_reuse]]
+task = "peaks"
+seed = 101
+run_id = "relation-s2-a-transformer-tasks01-seed101"
+output_dir = "runs/property32-relation-controlled/s2-seed101/relation-s2-a-transformer-tasks01-seed101"
+experiment_config = "configs/property32_relation_controlled.toml"

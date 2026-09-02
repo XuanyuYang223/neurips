@@ -1,5 +1,10 @@
 # Known-Relation Versus Unrelated-Pair CKA
 
+> **Status:** This pilot protocol was expanded before launch into the
+> 16-task, three-experiment
+> [combinatorial task-geometry study](PROPERTY_TASK_GEOMETRY.md). The expanded
+> protocol is authoritative; this document is retained as design history.
+
 ## Research question
 
 High CKA between two task specialists does not automatically imply that

@@ -1,5 +1,10 @@
 # Relation-Controlled Property CKA Study
 
+> **Status:** Paused after a small resumable pilot and superseded as the
+> primary follow-up by the fixed-task-count
+> [combinatorial task-geometry protocol](PROPERTY_TASK_GEOMETRY.md). No result
+> from this paused matrix is included in the new confirmatory analysis.
+
 ## Question
 
 The first zero-overlap study prevented identical task names from appearing in

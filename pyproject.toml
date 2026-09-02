@@ -33,6 +33,8 @@ permutation-property-replicates = "neurips_permutations.property_replicates:main
 permutation-property-replicate-results = "neurips_permutations.property_replicate_results:main"
 permutation-property-relation-experiments = "neurips_permutations.property_relation_experiments:main"
 permutation-property-relation-cka = "neurips_permutations.property_relation_cka:main"
+permutation-property-task-geometry = "neurips_permutations.property_task_geometry_experiments:main"
+permutation-property-task-geometry-cka = "neurips_permutations.property_task_geometry_cka:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

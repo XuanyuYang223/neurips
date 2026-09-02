@@ -10,7 +10,10 @@ the NeurIPS workshop project:
 - **32-property zero-overlap study:** 30 independently trained Transformers
   across three frozen task-split/model-seed replicates and two disjoint task
   pools at `k = 1, 2, 4, 8, 16`, designed to remove the direct task-overlap
-  confound from the CKA trend comparison.
+  confound from the CKA trend comparison;
+- **combinatorial task-geometry study:** 48 single-task specialists plus 60
+  fixed-four-task models, designed to separate mathematical correspondence
+  from task count and test whether CKA recovers eight known relations.
 
 All public documentation and result tables are in English. The large generated
 datasets and model checkpoints remain local research artifacts; the repository
@@ -35,6 +38,8 @@ The shareable result packages are separated by protocol version:
   selections with three model seeds;
 - [property-pair CKA protocol](PROPERTY_PAIR_CKA.md), which compares known
   combinatorial duals with preregistered no-obvious-duality controls;
+- [combinatorial task-geometry protocol](PROPERTY_TASK_GEOMETRY.md), the
+  confirmatory single-task plus fixed-four-task relatedness study;
 - [32-property protocol](PROPERTY32_PROTOCOL.md), with its frozen task pools,
   data specification, model design, and CKA analysis plan;
 - [result-file index](results/README.md), which explains every CSV.
@@ -133,6 +138,8 @@ are in [PROTOCOL.md](PROTOCOL.md).
   72-cell/60-model low-correlation 3x3 CKA follow-up;
 - [property-pair CKA protocol](PROPERTY_PAIR_CKA.md): the controlled
   known-related versus no-obvious-duality representation analysis;
+- [combinatorial task-geometry protocol](PROPERTY_TASK_GEOMETRY.md): the
+  108-model specialist and fixed-task-count composition study;
 - [TRAINING_PROCESS.md](TRAINING_PROCESS.md): full data, architecture,
   training, recovery, audit, and evaluation record;
 - [EXPERIMENTS.md](EXPERIMENTS.md): experimental designs and limitations;
