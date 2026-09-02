@@ -146,7 +146,11 @@ The symmetry mechanism supplies the clearest evidence. Applying the
 mathematically correct inverse or complement increases CKA over identity by
 `0.3832 +/- 0.2510` and over the wrong transformation by
 `0.4152 +/- 0.2329`. Both paired contrasts are positive in all 24 pair-seed
-units (two-sided exact sign-test `p=1.19e-7` for each).
+units. Because seeds are clustered within mathematical relations, the
+pair-seed sign-test value (`p=1.19e-7`) is descriptive rather than the primary
+inference. After averaging over seeds, both contrasts remain positive in all
+eight relations (two-sided relation-level exact sign-test `p=0.0078125` for
+each).
 
 The fixed-four-task composition experiment is negative for a monotonic dose
 response. Mean final-layer CKA at `r=0,1,2,4` direct correspondences is

@@ -159,3 +159,15 @@ def test_symmetry_summary_reports_exact_paired_sign_tests() -> None:
     assert trend[
         "two_sided_exact_sign_test_p_correct_minus_wrong"
     ] == pytest.approx(2 / 64)
+    assert trend["relation_units"] == 2
+    assert trend["positive_relation_mean_correct_minus_identity"] == 2
+    assert trend["positive_relation_mean_correct_minus_wrong"] == 2
+    assert trend[
+        "two_sided_relation_level_sign_test_p_correct_minus_identity"
+    ] == pytest.approx(2 / 4)
+    assert trend[
+        "two_sided_relation_level_sign_test_p_correct_minus_wrong"
+    ] == pytest.approx(2 / 4)
+    assert trend["relation_mean_deltas"]["pair-a"] == pytest.approx(
+        {"correct_minus_identity": 0.6, "correct_minus_wrong": 0.7}
+    )

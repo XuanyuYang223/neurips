@@ -89,7 +89,9 @@ preregistered directly related task pairs have higher final-layer CKA than the
 112 other cross-task pairs (0.1375 versus 0.0903; task-label permutation
 `p=0.015`). The symmetry control is stronger: using the mathematically correct
 inverse or complement raises CKA over both the identity and wrong-transform
-controls in all 24 pair-seed units. However, the fixed-four-task experiment
+controls in all 24 pair-seed units and, after aggregating seeds, in all eight
+mathematical relations (relation-level two-sided sign test `p=0.0078` for both
+contrasts). However, the fixed-four-task experiment
 does not show a monotonic dose response as the number of direct
 correspondences increases (`r=0,1,2,4`: 0.2935, 0.2752, 0.2662, 0.3648;
 paired `r=4-r=0` sign-test `p=0.774`). The evidence therefore supports

@@ -592,6 +592,28 @@ def _symmetry_summary(
         by_unit[pair, seed, "correct"] - by_unit[pair, seed, "wrong"]
         for pair, seed in units
     ]
+    pairs = sorted({pair for pair, _ in units})
+    relation_mean_deltas = {
+        pair: {
+            "correct_minus_identity": statistics.fmean(
+                by_unit[pair, seed, "correct"] - by_unit[pair, seed, "identity"]
+                for relation, seed in units
+                if relation == pair
+            ),
+            "correct_minus_wrong": statistics.fmean(
+                by_unit[pair, seed, "correct"] - by_unit[pair, seed, "wrong"]
+                for relation, seed in units
+                if relation == pair
+            ),
+        }
+        for pair in pairs
+    }
+    relation_correct_identity = [
+        relation_mean_deltas[pair]["correct_minus_identity"] for pair in pairs
+    ]
+    relation_correct_wrong = [
+        relation_mean_deltas[pair]["correct_minus_wrong"] for pair in pairs
+    ]
 
     def exact_sign_test(values: Sequence[float]) -> float:
         positives = sum(value > 0 for value in values)
@@ -616,6 +638,20 @@ def _symmetry_summary(
         ),
         "two_sided_exact_sign_test_p_correct_minus_wrong": exact_sign_test(
             correct_wrong
+        ),
+        "relation_units": len(pairs),
+        "relation_mean_deltas": relation_mean_deltas,
+        "positive_relation_mean_correct_minus_identity": sum(
+            value > 0 for value in relation_correct_identity
+        ),
+        "positive_relation_mean_correct_minus_wrong": sum(
+            value > 0 for value in relation_correct_wrong
+        ),
+        "two_sided_relation_level_sign_test_p_correct_minus_identity": exact_sign_test(
+            relation_correct_identity
+        ),
+        "two_sided_relation_level_sign_test_p_correct_minus_wrong": exact_sign_test(
+            relation_correct_wrong
         ),
     }
 
@@ -698,14 +734,23 @@ def _render_readme(
             f"Correct minus wrong-transform CKA: "
             f"{float(symmetry['correct_minus_wrong_mean']):+.6f} +/- "
             f"{float(symmetry['correct_minus_wrong_sample_sd']):.6f}.",
-            f"Both contrasts are positive in "
+            f"Descriptively, both contrasts are positive in "
             f"{symmetry['positive_correct_minus_identity_units']}/"
             f"{symmetry['pair_seed_units']} and "
             f"{symmetry['positive_correct_minus_wrong_units']}/"
-            f"{symmetry['pair_seed_units']} pair-seed units; their two-sided "
-            f"exact sign-test p-values are "
+            f"{symmetry['pair_seed_units']} pair-seed units. Treating those "
+            "units as independent would give two-sided exact sign-test p-values of "
             f"{float(symmetry['two_sided_exact_sign_test_p_correct_minus_identity']):.3e} "
-            f"and {float(symmetry['two_sided_exact_sign_test_p_correct_minus_wrong']):.3e}.",
+            f"and {float(symmetry['two_sided_exact_sign_test_p_correct_minus_wrong']):.3e}; "
+            "these are descriptive because seeds are clustered within relations.",
+            f"After averaging over seeds, both contrasts remain positive in "
+            f"{symmetry['positive_relation_mean_correct_minus_identity']}/"
+            f"{symmetry['relation_units']} and "
+            f"{symmetry['positive_relation_mean_correct_minus_wrong']}/"
+            f"{symmetry['relation_units']} mathematical relations. The primary "
+            f"relation-level two-sided exact sign-test p-values are "
+            f"{float(symmetry['two_sided_relation_level_sign_test_p_correct_minus_identity']):.6f} "
+            f"and {float(symmetry['two_sided_relation_level_sign_test_p_correct_minus_wrong']):.6f}.",
             "The strongest result is therefore transformation-specific: models "
             "trained on known dual properties align when their inputs are related "
             "by the corresponding combinatorial symmetry.",

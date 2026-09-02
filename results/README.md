@@ -89,4 +89,7 @@ read the test split. Directly related specialist pairs are modestly more
 similar than other cross-task pairs, and the mathematically correct inverse
 or complement produces a large, consistent alignment advantage. The
 fixed-task-count bundle experiment does not establish a monotonic increase in
-CKA as more direct mathematical correspondences are added.
+CKA as more direct mathematical correspondences are added. Symmetry inference
+uses the eight mathematical relations as its primary units after aggregating
+the three seeds; all eight relation-level contrasts are positive
+(`p=0.0078125`).
