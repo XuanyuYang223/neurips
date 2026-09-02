@@ -5,6 +5,7 @@ import pytest
 from neurips_permutations.cka import ProbeExample
 from neurips_permutations.passage import TOKEN_TO_ID
 from neurips_permutations.property_task_geometry_cka import (
+    _symmetry_summary,
     summarize_bundle_rows,
     summarize_specialist_rows,
     task_label_permutation_test,
@@ -129,3 +130,32 @@ def test_task_label_permutation_test_is_deterministic_and_complete() -> None:
     assert first == second
     assert first["observed"] == pytest.approx(0.6)
     assert 0 < first["one_sided_p"] <= 1
+
+
+def test_symmetry_summary_reports_exact_paired_sign_tests() -> None:
+    rows = [
+        {
+            "pair_id": pair_id,
+            "model_seed": seed,
+            "condition": condition,
+            "layer": "final_norm",
+            "linear_cka": value,
+        }
+        for pair_id in ("pair-a", "pair-b")
+        for seed in MODEL_SEEDS
+        for condition, value in (
+            ("identity", 0.2),
+            ("correct", 0.8),
+            ("wrong", 0.1),
+        )
+    ]
+    _, trend = _symmetry_summary(rows)
+    assert trend["pair_seed_units"] == 6
+    assert trend["positive_correct_minus_identity_units"] == 6
+    assert trend["positive_correct_minus_wrong_units"] == 6
+    assert trend[
+        "two_sided_exact_sign_test_p_correct_minus_identity"
+    ] == pytest.approx(2 / 64)
+    assert trend[
+        "two_sided_exact_sign_test_p_correct_minus_wrong"
+    ] == pytest.approx(2 / 64)

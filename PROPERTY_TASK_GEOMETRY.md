@@ -128,6 +128,34 @@ reused only after their data, architecture, optimizer schedule, task, seed,
 step count, and checkpoint hash are verified. They are never counted as new
 replicates or trained again.
 
+## Results
+
+All 108 model positions completed 20,000 updates and passed checkpoint,
+configuration, finite-tensor, validation-grid, and provenance checks. The
+analysis uses the same 4,096 task-free validation prefixes throughout and does
+not read the test split. Full tables and provenance are in the
+[result package](results/property-task-geometry/cka/README.md).
+
+For the single-task specialists, final-layer CKA is `0.7096 +/- 0.2139` for
+the same task across seeds, `0.1375 +/- 0.1454` for the eight preregistered
+direct relations, and `0.0903 +/- 0.0571` for the other 112 cross-task pairs.
+The direct-minus-other contrast is positive under a 100,000-sample task-label
+permutation test (`p=0.015`).
+
+The symmetry mechanism supplies the clearest evidence. Applying the
+mathematically correct inverse or complement increases CKA over identity by
+`0.3832 +/- 0.2510` and over the wrong transformation by
+`0.4152 +/- 0.2329`. Both paired contrasts are positive in all 24 pair-seed
+units (two-sided exact sign-test `p=1.19e-7` for each).
+
+The fixed-four-task composition experiment is negative for a monotonic dose
+response. Mean final-layer CKA at `r=0,1,2,4` direct correspondences is
+`0.2935`, `0.2752`, `0.2662`, and `0.3648`; only one of 12 paired curves is
+monotonic. The paired `r=4-r=0` change is `+0.0712 +/- 0.2121`, is positive in
+7/12 cells, and has two-sided exact sign-test `p=0.774`. Thus, these results
+support transformation-specific neural alignment but do not support the
+broader claim that increasing related-task content reliably increases CKA.
+
 ## Interpretation boundary
 
 The labels `direct relation` and `no direct relation` refer to the frozen eight

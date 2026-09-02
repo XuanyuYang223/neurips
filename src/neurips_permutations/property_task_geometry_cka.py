@@ -592,6 +592,17 @@ def _symmetry_summary(
         by_unit[pair, seed, "correct"] - by_unit[pair, seed, "wrong"]
         for pair, seed in units
     ]
+
+    def exact_sign_test(values: Sequence[float]) -> float:
+        positives = sum(value > 0 for value in values)
+        tail = sum(
+            math.comb(len(values), index)
+            for index in range(
+                max(positives, len(values) - positives), len(values) + 1
+            )
+        )
+        return min(1.0, 2 * tail / (2 ** len(values)))
+
     return summaries, {
         "pair_seed_units": len(units),
         "correct_minus_identity_mean": statistics.fmean(correct_identity),
@@ -600,6 +611,12 @@ def _symmetry_summary(
         "correct_minus_wrong_sample_sd": _sample_sd(correct_wrong),
         "positive_correct_minus_identity_units": sum(value > 0 for value in correct_identity),
         "positive_correct_minus_wrong_units": sum(value > 0 for value in correct_wrong),
+        "two_sided_exact_sign_test_p_correct_minus_identity": exact_sign_test(
+            correct_identity
+        ),
+        "two_sided_exact_sign_test_p_correct_minus_wrong": exact_sign_test(
+            correct_wrong
+        ),
     }
 
 
@@ -609,7 +626,13 @@ def _render_readme(
     bundle_trend: Mapping[str, Any],
     symmetry: Mapping[str, Any],
     permutation_test: Mapping[str, Any],
+    random_rows: Sequence[Mapping[str, Any]],
 ) -> str:
+    random_final = [
+        float(row["linear_cka"])
+        for row in random_rows
+        if row["layer"] == "final_norm"
+    ]
     lines = [
         "# Combinatorial task-geometry CKA results",
         "",
@@ -633,6 +656,13 @@ def _render_readme(
             f"Task-label permutation contrast (direct minus other): "
             f"{float(permutation_test['observed']):+.6f}; one-sided "
             f"p={float(permutation_test['one_sided_p']):.6f}.",
+            f"Random-initialization final-layer CKA across seeds: "
+            f"{statistics.fmean(random_final):.6f} +/- "
+            f"{_sample_sd(random_final):.6f}.",
+            "Directly related tasks are more similar than the other cross-task "
+            "pairs, but the absolute direct-relation CKA is far below the "
+            "same-task value. The high random-initialization baseline reflects "
+            "shared architecture and input geometry, not learned task structure.",
             "",
             "## Fixed-four-task composition",
             "",
@@ -654,6 +684,11 @@ def _render_readme(
             f"{float(bundle_trend['delta_r4_minus_r0_sample_sd']):.6f}.",
             f"Positive cells: {bundle_trend['positive_delta_cells']}/12; "
             f"monotonic cells: {bundle_trend['monotonic_cell_count']}/12.",
+            f"Two-sided exact sign-test p for r=4 minus r=0: "
+            f"{float(bundle_trend['two_sided_exact_sign_test_p']):.6f}.",
+            "This controlled experiment does not support a monotonic CKA "
+            "dose-response as direct correspondences increase: the effect is "
+            "strongly heterogeneous across bundle layouts.",
             "",
             "## Symmetry-aligned mechanism",
             "",
@@ -663,6 +698,17 @@ def _render_readme(
             f"Correct minus wrong-transform CKA: "
             f"{float(symmetry['correct_minus_wrong_mean']):+.6f} +/- "
             f"{float(symmetry['correct_minus_wrong_sample_sd']):.6f}.",
+            f"Both contrasts are positive in "
+            f"{symmetry['positive_correct_minus_identity_units']}/"
+            f"{symmetry['pair_seed_units']} and "
+            f"{symmetry['positive_correct_minus_wrong_units']}/"
+            f"{symmetry['pair_seed_units']} pair-seed units; their two-sided "
+            f"exact sign-test p-values are "
+            f"{float(symmetry['two_sided_exact_sign_test_p_correct_minus_identity']):.3e} "
+            f"and {float(symmetry['two_sided_exact_sign_test_p_correct_minus_wrong']):.3e}.",
+            "The strongest result is therefore transformation-specific: models "
+            "trained on known dual properties align when their inputs are related "
+            "by the corresponding combinatorial symmetry.",
             "",
             "CKA is a representation diagnostic, not a behavioral accuracy metric or "
             "proof of a shared algorithm. See the raw CSV files for every model, "
@@ -813,6 +859,7 @@ def run_task_geometry_cka(
         bundle_trend,
         symmetry_trend,
         permutation_test,
+        random_rows,
     )
     _atomic_text(readme, output_dir / "README.md")
     manifest = {

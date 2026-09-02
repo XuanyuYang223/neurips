@@ -1,6 +1,6 @@
 # Permutation multitask generalization
 
-This repository contains three permutation-language-model studies for
+This repository contains four permutation-language-model studies for
 the NeurIPS workshop project:
 
 - **v2 baseline:** 30 models trained on nested subsets of 20 tasks;
@@ -40,6 +40,9 @@ The shareable result packages are separated by protocol version:
   combinatorial duals with preregistered no-obvious-duality controls;
 - [combinatorial task-geometry protocol](PROPERTY_TASK_GEOMETRY.md), the
   confirmatory single-task plus fixed-four-task relatedness study;
+- [combinatorial task-geometry results](results/property-task-geometry/cka/README.md),
+  with every specialist, bundle, symmetry-control, and random-initialization
+  CKA comparison;
 - [32-property protocol](PROPERTY32_PROTOCOL.md), with its frozen task pools,
   data specification, model design, and CKA analysis plan;
 - [result-file index](results/README.md), which explains every CSV.
@@ -79,6 +82,19 @@ points below a task-specific majority baseline. Mean final-layer A-vs-B CKA is
 0.1723, 0.1920, 0.2128, 0.6190, and 0.4961. Its association with `k` is
 positive (Spearman rho 0.90) but not monotonic. Two of three replicates peak at
 `k=8`; the third increases monotonically and peaks at `k=16`.
+
+The [combinatorial task-geometry study](results/property-task-geometry/cka/README.md)
+provides a more controlled answer. Across single-task specialists, eight
+preregistered directly related task pairs have higher final-layer CKA than the
+112 other cross-task pairs (0.1375 versus 0.0903; task-label permutation
+`p=0.015`). The symmetry control is stronger: using the mathematically correct
+inverse or complement raises CKA over both the identity and wrong-transform
+controls in all 24 pair-seed units. However, the fixed-four-task experiment
+does not show a monotonic dose response as the number of direct
+correspondences increases (`r=0,1,2,4`: 0.2935, 0.2752, 0.2662, 0.3648;
+paired `r=4-r=0` sign-test `p=0.774`). The evidence therefore supports
+transformation-specific alignment, not a general claim that adding related
+tasks always makes learned representations more similar.
 
 ## v3 revision
 

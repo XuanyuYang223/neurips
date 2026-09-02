@@ -73,3 +73,20 @@ validation model-task rows. Behavioral exact accuracy is compared with a
 per-task majority-answer baseline because several property distributions are
 highly imbalanced. CKA uses the same 4,096 task-free validation prefixes for
 all models and does not read the test split.
+
+## Combinatorial task-geometry study
+
+- [Main CKA report](property-task-geometry/cka/README.md)
+- [Every specialist-model comparison](property-task-geometry/cka/specialist_pairwise_cka.csv)
+- [Every fixed-four-task comparison](property-task-geometry/cka/bundle_cell_cka.csv)
+- [Every symmetry-control comparison](property-task-geometry/cka/symmetry_cka.csv)
+- [Checkpoint and run provenance](property-task-geometry/cka/run_provenance.csv)
+
+This confirmatory study contains 48 single-task specialists and 60
+fixed-four-task Transformers, totaling 108 audited checkpoints. CKA uses the
+same 4,096 task-free validation prefixes for every comparison and does not
+read the test split. Directly related specialist pairs are modestly more
+similar than other cross-task pairs, and the mathematically correct inverse
+or complement produces a large, consistent alignment advantage. The
+fixed-task-count bundle experiment does not establish a monotonic increase in
+CKA as more direct mathematical correspondences are added.
