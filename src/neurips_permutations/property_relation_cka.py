@@ -177,10 +177,10 @@ def summarize_cell_curves(
 
 def _run_mapping(run: RelationExperimentRun) -> dict[str, Any]:
     marker = json.loads(
-        (Path(run.output_dir) / "completed.json").read_text(encoding="utf-8")
+        (Path(run.canonical_output_dir) / "completed.json").read_text(encoding="utf-8")
     )
     return {
-        "run_id": run.run_id,
+        "run_id": run.canonical_run_id,
         "architecture": run.architecture,
         "task_count": run.task_count,
         "seed": run.seed,
@@ -244,7 +244,9 @@ def run_relation_cka(
 ) -> dict[str, Any]:
     matrix = relation_summary(config_path)
     if matrix["complete_count"] != matrix["run_count"]:
-        raise ValueError("all 72 relation-controlled models must complete before CKA")
+        raise ValueError(
+            "all 72 logical cells (60 unique models) must complete before CKA"
+        )
     config = tomllib.loads(config_path.read_text(encoding="utf-8"))
     probe_count = int(config["analysis"]["probe_examples"])
     probe_seed = int(config["analysis"]["probe_seed"])
@@ -265,17 +267,28 @@ def run_relation_cka(
     repository = Path.cwd()
     cache_dir = output_dir / "cache"
     activations: dict[str, Any] = {}
-    for index, run in enumerate(runs, start=1):
-        print(f"extracting relation activation {index}/{len(runs)}: {run.run_id}")
-        activations[run.run_id] = _load_trained_activations(
-            _run_mapping(run),
-            repository=repository,
-            examples=examples,
-            probe_sha256=probe["probe_sha256"],
-            cache_dir=cache_dir,
-            device=device,
-            batch_size=batch_size,
-        )
+    canonical_activations: dict[str, Any] = {}
+    physical_count = sum(not run.is_alias for run in runs)
+    extracted = 0
+    for run in runs:
+        activation = canonical_activations.get(run.canonical_run_id)
+        if activation is None:
+            extracted += 1
+            print(
+                f"extracting relation activation {extracted}/{physical_count}: "
+                f"{run.canonical_run_id}"
+            )
+            activation = _load_trained_activations(
+                _run_mapping(run),
+                repository=repository,
+                examples=examples,
+                probe_sha256=probe["probe_sha256"],
+                cache_dir=cache_dir,
+                device=device,
+                batch_size=batch_size,
+            )
+            canonical_activations[run.canonical_run_id] = activation
+        activations[run.run_id] = activation
 
     layer_rows: list[dict[str, Any]] = []
     cell_rows: list[dict[str, Any]] = []
@@ -333,7 +346,9 @@ def run_relation_cka(
         "analysis_commit": _git_commit(repository),
         "config_path": str(config_path),
         "config_sha256": matrix["config_sha256"],
-        "run_count": len(runs),
+        "logical_run_count": len(runs),
+        "physical_model_count": physical_count,
+        "alias_cell_count": len(runs) - physical_count,
         "cell_count": 9,
         "probe": probe,
         "trend": trend,

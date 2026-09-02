@@ -30,6 +30,13 @@ def test_relation_design_has_nine_cells_and_no_selected_natural_duals() -> None:
 def test_relation_matrix_has_complete_unique_nested_grid() -> None:
     runs = build_relation_matrix()
     assert len(runs) == len({run.run_id for run in runs}) == 72
+    physical = [run for run in runs if not run.is_alias]
+    aliases = [run for run in runs if run.is_alias]
+    assert len(physical) == 60
+    assert len(aliases) == 12
+    assert len({(run.architecture, run.seed, run.tasks) for run in physical}) == 60
+    assert all(run.canonical_run_id != run.run_id for run in aliases)
+    assert all(run.canonical_output_dir != run.output_dir for run in aliases)
     assert {run.split_id for run in runs} == set(SPLIT_IDS)
     assert {run.seed for run in runs} == set(MODEL_SEEDS)
     assert {run.task_count for run in runs} == set(TASK_COUNTS)
@@ -44,18 +51,38 @@ def test_relation_matrix_has_complete_unique_nested_grid() -> None:
                 assert all(len(run.tasks) == task_count for run in matched)
 
 
-def test_relation_cell_dry_run_emits_only_eight_commands(capsys: pytest.CaptureFixture[str]) -> None:
+def test_relation_cell_dry_run_emits_only_unique_commands(capsys: pytest.CaptureFixture[str]) -> None:
     run_relation_matrix(cell="s1:42", dry_run=True)
     lines = capsys.readouterr().out.splitlines()
-    assert len(lines) == 8
+    assert len(lines) == 6
     assert all("s1-seed42" in line for line in lines)
     assert all("property32_relation_controlled.toml" in line for line in lines)
+
+
+def test_relation_full_dry_run_emits_sixty_unique_models(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    run_relation_matrix(dry_run=True)
+    lines = capsys.readouterr().out.splitlines()
+    assert len(lines) == 60
+    task_seed_designs = {
+        (run.architecture, run.seed, run.tasks)
+        for run in build_relation_matrix()
+        if not run.is_alias
+    }
+    assert len(task_seed_designs) == 60
 
 
 def test_relation_summary_accepts_completed_or_unstarted_matrix() -> None:
     summary = relation_summary()
     assert summary["run_count"] == 72
+    assert summary["physical_run_count"] == 60
+    assert summary["alias_count"] == 12
     assert summary["complete_count"] + summary["incomplete_count"] == 72
+    assert (
+        summary["complete_physical_count"] + summary["incomplete_physical_count"]
+        == 60
+    )
     assert set(summary["cells"]) == {
         f"{split_id}:{seed}" for split_id in SPLIT_IDS for seed in MODEL_SEEDS
     }

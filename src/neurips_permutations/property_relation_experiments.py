@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import argparse
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 import hashlib
 import json
 from pathlib import Path
@@ -33,6 +33,9 @@ class RelationExperimentRun:
     seed: int
     run_id: str
     output_dir: str
+    canonical_run_id: str
+    canonical_output_dir: str
+    is_alias: bool
 
 
 def _sha256(path: Path) -> str:
@@ -139,6 +142,7 @@ def build_relation_matrix(
                         f"relation-{split_id}-{pool}-transformer-"
                         f"tasks{task_count:02d}-seed{seed}"
                     )
+                    output_dir = str(cell_root / run_id)
                     runs.append(
                         RelationExperimentRun(
                             split_id=split_id,
@@ -148,18 +152,49 @@ def build_relation_matrix(
                             tasks=tasks[:task_count],
                             seed=seed,
                             run_id=run_id,
-                            output_dir=str(cell_root / run_id),
+                            output_dir=output_dir,
+                            canonical_run_id=run_id,
+                            canonical_output_dir=output_dir,
+                            is_alias=False,
                         )
                     )
     if len(runs) != 72 or len({run.run_id for run in runs}) != 72:
         raise ValueError("relation-controlled matrix must contain 72 unique runs")
-    return tuple(runs)
+
+    # Some nested prefixes recur in more than one frozen split.  They define
+    # distinct logical comparison cells but not distinct training designs.
+    # Train one canonical checkpoint for each exact (architecture, seed,
+    # ordered-task-tuple) design and let repeated cells reference it.  This
+    # prevents duplicated checkpoints from being mistaken for independent
+    # experimental evidence.
+    canonical_by_design: dict[
+        tuple[str, int, tuple[str, ...]], RelationExperimentRun
+    ] = {}
+    resolved: list[RelationExperimentRun] = []
+    for run in runs:
+        key = (run.architecture, run.seed, run.tasks)
+        canonical = canonical_by_design.get(key)
+        if canonical is None:
+            canonical_by_design[key] = run
+            resolved.append(run)
+        else:
+            resolved.append(
+                replace(
+                    run,
+                    canonical_run_id=canonical.run_id,
+                    canonical_output_dir=canonical.output_dir,
+                    is_alias=True,
+                )
+            )
+    if len(canonical_by_design) != 60 or sum(run.is_alias for run in resolved) != 12:
+        raise ValueError("relation-controlled matrix must resolve to 60 unique models")
+    return tuple(resolved)
 
 
 def _completed(
     run: RelationExperimentRun, *, config_sha256: str, steps: int
 ) -> bool:
-    marker_path = Path(run.output_dir) / "completed.json"
+    marker_path = Path(run.canonical_output_dir) / "completed.json"
     try:
         marker = json.loads(marker_path.read_text(encoding="utf-8"))
         checkpoint = Path(marker["checkpoint"])
@@ -168,7 +203,7 @@ def _completed(
         return (
             marker.get("status") == "completed"
             and marker.get("global_step") == steps
-            and marker.get("run_id") == run.run_id
+            and marker.get("run_id") == run.canonical_run_id
             and marker.get("architecture") == run.architecture
             and marker.get("tasks") == list(run.tasks)
             and marker.get("seed") == run.seed
@@ -190,6 +225,12 @@ def relation_summary(path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
         for run in runs
         if _completed(run, config_sha256=config_sha256, steps=steps)
     ]
+    physical_runs = [run for run in runs if not run.is_alias]
+    completed_physical = [
+        run.run_id
+        for run in physical_runs
+        if _completed(run, config_sha256=config_sha256, steps=steps)
+    ]
     cells: dict[str, dict[str, int]] = {}
     for split_id in SPLIT_IDS:
         for seed in MODEL_SEEDS:
@@ -197,14 +238,20 @@ def relation_summary(path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
             selected = [run for run in runs if run.split_id == split_id and run.seed == seed]
             cells[key] = {
                 "run_count": len(selected),
+                "physical_run_count": sum(not run.is_alias for run in selected),
+                "alias_count": sum(run.is_alias for run in selected),
                 "complete_count": sum(run.run_id in completed for run in selected),
             }
     return {
         "protocol_version": config["protocol_version"],
         "config_sha256": config_sha256,
         "run_count": len(runs),
+        "physical_run_count": len(physical_runs),
+        "alias_count": sum(run.is_alias for run in runs),
         "complete_count": len(completed),
         "incomplete_count": len(runs) - len(completed),
+        "complete_physical_count": len(completed_physical),
+        "incomplete_physical_count": len(physical_runs) - len(completed_physical),
         "design": design,
         "cells": cells,
         "complete": completed,
@@ -215,6 +262,8 @@ def relation_summary(path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
 def _training_command(
     run: RelationExperimentRun, config: dict[str, Any], config_path: Path
 ) -> list[str]:
+    if run.is_alias:
+        raise ValueError("alias cells do not launch duplicate training jobs")
     return [
         sys.executable,
         "-m",
@@ -252,6 +301,8 @@ def run_relation_matrix(
     for run in runs:
         run_cell = f"{run.split_id}:{run.seed}"
         if cell != "all" and run_cell != cell:
+            continue
+        if run.is_alias:
             continue
         if _completed(run, config_sha256=config_sha256, steps=steps):
             continue

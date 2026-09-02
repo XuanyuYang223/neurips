@@ -54,11 +54,15 @@ predefined dual pairs is co-selected.
 ## Training matrix
 
 The matrix crosses all three splits with all three model seeds `17`, `42`, and
-`101`. Each cell trains Pool A and Pool B independently at
+`101`. Each cell compares Pool A and Pool B at
 `k = 1, 2, 4, 8`:
 
-- 3 task selections x 3 seeds x 2 pools x 4 task counts;
-- 72 independent Transformer checkpoints;
+- 3 task selections x 3 seeds x 2 pools x 4 task counts = 72 logical cell
+  positions;
+- 60 unique Transformer checkpoints, because 12 positions repeat an exact
+  ordered task prefix and seed from an earlier cell;
+- repeated positions reference the same canonical checkpoint and are never
+  treated as independent evidence;
 - no checkpoint is initialized from another value of `k`;
 - every equal-`k` A-vs-B comparison has zero task-name overlap.
 
