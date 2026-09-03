@@ -1,0 +1,42 @@
+{
+  "checkpoint_sha256": "c5e354dcc442f73b8f08702b7a451d6e2e0062b5d11714054a1da088943a8bfe",
+  "evaluator_commit": "f0cab1230496b6acde20f9e329455b99f07f82f0",
+  "fewshot_config_sha256": "764c23fbcb553a3b809181e86d6aa3df0813c84df968990c56a73cd794f55882",
+  "format_version": "property32-fewshot-zero-shot/v1",
+  "metrics": {
+    "even_cycle_count": {
+      "examples": 2500,
+      "loss": 4.274122419738769,
+      "sequence_accuracy": 0.1504,
+      "token_accuracy": 0.573,
+      "tokens": 5000
+    },
+    "left_to_right_minima": {
+      "examples": 2500,
+      "loss": 3.288260624885559,
+      "sequence_accuracy": 0.2784,
+      "token_accuracy": 0.6382,
+      "tokens": 5000
+    },
+    "longest_increasing_run": {
+      "examples": 2500,
+      "loss": 3.3038450380325317,
+      "sequence_accuracy": 0.2588,
+      "token_accuracy": 0.6288,
+      "tokens": 5000
+    },
+    "peaks": {
+      "examples": 2500,
+      "loss": 4.729479050445557,
+      "sequence_accuracy": 0.122,
+      "token_accuracy": 0.5604,
+      "tokens": 5000
+    }
+  },
+  "run_id": "property-b-transformer-tasks02-seed42",
+  "status": "completed",
+  "test_manifest_sha256": "257ff2ea900b90cd6f1edf3c9f0fcea5d2891c746c94440d744f6968dd817979",
+  "test_shard_position": 1,
+  "test_source_shard_index": 199,
+  "test_source_shard_sha256": "52a544f29742e08ab83038c7611ba7f6356f8a9b6e6e34a88b0d1e1ff762f8ee"
+}

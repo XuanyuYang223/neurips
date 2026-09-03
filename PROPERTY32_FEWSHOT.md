@@ -59,3 +59,11 @@ treated as independent replicates.
 
 This protocol tests few-shot adaptability. It is distinct from hard zero-shot
 execution and from linear decodability of a frozen representation.
+
+## Completed result
+
+All 120 warm-start adaptations and 24 matched random-initialization controls
+completed and passed strict audit. The single frozen source-shard-199 test
+evaluation is reported in
+[`results/property32-zero-overlap/fewshot/README.md`](results/property32-zero-overlap/fewshot/README.md),
+with all 144 unaveraged endpoints in `model_task_results.csv`.

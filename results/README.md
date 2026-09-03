@@ -67,6 +67,8 @@ display percentages.
 - [Original R0 layerwise CKA results](property32-zero-overlap/cka/README.md)
 - [Layerwise linear-probing results](property32-zero-overlap/linear-probing/README.md)
 - [All 6,336 unaveraged model-property-layer probe rows](property32-zero-overlap/linear-probing/model_task_layer_probes.csv)
+- [Twenty-shot fine-tuning results](property32-zero-overlap/fewshot/README.md)
+- [All 144 unaveraged fine-tuning endpoints](property32-zero-overlap/fewshot/model_task_results.csv)
 
 This exploratory extension uses 32 scalar permutation properties divided into
 two disjoint 16-task pools. Three joint task-split/model-seed replicates train
@@ -82,6 +84,13 @@ probes are fitted and tuned on 4,096 validation permutations, then evaluated
 once on 4,096 independently selected property-test permutations. Its primary
 question is whether values of the 16 opposite-pool properties become more
 linearly decodable as base-training task count increases.
+
+The twenty-shot follow-up adapts each of the 30 base Transformers to four
+balanced properties from the opposite pool, yielding 120 warm starts and 24
+support-matched random-init controls. Exact accuracy and paired gains from
+zero-shot increase with `k`, but the pretrained models do not exceed the
+random-init control on average. Its final endpoint uses all 2,500 examples per
+property from source shard 199, disjoint from the linear-probe sample.
 
 ## Combinatorial task-geometry study
 

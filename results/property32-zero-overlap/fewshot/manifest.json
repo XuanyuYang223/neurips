@@ -1,0 +1,48 @@
+{
+  "analysis_commit": "f0cab1230496b6acde20f9e329455b99f07f82f0",
+  "artifacts": {
+    "README.md": "5c27ce25b646350787baef871369489060c5fdc2294ae540d78c76d04686ea0e",
+    "family_summary.csv": "cbefeefea31185faac165dda760c2f7e24527e0e756ede579d6640bd28d1c9c8",
+    "model_task_results.csv": "b214671eaef769991b6dbe866d6087b0a32069e75f793123ede2da06987c342c",
+    "random_summary.csv": "c82e1e0846b4d940306b94109ade2d760f8d5316f18a9f46da8720345ab5665f",
+    "replicate_summary.csv": "65991e12fd3a1bb2fa2f2c120b14c2fcca57b7554bf6a3bdb3185e34c2b56816",
+    "summary.csv": "fdbebc92de6f9f41c59ab0fe4422f651968aab0cd49b3a838d98d89e42ac5b9b"
+  },
+  "evaluation_manifest_sha256": "c02620bcb0265647d1c3240d3f80a00327119ccd584f9163f776c4220aaac025",
+  "fewshot_config_sha256": "764c23fbcb553a3b809181e86d6aa3df0813c84df968990c56a73cd794f55882",
+  "format_version": "property32-fewshot-results/v1",
+  "replicate_count": 3,
+  "row_count": 144,
+  "status": "completed",
+  "support_artifact_sha256": "dbda450579b8c70a4b4ee3ae012117c710a3c973008ac0ee9b44a5501aaac5dc",
+  "trend": {
+    "sequence_accuracy": [
+      0.16635,
+      0.20788333333333334,
+      0.25721666666666665,
+      0.3177166666666667,
+      0.33585
+    ],
+    "sequence_accuracy_improvement_from_zero_shot": [
+      0.034816666666666655,
+      0.06636666666666667,
+      0.14154999999999998,
+      0.17015000000000002,
+      0.17798333333333335
+    ],
+    "sequence_accuracy_improvement_over_random": [
+      -0.17648333333333333,
+      -0.13495000000000001,
+      -0.08561666666666667,
+      -0.025116666666666673,
+      -0.006983333333333339
+    ],
+    "task_counts": [
+      1,
+      2,
+      4,
+      8,
+      16
+    ]
+  }
+}

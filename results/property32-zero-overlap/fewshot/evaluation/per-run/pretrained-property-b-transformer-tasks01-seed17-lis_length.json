@@ -1,0 +1,29 @@
+{
+  "base_run_id": "property-b-transformer-tasks01-seed17",
+  "base_trained_task_count": 1,
+  "checkpoint_sha256": "1db0d83042d0f0bf1a0c7de0e0f7fc8bc2c48a3d6f3b9e67b12760515d93d31f",
+  "evaluator_commit": "f0cab1230496b6acde20f9e329455b99f07f82f0",
+  "fewshot_config_sha256": "764c23fbcb553a3b809181e86d6aa3df0813c84df968990c56a73cd794f55882",
+  "format_version": "property32-fewshot-test/v1",
+  "initialization": "pretrained",
+  "metrics": {
+    "lis_length": {
+      "examples": 2500,
+      "loss": 3.482654163360596,
+      "sequence_accuracy": 0.1708,
+      "token_accuracy": 0.5854,
+      "tokens": 5000
+    }
+  },
+  "model_pool": "b",
+  "replicate_id": "r0",
+  "run_id": "pretrained-property-b-transformer-tasks01-seed17-lis_length",
+  "seed": 17,
+  "status": "completed",
+  "target_family": "global_run",
+  "task": "lis_length",
+  "test_manifest_sha256": "257ff2ea900b90cd6f1edf3c9f0fcea5d2891c746c94440d744f6968dd817979",
+  "test_shard_position": 1,
+  "test_source_shard_index": 199,
+  "test_source_shard_sha256": "52a544f29742e08ab83038c7611ba7f6356f8a9b6e6e34a88b0d1e1ff762f8ee"
+}

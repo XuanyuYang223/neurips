@@ -1,0 +1,29 @@
+{
+  "base_run_id": "",
+  "base_trained_task_count": 0,
+  "checkpoint_sha256": "c02c716cd806a6490520e0619ee3f3f2b3792f6f253edcb974fb99ee985b4af7",
+  "evaluator_commit": "f0cab1230496b6acde20f9e329455b99f07f82f0",
+  "fewshot_config_sha256": "764c23fbcb553a3b809181e86d6aa3df0813c84df968990c56a73cd794f55882",
+  "format_version": "property32-fewshot-test/v1",
+  "initialization": "random",
+  "metrics": {
+    "anti_fixed_points": {
+      "examples": 2500,
+      "loss": 1.6601834411621095,
+      "sequence_accuracy": 0.328,
+      "token_accuracy": 0.664,
+      "tokens": 5000
+    }
+  },
+  "model_pool": "a",
+  "replicate_id": "r0",
+  "run_id": "random-r0-poola-seed17-anti_fixed_points",
+  "seed": 17,
+  "status": "completed",
+  "target_family": "positional",
+  "task": "anti_fixed_points",
+  "test_manifest_sha256": "257ff2ea900b90cd6f1edf3c9f0fcea5d2891c746c94440d744f6968dd817979",
+  "test_shard_position": 1,
+  "test_source_shard_index": 199,
+  "test_source_shard_sha256": "52a544f29742e08ab83038c7611ba7f6356f8a9b6e6e34a88b0d1e1ff762f8ee"
+}

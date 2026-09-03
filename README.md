@@ -37,6 +37,8 @@ The shareable result packages are separated by protocol version:
   unseen property values become more linearly decodable as `k` increases;
 - [Property32 twenty-shot protocol](PROPERTY32_FEWSHOT.md), which applies
   Henry's fine-tuning test to balanced opposite-pool targets;
+- [Property32 twenty-shot results](results/property32-zero-overlap/fewshot/README.md),
+  including all 144 model-task endpoints and paired controls;
 - [relation-controlled CKA protocol](PROPERTY32_RELATION_CONTROLLED.md), which
   removes co-selected natural duals and crosses three low-correlation task
   selections with three model seeds;
@@ -94,6 +96,15 @@ length-conditioned R2 on the 16 opposite-pool properties is 0.198, 0.245,
 0.215. All three replicates improve from `k=1` to `k=8`, but two decline at
 `k=16`. The result supports progressive linear decodability through `k=8`,
 not reliable hard zero-shot execution or a monotonic scaling law.
+
+Henry's [Property32 twenty-shot follow-up](results/property32-zero-overlap/fewshot/README.md)
+finds a stronger progressive adaptation signal. Exact accuracy after 20-shot
+fine-tuning is 16.63%, 20.79%, 25.72%, 31.77%, and 33.59% for
+`k = 1, 2, 4, 8, 16`, while paired gains over zero-shot increase from +3.48
+to +17.80 percentage points. However, the support-matched random-init control
+reaches 34.28%, and the warm-start models remain below it at every `k`.
+Broader base training therefore predicts easier low-shot adaptation, but the
+experiment does not establish a net advantage over training from scratch.
 
 The [combinatorial task-geometry study](results/property-task-geometry/cka/README.md)
 provides a more controlled answer. Across single-task specialists, eight
@@ -168,6 +179,8 @@ are in [PROTOCOL.md](PROTOCOL.md).
   probes for all 32 properties across the 30 zero-overlap Transformers;
 - [Property32 twenty-shot protocol](PROPERTY32_FEWSHOT.md): 120 warm-start
   adaptations and 24 matched random-initialization controls;
+- [Property32 twenty-shot results](results/property32-zero-overlap/fewshot/README.md):
+  complete test metrics, three-replicate error bars, and family breakdowns;
 - [relation-controlled protocol](PROPERTY32_RELATION_CONTROLLED.md): the
   72-cell/60-model low-correlation 3x3 CKA follow-up;
 - [property-pair CKA protocol](PROPERTY_PAIR_CKA.md): the controlled
@@ -229,5 +242,6 @@ permutation-property-fewshot-results --config configs/property32_fewshot.toml
 ```
 
 Production data shards and checkpoints are intentionally ignored by Git. The
-checked-in CSVs are derived from authenticated completion markers and the
-single frozen evaluation of test shard 099.
+checked-in CSVs are derived from authenticated completion markers and frozen
+test evaluations: v3 shard 099 and the preregistered Property32 source shards
+198 (linear probing) and 199 (twenty-shot adaptation).

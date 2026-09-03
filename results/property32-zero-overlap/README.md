@@ -27,6 +27,7 @@ generalization.
 - [Per-replicate behavioral values](replicates/behavior_replicates.csv)
 - [Per-replicate CKA values](replicates/cka_replicates.csv)
 - [Linear-probing results](linear-probing/README.md)
+- [Twenty-shot fine-tuning results](fewshot/README.md)
 - [Frozen three-replicate protocol](../../PROPERTY32_REPLICATES.md)
 
 The values above are mean plus/minus sample standard deviation over three
@@ -57,6 +58,28 @@ Training therefore adds little at `k=1`, then produces a progressive gain
 through `k=8`; `k=16` retains most of that gain but is slightly lower. This is
 evidence for increasingly linearly decodable unseen-property information, not
 for direct zero-shot operation execution or causal use of that information.
+
+## Twenty-shot fine-tuning of unseen properties
+
+Henry's fine-tuning follow-up adapts every base Transformer to four balanced
+opposite-pool properties using 20 support examples. It contains 120 warm-start
+adaptations and 24 support-matched random-initialization controls.
+
+| k | Adapted exact accuracy | Change from zero-shot | Change over random init |
+|---:|---:|---:|---:|
+| 1 | 16.63% +/- 2.60% | +3.48 +/- 2.78 pp | -17.65 +/- 4.87 pp |
+| 2 | 20.79% +/- 2.61% | +6.64 +/- 3.05 pp | -13.50 +/- 6.31 pp |
+| 4 | 25.72% +/- 1.07% | +14.15 +/- 1.69 pp | -8.56 +/- 4.79 pp |
+| 8 | 31.77% +/- 4.36% | +17.02 +/- 2.22 pp | -2.51 +/- 2.71 pp |
+| 16 | 33.59% +/- 3.61% | +17.80 +/- 5.76 pp | -0.70 +/- 1.15 pp |
+
+All three replicate endpoints improve from `k=1` to `k=16`, so broader base
+training is associated with greater few-shot adaptability. The random-init
+control nevertheless reaches 34.28% +/- 4.38%, and no `k` has a positive mean
+warm-start advantage over it. This supports a progressive adaptation trend,
+not a demonstrated benefit over learning the target from scratch. Full
+per-family and per-model results are in the
+[fine-tuning report](fewshot/README.md).
 
 ## Question
 
@@ -170,5 +193,6 @@ The full property definitions and frozen pool order are in
    information recoverable by linear probes or low-shot fine-tuning.
 5. Behavioral metrics and CKA use validation data. Linear-probe fitting and
    ridge selection also use validation, followed by one frozen evaluation on
-   4,096 independently selected test permutations. The remaining property test
-   records should not be used for iterative analysis decisions.
+   4,096 source-shard-198 test permutations. The separately frozen twenty-shot
+   endpoint uses source shard 199. No Property32 test record should now be used
+   to tune models, hyperparameters, task selections, or analysis choices.

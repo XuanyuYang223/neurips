@@ -1,0 +1,29 @@
+{
+  "base_run_id": "",
+  "base_trained_task_count": 0,
+  "checkpoint_sha256": "13f9d5712b576df7fd91aa2adf94020ccb09ccca3b7ed8682c5f8406094c6e61",
+  "evaluator_commit": "f0cab1230496b6acde20f9e329455b99f07f82f0",
+  "fewshot_config_sha256": "764c23fbcb553a3b809181e86d6aa3df0813c84df968990c56a73cd794f55882",
+  "format_version": "property32-fewshot-test/v1",
+  "initialization": "random",
+  "metrics": {
+    "lds_length": {
+      "examples": 2500,
+      "loss": 2.3091416931152344,
+      "sequence_accuracy": 0.2708,
+      "token_accuracy": 0.6354,
+      "tokens": 5000
+    }
+  },
+  "model_pool": "a",
+  "replicate_id": "r0",
+  "run_id": "random-r0-poola-seed17-lds_length",
+  "seed": 17,
+  "status": "completed",
+  "target_family": "global_run",
+  "task": "lds_length",
+  "test_manifest_sha256": "257ff2ea900b90cd6f1edf3c9f0fcea5d2891c746c94440d744f6968dd817979",
+  "test_shard_position": 1,
+  "test_source_shard_index": 199,
+  "test_source_shard_sha256": "52a544f29742e08ab83038c7611ba7f6356f8a9b6e6e34a88b0d1e1ff762f8ee"
+}

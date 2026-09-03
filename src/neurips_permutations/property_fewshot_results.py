@@ -310,7 +310,12 @@ def build_random_summary(rows: Sequence[Mapping[str, Any]]) -> list[dict[str, An
     return [record]
 
 
-def _readme(summary: Sequence[Mapping[str, Any]], random: Mapping[str, Any]) -> str:
+def _readme(
+    summary: Sequence[Mapping[str, Any]],
+    random: Mapping[str, Any],
+    replicates: Sequence[Mapping[str, Any]],
+    family: Sequence[Mapping[str, Any]],
+) -> str:
     lines = [
         "# Property32 twenty-shot fine-tuning results",
         "",
@@ -320,12 +325,76 @@ def _readme(summary: Sequence[Mapping[str, Any]], random: Mapping[str, Any]) -> 
         "examples. Final metrics use 2,500 examples per property from source shard ",
         "199, which was not used by the earlier linear-probe evaluation.",
         "",
-        "| k | Adapted exact | Change from zero-shot | Change over random init |",
-        "|---:|---:|---:|---:|",
+        "All 120 warm-start adaptations and 24 support-matched random-initialization ",
+        "controls completed 200 updates and passed strict checkpoint audit.",
+        "",
+        "## Primary result",
+        "",
+        "| k | Loss | Token accuracy | Adapted exact | Zero-shot exact | Change from zero-shot | Change over random init |",
+        "|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for row in summary:
+        exact = float(row["sequence_accuracy_mean"])
+        zero_delta = float(row["sequence_accuracy_improvement_from_zero_shot_mean"])
         lines.append(
             f"| {row['base_trained_task_count']} | "
+            f"{float(row['loss_mean']):.4f} +/- {float(row['loss_sample_sd']):.4f} | "
+            f"{100 * float(row['token_accuracy_mean']):.2f}% +/- {100 * float(row['token_accuracy_sample_sd']):.2f}% | "
+            f"{100 * exact:.2f}% +/- {100 * float(row['sequence_accuracy_sample_sd']):.2f}% | "
+            f"{100 * (exact - zero_delta):.2f}% | "
+            f"{100 * zero_delta:+.2f} +/- {100 * float(row['sequence_accuracy_improvement_from_zero_shot_sample_sd']):.2f} pp | "
+            f"{100 * float(row['sequence_accuracy_improvement_over_random_mean']):+.2f} +/- {100 * float(row['sequence_accuracy_improvement_over_random_sample_sd']):.2f} pp |"
+        )
+    endpoint_rows = {
+        str(row["replicate_id"]): row
+        for row in replicates
+        if int(row["base_trained_task_count"]) == 16
+    }
+    start_rows = {
+        str(row["replicate_id"]): row
+        for row in replicates
+        if int(row["base_trained_task_count"]) == 1
+    }
+    endpoints = ", ".join(
+        f"{replicate.upper()} {100 * float(start_rows[replicate]['sequence_accuracy']):.2f}% to "
+        f"{100 * float(endpoint_rows[replicate]['sequence_accuracy']):.2f}%"
+        for replicate in REPLICATE_IDS
+    )
+    lines.extend(
+        [
+            "",
+            f"The random-initialization control reaches {100 * float(random['sequence_accuracy_mean']):.2f}% +/- "
+            f"{100 * float(random['sequence_accuracy_sample_sd']):.2f}% exact accuracy.",
+            "",
+            "Loss decreases and both accuracy measures improve as the base-training ",
+            "set grows. Adapted exact accuracy rises from 16.63% at `k=1` to 33.59% ",
+            "at `k=16`, and the paired improvement from zero-shot rises from +3.48 to ",
+            "+17.80 percentage points. All three replicate endpoints move in the same ",
+            f"direction ({endpoints}), although the intermediate points are not ",
+            "strictly monotonic within every replicate.",
+            "",
+            "The stronger conclusion does not hold: warm-start adaptation remains ",
+            "below the random-initialization control at every `k`. Its mean deficit ",
+            "shrinks from 17.65 points at `k=1` to 0.70 points at `k=16`, which is ",
+            "smaller than the three-replicate error bar. Thus broader pretraining is ",
+            "associated with greater 20-shot adaptability, but this experiment does ",
+            "not establish a positive pretraining advantage over learning from scratch.",
+            "",
+            "## Family heterogeneity at k=16",
+            "",
+            "| Target family | Adapted exact | Change from zero-shot | Change over random init |",
+            "|---|---:|---:|---:|",
+        ]
+    )
+    for family_name in ("local", "positional", "cycle", "global_run"):
+        row = next(
+            item
+            for item in family
+            if int(item["base_trained_task_count"]) == 16
+            and item["target_family"] == family_name
+        )
+        lines.append(
+            f"| `{family_name}` | "
             f"{100 * float(row['sequence_accuracy_mean']):.2f}% +/- {100 * float(row['sequence_accuracy_sample_sd']):.2f}% | "
             f"{100 * float(row['sequence_accuracy_improvement_from_zero_shot_mean']):+.2f} +/- {100 * float(row['sequence_accuracy_improvement_from_zero_shot_sample_sd']):.2f} pp | "
             f"{100 * float(row['sequence_accuracy_improvement_over_random_mean']):+.2f} +/- {100 * float(row['sequence_accuracy_improvement_over_random_sample_sd']):.2f} pp |"
@@ -333,8 +402,13 @@ def _readme(summary: Sequence[Mapping[str, Any]], random: Mapping[str, Any]) -> 
     lines.extend(
         [
             "",
-            f"The random-initialization control reaches {100 * float(random['sequence_accuracy_mean']):.2f}% +/- "
-            f"{100 * float(random['sequence_accuracy_sample_sd']):.2f}% exact accuracy.",
+            "The target families differ substantially. At `k=16`, local and positional ",
+            "properties have small positive mean contrasts over random initialization, ",
+            "whereas cycle and global/run properties remain below it. These are ",
+            "descriptive family macros over only three joint task-split/model-seed ",
+            "replicates, not independent task-level significance tests.",
+            "",
+            "## Aggregation and metric conventions",
             "",
             "Means first average four target families and both pool directions ",
             "within each replicate, then report mean +/- sample SD across three joint ",
@@ -342,9 +416,24 @@ def _readme(summary: Sequence[Mapping[str, Any]], random: Mapping[str, Any]) -> 
             "from paired zero-shot accuracy; improvement over the seed- and ",
             "support-matched random control is the second confirmatory contrast.",
             "",
+            "`sequence_accuracy` requires the scalar answer and EOS to be correct and ",
+            "is the primary complete-answer metric. `token_accuracy` scores those two ",
+            "supervised tokens separately, so it is partly inflated by EOS. `loss` is ",
+            "their mean negative log likelihood; lower is better. Every raw row has ",
+            "2,500 examples and 5,000 supervised tokens.",
+            "",
+            "Warm-start and random-init models use the same 20 support examples and 200 ",
+            "updates, but their frozen learning rates are `1e-5` and `3e-4`, ",
+            "respectively. The random contrast therefore compares the two prespecified ",
+            "adaptation recipes; it does not isolate initialization while holding the ",
+            "learning rate fixed. Only three replicates are available, and task split ",
+            "and model seed vary together.",
+            "",
             "This experiment measures few-shot adaptability, not hard zero-shot ",
-            "execution. See `family_summary.csv` for heterogeneous effects and ",
-            "`model_task_results.csv` for every unaveraged adaptation.",
+            "execution. `model_task_results.csv` contains all 144 unaveraged rows; ",
+            "`replicate_summary.csv`, `summary.csv`, and `family_summary.csv` expose ",
+            "each aggregation stage. `random_summary.csv` contains the matched ",
+            "random-initialization baseline.",
             "",
         ]
     )
@@ -370,7 +459,7 @@ def export_results(
     for name, (values, fields) in artifacts.items():
         _atomic_csv(values, fields, output_dir / name)
     readme = output_dir / "README.md"
-    _atomic_text(_readme(summary, random[0]), readme)
+    _atomic_text(_readme(summary, random[0], replicate_rows, family), readme)
     trend = {
         "task_counts": list(TASK_COUNTS),
         "sequence_accuracy": [float(row["sequence_accuracy_mean"]) for row in summary],

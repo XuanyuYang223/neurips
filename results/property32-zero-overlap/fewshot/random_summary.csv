@@ -1,0 +1,2 @@
+replicate_count,loss_mean,loss_sample_sd,token_accuracy_mean,token_accuracy_sample_sd,sequence_accuracy_mean,sequence_accuracy_sample_sd
+3,1.8866021429697672,0.14057814674055144,0.6691833333333334,0.023565153475700783,0.3428333333333333,0.04383504115811155
