@@ -1,0 +1,36 @@
+# Frozen linear-probing protocol for the completed three-replicate,
+# 32-property zero-overlap Transformer matrix.
+
+protocol_version = "property32-linear-probe/v1"
+status = "frozen_before_test_evaluation"
+replicate_configs = [
+  "configs/property32_zero_overlap_pilot.toml",
+  "configs/property32_zero_overlap_r1.toml",
+  "configs/property32_zero_overlap_r2.toml",
+]
+validation_manifest = "data/permutation-properties-16m-v1/validation_manifest.json"
+test_manifest = "data/permutation-properties-16m-v1/test_manifest.json"
+output_dir = "results/property32-zero-overlap/linear-probing"
+
+[data_artifact]
+schema_version = "permutation-properties-32/v1"
+validation_manifest_sha256 = "b60539df6456fdb9e9a78623134ed279f90909d0c2433f8f770c9e5b8c95ec9d"
+test_manifest_sha256 = "257ff2ea900b90cd6f1edf3c9f0fcea5d2891c746c94440d744f6968dd817979"
+
+[probe]
+activation_landmark = "<ONE_END>"
+validation_examples = 4096
+test_examples = 4096
+validation_probe_seed = 20260902
+test_probe_seed = 20260911
+validation_tune_fraction = 0.25
+validation_split_seed = 20260912
+batch_size = 256
+ridge_alphas = [0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.1, 1.0, 10.0]
+random_baseline_seeds = [17, 42, 101]
+target_transform = "train-length-conditional-zscore"
+alpha_selection_metric = "length_conditioned_r2"
+primary_layer = "final_norm"
+primary_task_status = "opposite_pool"
+primary_metric = "length_conditioned_r2"
+test_policy = "single_frozen_pass_after_protocol_and_implementation_commit"

@@ -35,6 +35,7 @@ permutation-property-relation-experiments = "neurips_permutations.property_relat
 permutation-property-relation-cka = "neurips_permutations.property_relation_cka:main"
 permutation-property-task-geometry = "neurips_permutations.property_task_geometry_experiments:main"
 permutation-property-task-geometry-cka = "neurips_permutations.property_task_geometry_cka:main"
+permutation-property-linear-probe = "neurips_permutations.property_linear_probe:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

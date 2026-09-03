@@ -33,6 +33,8 @@ The shareable result packages are separated by protocol version:
   error bars, and layerwise CKA;
 - [three-replicate protocol](PROPERTY32_REPLICATES.md), with the frozen task
   splits, model seeds, and aggregation rules;
+- [linear-probing protocol](PROPERTY32_LINEAR_PROBING.md), which tests whether
+  unseen property values become more linearly decodable as `k` increases;
 - [relation-controlled CKA protocol](PROPERTY32_RELATION_CONTROLLED.md), which
   removes co-selected natural duals and crosses three low-correlation task
   selections with three model seeds;
@@ -152,6 +154,8 @@ are in [PROTOCOL.md](PROTOCOL.md).
   properties and two disjoint balanced pools;
 - [three-replicate protocol](PROPERTY32_REPLICATES.md): the 30-model
   confirmatory extension and frozen aggregation;
+- [linear-probing protocol](PROPERTY32_LINEAR_PROBING.md): task-free layerwise
+  probes for all 32 properties across the 30 zero-overlap Transformers;
 - [relation-controlled protocol](PROPERTY32_RELATION_CONTROLLED.md): the
   72-cell/60-model low-correlation 3x3 CKA follow-up;
 - [property-pair CKA protocol](PROPERTY_PAIR_CKA.md): the controlled
@@ -196,6 +200,12 @@ permutation-property-replicates --replicate all --run
 permutation-property-replicate-results \
   --output-dir results/property32-zero-overlap/replicates \
   --probe-count 4096 \
+  --device auto
+
+# After freezing the protocol/code, fit validation probes and evaluate them
+# once on the independently selected property test examples.
+permutation-property-linear-probe \
+  --config configs/property32_linear_probe.toml \
   --device auto
 ```
 
