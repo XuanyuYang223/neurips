@@ -39,6 +39,8 @@ The shareable result packages are separated by protocol version:
   Henry's fine-tuning test to balanced opposite-pool targets;
 - [Property32 twenty-shot results](results/property32-zero-overlap/fewshot/README.md),
   including all 144 model-task endpoints and paired controls;
+- [deadline-scoped k=16 scaling protocol](SCALING_K16.md), a three-seed 2x2
+  data-by-depth factorial using both architectures;
 - [relation-controlled CKA protocol](PROPERTY32_RELATION_CONTROLLED.md), which
   removes co-selected natural duals and crosses three low-correlation task
   selections with three model seeds;
@@ -239,6 +241,12 @@ permutation-property-fewshot run --config configs/property32_fewshot.toml --devi
 permutation-property-fewshot audit --config configs/property32_fewshot.toml
 permutation-property-fewshot test --config configs/property32_fewshot.toml --device cuda
 permutation-property-fewshot-results --config configs/property32_fewshot.toml
+
+# Complete, audit, evaluate, and summarize the deadline-scoped k=16 factorial.
+permutation-scaling-k16 run --config configs/permutation_scaling_k16.toml
+permutation-scaling-k16 audit --config configs/permutation_scaling_k16.toml
+permutation-scaling-k16 evaluate --config configs/permutation_scaling_k16.toml --device cuda
+permutation-scaling-k16 results --config configs/permutation_scaling_k16.toml
 ```
 
 Production data shards and checkpoints are intentionally ignored by Git. The

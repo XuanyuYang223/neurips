@@ -1,5 +1,10 @@
 # Data and model scaling protocol
 
+> The complete 90-model matrix remains a long-term extension. For the current
+> paper deadline, the preregistered [k=16 factorial](../../SCALING_K16.md)
+> retains all four data/depth cells, both architectures, and three seeds while
+> omitting the other task-count settings.
+
 This protocol extends the completed v3 nested experiment into a two-by-two
 factorial study of training-data scale and model capacity. The existing
 1x-data/1x-model nested matrix is the baseline, so three additional matrices

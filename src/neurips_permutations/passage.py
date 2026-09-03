@@ -125,6 +125,9 @@ PROPERTY_FIXED_TOKENS: tuple[str, ...] = (
 FIXED_TOKENS: tuple[str, ...] = (
     ORIGINAL_FIXED_TOKENS + EXTENDED_FIXED_TOKENS + PROPERTY_FIXED_TOKENS
 )
+PERMUTATION20_VOCABULARY: tuple[str, ...] = (
+    NUMBER_TOKENS + ORIGINAL_FIXED_TOKENS + EXTENDED_FIXED_TOKENS
+)
 VOCABULARY: tuple[str, ...] = NUMBER_TOKENS + FIXED_TOKENS
 TOKEN_TO_ID: Mapping[str, int] = {token: index for index, token in enumerate(VOCABULARY)}
 ID_TO_TOKEN: Mapping[int, str] = {index: token for token, index in TOKEN_TO_ID.items()}
@@ -670,6 +673,7 @@ __all__ = [
     "PROPERTY_FIXED_TOKENS",
     "TASK_SPECS",
     "TOKEN_TO_ID",
+    "PERMUTATION20_VOCABULARY",
     "TaskSpec",
     "VOCABULARY",
     "canonical_cycles",

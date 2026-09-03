@@ -30,7 +30,7 @@ from torch.optim.lr_scheduler import LambdaLR
 from torch.utils.data import DataLoader, IterableDataset, get_worker_info
 
 from .generate import V2_SCHEMA_VERSION, task_names_for_schema
-from .passage import TOKEN_TO_ID, tokenize
+from .passage import PERMUTATION20_VOCABULARY, TOKEN_TO_ID, tokenize
 
 
 Record = dict[str, Any]
@@ -543,12 +543,41 @@ def _seed_everything(seed: int) -> None:
         torch.cuda.manual_seed_all(seed)
 
 
+def _manifest_schema_version(path: str | None) -> str | None:
+    if not path:
+        return None
+    try:
+        payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        return None
+    value = payload.get("schema_version") if isinstance(payload, Mapping) else None
+    return value if isinstance(value, str) else None
+
+
+def _model_vocab_size(config: TrainConfig) -> int:
+    """Recover the vocabulary frozen by the dataset protocol.
+
+    Property32 tokens were appended after the original 163-token v2/v3
+    experiments.  Reading the manifest keeps old checkpoints and new scaling
+    replications architecture-identical even when both protocols share one
+    installed tokenizer module.
+    """
+
+    explicit = config.model_config.get("vocab_size")
+    if explicit is not None:
+        return int(explicit)
+    schema = _manifest_schema_version(config.manifest)
+    if schema in {"permutation-20/v2", "permutation-20/v3"}:
+        return len(PERMUTATION20_VOCABULARY)
+    return len(TOKEN_TO_ID)
+
+
 def _default_model_factory(config: TrainConfig) -> nn.Module:
     from .models import build_model
 
     kwargs = dict(config.model_config)
     kwargs.setdefault("model_type", config.architecture)
-    kwargs.setdefault("vocab_size", len(TOKEN_TO_ID))
+    kwargs.setdefault("vocab_size", _model_vocab_size(config))
     kwargs.setdefault("max_seq_len", config.max_seq_len)
     kwargs.setdefault("d_model", config.d_model)
     kwargs.setdefault(

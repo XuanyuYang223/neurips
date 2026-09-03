@@ -29,7 +29,7 @@ from neurips_permutations.experiments import (
 from neurips_permutations.math_ops import TASK_NAMES, V3_TASK_NAMES
 from neurips_permutations.models import build_model
 from neurips_permutations.passage import TOKEN_TO_ID
-from neurips_permutations.training import TrainConfig, _scheduler
+from neurips_permutations.training import TrainConfig, _model_vocab_size, _scheduler
 
 
 SOURCE_CONFIG = Path(__file__).parents[1] / "configs" / "henry_permutation.toml"
@@ -198,7 +198,7 @@ def _make_fixture(tmp_path: Path, *, revised: bool = False) -> AuditFixture:
 def _model_kwargs(config: dict[str, Any]) -> dict[str, Any]:
     kwargs = {
         "model_type": config["architecture"],
-        "vocab_size": len(TOKEN_TO_ID),
+        "vocab_size": _model_vocab_size(TrainConfig.from_value(config)),
         "max_seq_len": config["max_seq_len"],
         "d_model": config["d_model"],
         "layers": config["num_layers"],

@@ -21,6 +21,7 @@ validation results, not an untouched final test evaluation.
 - [Layerwise CKA representation analysis](v3/cka/README.md)
 - [Disjoint-category CKA follow-up](v3/cka/category/README.md)
 - [Data and model scaling protocol](v3/SCALING_PROTOCOL.md)
+- [Deadline-scoped k=16 scaling protocol](../SCALING_K16.md)
 - [All 960 independent-test model-task rows](v3/test_model_task_accuracies.csv)
 - [Nested generalization only](v3/test_nested_generalization.csv)
 - [Category generalization only](v3/test_category_generalization.csv)

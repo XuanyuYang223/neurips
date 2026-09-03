@@ -1,0 +1,48 @@
+# Deadline-scoped confirmatory factorial at the fully populated k=16 endpoint.
+
+protocol_version = "permutation-scaling-k16/v1"
+status = "frozen_before_seed42_or_seed314159_training"
+task_count = 16
+architectures = ["transformer", "mlp"]
+model_seeds = [17, 42, 314159]
+new_training_seeds = [42, 314159]
+test_manifest = "data/permutation-10m-v3/test_manifest.json"
+test_manifest_sha256 = "3ca12e6b6eeb29fc0ddd441b9c44c80d7a160faaf7e832eb55007f4c6a3ab52b"
+evaluation_dir = "results/v3/scaling/k16/evaluation"
+results_dir = "results/v3/scaling/k16"
+primary_tasks = ["to_reduced_word", "compose", "to_lehmer"]
+diagnostic_task = "parity"
+
+[conditions.baseline]
+data_multiplier = 1
+model_multiplier = 1
+config = "configs/henry_permutation_revised.toml"
+config_sha256 = "dd75f31277e42f554ed681beda44bb53f2d4f65089fd9583540b9e645c4f1b40"
+train_new = false
+
+[conditions.data10x_model1x]
+data_multiplier = 10
+model_multiplier = 1
+config = "configs/permutation_scaling_data10x_model1x.toml"
+config_sha256 = "f4e9773752f51258e940934c63eaadc8231a349169da2df1a9a1e077326730e6"
+train_new = true
+
+[conditions.data1x_model2x]
+data_multiplier = 1
+model_multiplier = 2
+config = "configs/permutation_scaling_data1x_model2x.toml"
+config_sha256 = "2ab87b8e668d57ab3226c1786fbc25fec83a1f01c6b8f52a8f2c08efb7c2cc74"
+train_new = true
+
+[conditions.data10x_model2x]
+data_multiplier = 10
+model_multiplier = 2
+config = "configs/permutation_scaling_data10x_model2x.toml"
+config_sha256 = "19cd57743fd83ad49143cbbe5db89c52c5678789e1f724afb2f4c0dab5609575"
+train_new = true
+
+[aggregation]
+unit = "model_seed"
+within_seed_primary = "macro_mean_over_three_structured_holdouts"
+across_seeds = "mean_and_sample_standard_deviation"
+factorial_interaction = "data10x_model2x-data10x_model1x-data1x_model2x+baseline"

@@ -38,7 +38,12 @@ from .experiments import (
 )
 from .models import build_model
 from .passage import TOKEN_TO_ID
-from .training import TrainConfig, build_arg_parser, parse_shard_indices
+from .training import (
+    TrainConfig,
+    _model_vocab_size,
+    build_arg_parser,
+    parse_shard_indices,
+)
 
 
 DEFAULT_CONFIG = Path("configs/henry_permutation.toml")
@@ -830,7 +835,7 @@ def _model_kwargs(config: Mapping[str, Any]) -> dict[str, Any]:
     kwargs.update(
         {
             "model_type": config["architecture"],
-            "vocab_size": len(TOKEN_TO_ID),
+            "vocab_size": _model_vocab_size(TrainConfig.from_value(config)),
             "max_seq_len": config["max_seq_len"],
             "d_model": config["d_model"],
             "layers": config["num_layers"],

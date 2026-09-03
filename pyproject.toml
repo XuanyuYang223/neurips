@@ -38,6 +38,7 @@ permutation-property-task-geometry-cka = "neurips_permutations.property_task_geo
 permutation-property-linear-probe = "neurips_permutations.property_linear_probe:main"
 permutation-property-fewshot = "neurips_permutations.property_fewshot:main"
 permutation-property-fewshot-results = "neurips_permutations.property_fewshot_results:main"
+permutation-scaling-k16 = "neurips_permutations.scaling_k16:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
