@@ -35,6 +35,8 @@ The shareable result packages are separated by protocol version:
   splits, model seeds, and aggregation rules;
 - [linear-probing protocol](PROPERTY32_LINEAR_PROBING.md), which tests whether
   unseen property values become more linearly decodable as `k` increases;
+- [Property32 twenty-shot protocol](PROPERTY32_FEWSHOT.md), which applies
+  Henry's fine-tuning test to balanced opposite-pool targets;
 - [relation-controlled CKA protocol](PROPERTY32_RELATION_CONTROLLED.md), which
   removes co-selected natural duals and crosses three low-correlation task
   selections with three model seeds;
@@ -164,6 +166,8 @@ are in [PROTOCOL.md](PROTOCOL.md).
   confirmatory extension and frozen aggregation;
 - [linear-probing protocol](PROPERTY32_LINEAR_PROBING.md): task-free layerwise
   probes for all 32 properties across the 30 zero-overlap Transformers;
+- [Property32 twenty-shot protocol](PROPERTY32_FEWSHOT.md): 120 warm-start
+  adaptations and 24 matched random-initialization controls;
 - [relation-controlled protocol](PROPERTY32_RELATION_CONTROLLED.md): the
   72-cell/60-model low-correlation 3x3 CKA follow-up;
 - [property-pair CKA protocol](PROPERTY_PAIR_CKA.md): the controlled
@@ -215,6 +219,13 @@ permutation-property-replicate-results \
 permutation-property-linear-probe \
   --config configs/property32_linear_probe.toml \
   --device auto
+
+# Run Henry's balanced 20-shot follow-up on the Property32 base models.
+permutation-property-fewshot support --config configs/property32_fewshot.toml
+permutation-property-fewshot run --config configs/property32_fewshot.toml --device cuda
+permutation-property-fewshot audit --config configs/property32_fewshot.toml
+permutation-property-fewshot test --config configs/property32_fewshot.toml --device cuda
+permutation-property-fewshot-results --config configs/property32_fewshot.toml
 ```
 
 Production data shards and checkpoints are intentionally ignored by Git. The

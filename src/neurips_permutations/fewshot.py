@@ -435,9 +435,10 @@ def _run_identity(
     support_sha256: str,
     support_ids: Sequence[int],
     implementation_commit: str,
+    format_version: str = FORMAT_VERSION,
 ) -> dict[str, Any]:
-    return {
-        "format_version": FORMAT_VERSION,
+    identity = {
+        "format_version": format_version,
         "run_id": run["run_id"],
         "initialization": run["initialization"],
         "architecture": run["architecture"],
@@ -461,6 +462,10 @@ def _run_identity(
             else spec.random_init_learning_rate
         ),
     }
+    for key in ("replicate_id", "model_pool", "target_family"):
+        if key in run:
+            identity[key] = run[key]
+    return identity
 
 
 def _completion_valid(path: Path, identity: Mapping[str, Any], checkpoint_path: Path) -> bool:
@@ -505,6 +510,7 @@ def _train_one(
     support_sha256: str,
     implementation_commit: str,
     device: torch.device,
+    format_version: str = FORMAT_VERSION,
 ) -> dict[str, Any]:
     run_dir = spec.output_dir / str(run["run_id"])
     checkpoint_path = run_dir / "checkpoint.pt"
@@ -516,6 +522,7 @@ def _train_one(
         support_sha256=support_sha256,
         support_ids=support_ids,
         implementation_commit=implementation_commit,
+        format_version=format_version,
     )
     if _completion_valid(marker_path, identity, checkpoint_path):
         return json.loads(marker_path.read_text(encoding="utf-8"))
@@ -531,7 +538,16 @@ def _train_one(
         raise ValueError("model-configuration source checkpoint changed")
     source = torch.load(source_checkpoint, map_location="cpu", weights_only=True)
     base_config = TrainConfig.from_value(source["config"])
-    adaptation_seed = _stable_seed(FORMAT_VERSION, run["task"], run["seed"])
+    if "replicate_id" in run or "model_pool" in run:
+        adaptation_seed = _stable_seed(
+            format_version,
+            run.get("replicate_id", ""),
+            run.get("model_pool", ""),
+            run["task"],
+            run["seed"],
+        )
+    else:
+        adaptation_seed = _stable_seed(format_version, run["task"], run["seed"])
     _seed_everything(adaptation_seed)
     model = _default_model_factory(base_config)
     if run["initialization"] == "pretrained":

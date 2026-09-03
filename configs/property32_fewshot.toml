@@ -1,0 +1,72 @@
+# Frozen Henry-style 20-shot follow-up for the 30-model property matrix.
+
+protocol_version = "property32-fewshot/v1"
+status = "frozen_before_shard199_model_evaluation"
+train_manifest = "data/permutation-properties-16m-v1/train_manifest.json"
+train_manifest_sha256 = "f93ad5624b2c8d7e7e866ce99bf75527691de51cc4806be2f40cca415958054e"
+validation_manifest = "data/permutation-properties-16m-v1/validation_manifest.json"
+validation_manifest_sha256 = "b60539df6456fdb9e9a78623134ed279f90909d0c2433f8f770c9e5b8c95ec9d"
+test_manifest = "data/permutation-properties-16m-v1/test_manifest.json"
+test_manifest_sha256 = "257ff2ea900b90cd6f1edf3c9f0fcea5d2891c746c94440d744f6968dd817979"
+test_shard_position = 1
+test_source_shard_index = 199
+test_source_shard_sha256 = "52a544f29742e08ab83038c7611ba7f6356f8a9b6e6e34a88b0d1e1ff762f8ee"
+support_artifact = "manifests/property32-fewshot-support.json"
+output_dir = "runs/property32-zero-overlap-fewshot"
+evaluation_dir = "results/property32-zero-overlap/fewshot/evaluation"
+shots = 20
+
+[base_replicates.r0]
+config = "configs/property32_zero_overlap_pilot.toml"
+config_sha256 = "5cd3fc692880d83773e7fc80c006d16367b7c3aeebcdfa678659bf7fa189b2b3"
+model_seed = 17
+pool_a_model_targets = ["recoils", "anti_fixed_points", "two_cycle_count", "lds_length"]
+pool_b_model_targets = ["descents", "fixed_points", "cycle_count", "lis_length"]
+
+[base_replicates.r1]
+config = "configs/property32_zero_overlap_r1.toml"
+config_sha256 = "5d7453fa2ffde847cc74813f83da8dabddccbc893132002084eeff3ac4524693"
+model_seed = 42
+pool_a_model_targets = ["adjacencies", "right_to_left_maxima", "two_cycle_count", "global_descents"]
+pool_b_model_targets = ["peaks", "left_to_right_minima", "even_cycle_count", "longest_increasing_run"]
+
+[base_replicates.r2]
+config = "configs/property32_zero_overlap_r2.toml"
+config_sha256 = "1a1c1247555fbbb5e6b3df0df3216580a7acffb914639ad47b55a18079bdac18"
+model_seed = 101
+pool_a_model_targets = ["descents", "left_to_right_maxima", "three_cycle_count", "lis_length"]
+pool_b_model_targets = ["successions", "deficiencies", "shortest_cycle", "max_displacement"]
+
+[support_selection]
+method = "seeded_uniform_occurrence_without_replacement/v1"
+source_split = "train_shards_000_195"
+pair_across_k = true
+
+[fine_tuning]
+initialize = ["pretrained", "random"]
+train_all_parameters = true
+max_steps = 200
+micro_batch_size = 4
+gradient_accumulation_steps = 1
+max_tokens_per_batch = 4096
+learning_rate = 0.00001
+random_init_learning_rate = 0.0003
+min_learning_rate_ratio = 0.1
+weight_decay = 0.01
+warmup_steps = 20
+gradient_clip_norm = 1.0
+precision = "bf16"
+
+[evaluation]
+validation_examples_per_task = 5000
+test_examples_per_task = 2500
+primary_metric = "sequence_accuracy"
+secondary_metrics = ["loss", "token_accuracy"]
+test_policy = "single_frozen_pass_on_previously_unevaluated_source_shard_199"
+
+[matrix]
+base_models = 30
+targets_per_base_model = 4
+pretrained_adaptations = 120
+random_controls = 24
+total_runs = 144
