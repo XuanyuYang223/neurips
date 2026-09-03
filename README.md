@@ -56,6 +56,8 @@ The shareable result packages are separated by protocol version:
 - [32-property protocol](PROPERTY32_PROTOCOL.md), with its frozen task pools,
   data specification, model design, and CKA analysis plan;
 - [result-file index](results/README.md), which explains every CSV.
+- [cross-domain paper synthesis](PAPER_STUDY_SYNTHESIS.md), which aligns the
+  integer and permutation evidence without pooling incompatible metrics.
 
 The primary v3 generalization summaries exclude every task used to train the
 model being evaluated. In other words, trained-task performance is retained
