@@ -70,6 +70,7 @@ display percentages.
 - [All 6,336 unaveraged model-property-layer probe rows](property32-zero-overlap/linear-probing/model_task_layer_probes.csv)
 - [Twenty-shot fine-tuning results](property32-zero-overlap/fewshot/README.md)
 - [All 144 unaveraged fine-tuning endpoints](property32-zero-overlap/fewshot/model_task_results.csv)
+- [Matched-learning-rate sensitivity protocol](../PROPERTY32_FEWSHOT_LR_SENSITIVITY.md)
 
 This exploratory extension uses 32 scalar permutation properties divided into
 two disjoint 16-task pools. Three joint task-split/model-seed replicates train

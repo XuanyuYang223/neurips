@@ -1,0 +1,25 @@
+# Post-hoc validation-only sensitivity analysis for the Property32 20-shot study.
+
+protocol_version = "property32-fewshot-lr-sensitivity/v1"
+status = "frozen_validation_only"
+base_config = "configs/property32_fewshot.toml"
+base_config_sha256 = "764c23fbcb553a3b809181e86d6aa3df0813c84df968990c56a73cd794f55882"
+support_artifact_sha256 = "dbda450579b8c70a4b4ee3ae012117c710a3c973008ac0ee9b44a5501aaac5dc"
+output_dir = "runs/property32-zero-overlap-fewshot-lr-sensitivity"
+results_dir = "results/property32-zero-overlap/fewshot/lr-sensitivity"
+evaluation_split = "validation"
+shots = 20
+max_steps = 200
+learning_rates = [0.00001, 0.0003]
+new_pretrained_learning_rate = 0.0003
+new_random_learning_rate = 0.00001
+new_pretrained_runs = 120
+new_random_runs = 24
+total_new_runs = 144
+
+[aggregation]
+unit = "joint_task_split_model_seed_replicate"
+replicates = ["r0", "r1", "r2"]
+within_replicate = "macro_mean_over_four_families_and_two_pool_directions"
+across_replicates = "mean_and_sample_standard_deviation"
+primary_metric = "sequence_accuracy"

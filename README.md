@@ -39,6 +39,8 @@ The shareable result packages are separated by protocol version:
   Henry's fine-tuning test to balanced opposite-pool targets;
 - [Property32 twenty-shot results](results/property32-zero-overlap/fewshot/README.md),
   including all 144 model-task endpoints and paired controls;
+- [Property32 matched-learning-rate sensitivity protocol](PROPERTY32_FEWSHOT_LR_SENSITIVITY.md),
+  a validation-only completion of the initialization-by-learning-rate factorial;
 - [deadline-scoped k=16 scaling protocol](SCALING_K16.md), a three-seed 2x2
   data-by-depth factorial using both architectures;
 - [relation-controlled CKA protocol](PROPERTY32_RELATION_CONTROLLED.md), which
@@ -183,6 +185,8 @@ are in [PROTOCOL.md](PROTOCOL.md).
   adaptations and 24 matched random-initialization controls;
 - [Property32 twenty-shot results](results/property32-zero-overlap/fewshot/README.md):
   complete test metrics, three-replicate error bars, and family breakdowns;
+- [Property32 matched-learning-rate sensitivity](PROPERTY32_FEWSHOT_LR_SENSITIVITY.md):
+  the frozen exploratory protocol for separating initialization from learning rate;
 - [relation-controlled protocol](PROPERTY32_RELATION_CONTROLLED.md): the
   72-cell/60-model low-correlation 3x3 CKA follow-up;
 - [property-pair CKA protocol](PROPERTY_PAIR_CKA.md): the controlled
@@ -241,6 +245,11 @@ permutation-property-fewshot run --config configs/property32_fewshot.toml --devi
 permutation-property-fewshot audit --config configs/property32_fewshot.toml
 permutation-property-fewshot test --config configs/property32_fewshot.toml --device cuda
 permutation-property-fewshot-results --config configs/property32_fewshot.toml
+
+# Complete the validation-only initialization-by-learning-rate sensitivity.
+permutation-property-fewshot-lr-sensitivity run --device cuda
+permutation-property-fewshot-lr-sensitivity audit
+permutation-property-fewshot-lr-sensitivity results
 
 # Complete, audit, evaluate, and summarize the deadline-scoped k=16 factorial.
 permutation-scaling-k16 run --config configs/permutation_scaling_k16.toml
