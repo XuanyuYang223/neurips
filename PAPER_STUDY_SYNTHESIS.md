@@ -34,10 +34,13 @@ experiments.
 - Linear probing found that final-layer opposite-pool information became more
   decodable through `k=8` and then declined slightly at `k=16`. This is evidence
   for a progressive internal signal, not a monotonic scaling law.
-- Twenty-shot adaptation improved progressively with `k`, but the pretrained
-  models did not beat the support-matched random-initialization control on
-  average. A validation-only matched-learning-rate sensitivity analysis is
-  frozen to separate initialization from the learning-rate confound.
+- Twenty-shot adaptation improved progressively with `k`, but the primary
+  pretrained models used a lower learning rate than the random controls. The
+  completed validation-only sensitivity shows that the matched `1e-5`
+  pretrained-minus-random contrast changes from -5.30 points at `k=1` to
+  +11.71 points at `k=16`; at matched `3e-4`, it changes from -0.36 to only
+  +2.96 points and is non-monotonic between endpoints. The adaptation trend is
+  therefore real under one optimization regime but not optimization-invariant.
 - Controlled CKA shows that known combinatorial transformations produce
   stronger alignment than identity or incorrect-transform controls. Merely
   adding related tasks at a fixed task count did not yield a monotonic CKA dose
@@ -111,10 +114,7 @@ The manuscript should follow these rules.
 ## Deadline-scoped remaining work
 
 1. Finish, audit, and test the 12 missing permutation scaling models.
-2. Complete the validation-only matched-learning-rate Property32 sensitivity.
-3. Export the scaling factorial effects and sensitivity contrasts with all raw
-   model endpoints.
-4. Add final figures and paper-ready Methods, Results, and Limitations text.
-5. On the integer side, repeat the most informative twenty-shot comparisons for
+2. Export the scaling factorial effects with all raw model endpoints.
+3. Add final figures and paper-ready Methods, Results, and Limitations text.
+4. On the integer side, repeat the most informative twenty-shot comparisons for
    seeds 42 and 314159 before reporting error bars.
-

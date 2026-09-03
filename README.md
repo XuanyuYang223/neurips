@@ -41,6 +41,8 @@ The shareable result packages are separated by protocol version:
   including all 144 model-task endpoints and paired controls;
 - [Property32 matched-learning-rate sensitivity protocol](PROPERTY32_FEWSHOT_LR_SENSITIVITY.md),
   a validation-only completion of the initialization-by-learning-rate factorial;
+- [Property32 matched-learning-rate sensitivity results](results/property32-zero-overlap/fewshot/lr-sensitivity/README.md),
+  including all 288 endpoints and paired learning-rate interactions;
 - [deadline-scoped k=16 scaling protocol](SCALING_K16.md), a three-seed 2x2
   data-by-depth factorial using both architectures;
 - [relation-controlled CKA protocol](PROPERTY32_RELATION_CONTROLLED.md), which
@@ -111,6 +113,15 @@ to +17.80 percentage points. However, the support-matched random-init control
 reaches 34.28%, and the warm-start models remain below it at every `k`.
 Broader base training therefore predicts easier low-shot adaptation, but the
 experiment does not establish a net advantage over training from scratch.
+
+The validation-only [matched-learning-rate sensitivity](results/property32-zero-overlap/fewshot/lr-sensitivity/README.md)
+shows that this comparison was materially confounded by optimization. At
+`1e-5`, pretrained-minus-random exact accuracy changes from -5.30 percentage
+points at `k=1` to +11.71 points at `k=16`. At `3e-4`, the corresponding
+contrast changes from -0.36 to only +2.96 points and is non-monotonic between
+the endpoints. Progressive low-rate adaptation therefore survives a matched
+comparison, but its magnitude is learning-rate dependent; this post-hoc result
+uses validation only and is not a second confirmatory test result.
 
 The [combinatorial task-geometry study](results/property-task-geometry/cka/README.md)
 provides a more controlled answer. Across single-task specialists, eight
@@ -189,6 +200,8 @@ are in [PROTOCOL.md](PROTOCOL.md).
   complete test metrics, three-replicate error bars, and family breakdowns;
 - [Property32 matched-learning-rate sensitivity](PROPERTY32_FEWSHOT_LR_SENSITIVITY.md):
   the frozen exploratory protocol for separating initialization from learning rate;
+- [Property32 matched-learning-rate results](results/property32-zero-overlap/fewshot/lr-sensitivity/README.md):
+  288 validation endpoints, matched contrasts, and interaction effects;
 - [relation-controlled protocol](PROPERTY32_RELATION_CONTROLLED.md): the
   72-cell/60-model low-correlation 3x3 CKA follow-up;
 - [property-pair CKA protocol](PROPERTY_PAIR_CKA.md): the controlled

@@ -1,0 +1,14 @@
+{
+  "artifacts": {
+    "README.md": "e8b9f06cfc363cfd12dd1a7cb1d99bc403f685c07e7601f8d7151e56d4d3627d",
+    "learning_rate_effects.csv": "8d38123c1d4c1f57a722064c13e39c911ea289c2dfd3dca59e11223bb9c9a708",
+    "matched_lr_summary.csv": "4d1730785c0503a5e8e4c3fd1bb28a63f5239ec51e20d9b4de1f82d408719ee1",
+    "validation_model_results.csv": "97af7a12758e6c07c80f612df005bba9417ab45a846fc5902af545766b5974e1"
+  },
+  "format_version": "property32-fewshot-lr-sensitivity-results/v1",
+  "learning_rate_effect_row_count": 5,
+  "protocol_sha256": "231a7b9a10fc588a271ad43d5de4ef999804b275de4743d6ead2c396fb521f96",
+  "row_count": 288,
+  "status": "completed",
+  "summary_row_count": 10
+}

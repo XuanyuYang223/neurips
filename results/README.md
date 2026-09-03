@@ -71,6 +71,7 @@ display percentages.
 - [Twenty-shot fine-tuning results](property32-zero-overlap/fewshot/README.md)
 - [All 144 unaveraged fine-tuning endpoints](property32-zero-overlap/fewshot/model_task_results.csv)
 - [Matched-learning-rate sensitivity protocol](../PROPERTY32_FEWSHOT_LR_SENSITIVITY.md)
+- [Matched-learning-rate sensitivity results](property32-zero-overlap/fewshot/lr-sensitivity/README.md)
 
 This exploratory extension uses 32 scalar permutation properties divided into
 two disjoint 16-task pools. Three joint task-split/model-seed replicates train
@@ -93,6 +94,12 @@ support-matched random-init controls. Exact accuracy and paired gains from
 zero-shot increase with `k`, but the pretrained models do not exceed the
 random-init control on average. Its final endpoint uses all 2,500 examples per
 property from source shard 199, disjoint from the linear-probe sample.
+
+The post-hoc matched-learning-rate sensitivity adds 120 high-rate warm starts
+and 24 low-rate random controls, then combines them with the 144 primary
+endpoints. It is validation-only because the primary experiment had already
+consumed its frozen test split. The sensitivity shows a progressive warm-start
+advantage at `1e-5`, but a much smaller and non-monotonic advantage at `3e-4`.
 
 ## Combinatorial task-geometry study
 

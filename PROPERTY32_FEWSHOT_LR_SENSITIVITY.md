@@ -22,3 +22,5 @@ standard deviation over the three joint task-split/model-seed replicates.
 
 The machine-readable protocol is
 [`configs/property32_fewshot_lr_sensitivity.toml`](configs/property32_fewshot_lr_sensitivity.toml).
+The completed results, including all 288 raw endpoints, are in
+[`results/property32-zero-overlap/fewshot/lr-sensitivity/`](results/property32-zero-overlap/fewshot/lr-sensitivity/README.md).
