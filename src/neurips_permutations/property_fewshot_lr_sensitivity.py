@@ -235,6 +235,7 @@ def export_results(config_path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
         for row in rows
     }
     summaries = []
+    replicate_grid: dict[tuple[float, int, str], dict[str, float]] = {}
     for learning_rate in (LOW_LR, HIGH_LR):
         for task_count in TASK_COUNTS:
             replicate_values = []
@@ -251,6 +252,7 @@ def export_results(config_path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
                         "random": statistics.fmean(float(row["sequence_accuracy"]) for row in random),
                     }
                 )
+                replicate_grid[(learning_rate, task_count, replicate_id)] = replicate_values[-1]
             warm_values = [row["warm"] for row in replicate_values]
             random_values = [row["random"] for row in replicate_values]
             contrast = [warm - random for warm, random in zip(warm_values, random_values, strict=True)]
@@ -267,9 +269,39 @@ def export_results(config_path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
                     "pretrained_minus_random_sample_sd": statistics.stdev(contrast),
                 }
             )
+    learning_rate_effects = []
+    for task_count in TASK_COUNTS:
+        warm_effect = []
+        random_effect = []
+        interaction = []
+        for replicate_id in REPLICATE_IDS:
+            low = replicate_grid[(LOW_LR, task_count, replicate_id)]
+            high = replicate_grid[(HIGH_LR, task_count, replicate_id)]
+            warm_delta = high["warm"] - low["warm"]
+            random_delta = high["random"] - low["random"]
+            warm_effect.append(warm_delta)
+            random_effect.append(random_delta)
+            interaction.append(warm_delta - random_delta)
+        record: dict[str, Any] = {
+            "base_trained_task_count": task_count,
+            "replicate_count": 3,
+        }
+        for name, values in (
+            ("pretrained_high_minus_low", warm_effect),
+            ("random_high_minus_low", random_effect),
+            ("initialization_by_lr_interaction", interaction),
+        ):
+            record[f"{name}_mean"] = statistics.fmean(values)
+            record[f"{name}_sample_sd"] = statistics.stdev(values)
+        learning_rate_effects.append(record)
     output = repository / config["results_dir"]
     _atomic_csv(rows, tuple(rows[0]), output / "validation_model_results.csv")
     _atomic_csv(summaries, tuple(summaries[0]), output / "matched_lr_summary.csv")
+    _atomic_csv(
+        learning_rate_effects,
+        tuple(learning_rate_effects[0]),
+        output / "learning_rate_effects.csv",
+    )
     lines = [
         "# Property32 twenty-shot matched-learning-rate sensitivity",
         "",
@@ -285,7 +317,53 @@ def export_results(config_path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
             f"{100 * row['random_sequence_accuracy_mean']:.2f}% +/- {100 * row['random_sequence_accuracy_sample_sd']:.2f}% | "
             f"{100 * row['pretrained_minus_random_mean']:+.2f} +/- {100 * row['pretrained_minus_random_sample_sd']:.2f} pp |"
         )
-    lines.extend(["", "The learning-rate sweep was specified after the primary test result and is not a new confirmatory test-set result.", ""])
+    lines.extend(
+        [
+            "",
+            "## Paired learning-rate effects",
+            "",
+            "Positive values mean that `3e-4` achieved higher exact accuracy than `1e-5`. The interaction is `(pretrained high - pretrained low) - (random high - random low)`.",
+            "",
+            "| k | Pretrained high minus low | Random high minus low | Initialization x LR |",
+            "|---:|---:|---:|---:|",
+        ]
+    )
+    for row in learning_rate_effects:
+        lines.append(
+            f"| {row['base_trained_task_count']} | "
+            f"{100 * row['pretrained_high_minus_low_mean']:+.2f} +/- {100 * row['pretrained_high_minus_low_sample_sd']:.2f} pp | "
+            f"{100 * row['random_high_minus_low_mean']:+.2f} +/- {100 * row['random_high_minus_low_sample_sd']:.2f} pp | "
+            f"{100 * row['initialization_by_lr_interaction_mean']:+.2f} +/- {100 * row['initialization_by_lr_interaction_sample_sd']:.2f} pp |"
+        )
+    low_first = next(
+        row for row in summaries
+        if row["learning_rate"] == LOW_LR and row["base_trained_task_count"] == 1
+    )
+    low_last = next(
+        row for row in summaries
+        if row["learning_rate"] == LOW_LR and row["base_trained_task_count"] == 16
+    )
+    high_first = next(
+        row for row in summaries
+        if row["learning_rate"] == HIGH_LR and row["base_trained_task_count"] == 1
+    )
+    high_last = next(
+        row for row in summaries
+        if row["learning_rate"] == HIGH_LR and row["base_trained_task_count"] == 16
+    )
+    lines.extend(
+        [
+            "",
+            "## Interpretation",
+            "",
+            f"At the matched `1e-5` learning rate, the pretrained-minus-random contrast changes from {100 * low_first['pretrained_minus_random_mean']:+.2f} percentage points at `k=1` to {100 * low_last['pretrained_minus_random_mean']:+.2f} points at `k=16`. At the matched `3e-4` learning rate, it changes from {100 * high_first['pretrained_minus_random_mean']:+.2f} to {100 * high_last['pretrained_minus_random_mean']:+.2f} points and is not monotonic across the intermediate task counts.",
+            "",
+            "The progressive low-learning-rate curve therefore survives a matched-initialization comparison, but its magnitude is optimization-dependent. The high learning rate substantially improves both random initialization and small-k warm starts, compressing the apparent k trend. With only three joint replicates, these validation-only contrasts should be reported as a sensitivity analysis rather than a new confirmatory test result.",
+            "",
+            "The learning-rate sweep was specified after the primary test result and does not reuse the Property32 test split.",
+            "",
+        ]
+    )
     _atomic_text("\n".join(lines), output / "README.md")
     manifest = {
         "format_version": "property32-fewshot-lr-sensitivity-results/v1",
@@ -293,7 +371,16 @@ def export_results(config_path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
         "protocol_sha256": digest,
         "row_count": len(rows),
         "summary_row_count": len(summaries),
-        "artifacts": {name: _sha256(output / name) for name in ("validation_model_results.csv", "matched_lr_summary.csv", "README.md")},
+        "learning_rate_effect_row_count": len(learning_rate_effects),
+        "artifacts": {
+            name: _sha256(output / name)
+            for name in (
+                "validation_model_results.csv",
+                "matched_lr_summary.csv",
+                "learning_rate_effects.csv",
+                "README.md",
+            )
+        },
     }
     _atomic_json(manifest, output / "manifest.json")
     return manifest
