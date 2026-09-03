@@ -272,6 +272,60 @@ def _mean_sd(values: Sequence[float]) -> tuple[float, float]:
     return statistics.fmean(values), statistics.stdev(values)
 
 
+def _factorial_effect_rows(
+    rows: Sequence[Mapping[str, Any]], metrics: Sequence[str]
+) -> list[dict[str, Any]]:
+    """Return seed-paired data, depth, and interaction contrasts."""
+
+    lookup = {
+        (str(row["condition"]), str(row["architecture"]), int(row["seed"])): row
+        for row in rows
+    }
+    contrasts = {
+        "data_effect_at_1x_model": ("data10x_model1x", "baseline"),
+        "model_effect_at_1x_data": ("data1x_model2x", "baseline"),
+        "data_effect_at_2x_model": ("data10x_model2x", "data1x_model2x"),
+        "model_effect_at_10x_data": ("data10x_model2x", "data10x_model1x"),
+    }
+    effects: list[dict[str, Any]] = []
+    for architecture in ARCHITECTURES:
+        for metric in metrics:
+            for name, (left, right) in contrasts.items():
+                values = [
+                    float(lookup[left, architecture, seed][metric])
+                    - float(lookup[right, architecture, seed][metric])
+                    for seed in MODEL_SEEDS
+                ]
+                mean, sd = _mean_sd(values)
+                effects.append(
+                    {
+                        "architecture": architecture,
+                        "metric": metric,
+                        "contrast": name,
+                        "mean": mean,
+                        "sample_sd": sd,
+                    }
+                )
+            interaction = [
+                float(lookup["data10x_model2x", architecture, seed][metric])
+                - float(lookup["data10x_model1x", architecture, seed][metric])
+                - float(lookup["data1x_model2x", architecture, seed][metric])
+                + float(lookup["baseline", architecture, seed][metric])
+                for seed in MODEL_SEEDS
+            ]
+            mean, sd = _mean_sd(interaction)
+            effects.append(
+                {
+                    "architecture": architecture,
+                    "metric": metric,
+                    "contrast": "data_by_model_interaction",
+                    "mean": mean,
+                    "sample_sd": sd,
+                }
+            )
+    return effects
+
+
 def export_results(config_path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
     repository, config, digest = _load(config_path)
     audit_result = audit(config_path)
@@ -334,36 +388,16 @@ def export_results(config_path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
                 record[f"{metric}_mean"] = mean
                 record[f"{metric}_sample_sd"] = sd
             summary.append(record)
-    effects = []
-    lookup = {(row["condition"], row["architecture"], row["seed"]): row for row in rows}
-    contrasts = {
-        "data_effect_at_1x_model": ("data10x_model1x", "baseline", 1, -1),
-        "model_effect_at_1x_data": ("data1x_model2x", "baseline", 1, -1),
-        "data_effect_at_2x_model": ("data10x_model2x", "data1x_model2x", 1, -1),
-        "model_effect_at_10x_data": ("data10x_model2x", "data10x_model1x", 1, -1),
-    }
-    for architecture in ARCHITECTURES:
-        for name, (left, right, left_sign, right_sign) in contrasts.items():
-            values = [
-                left_sign * float(lookup[left, architecture, seed]["structured_holdout_sequence_accuracy"])
-                + right_sign * float(lookup[right, architecture, seed]["structured_holdout_sequence_accuracy"])
-                for seed in MODEL_SEEDS
-            ]
-            mean, sd = _mean_sd(values)
-            effects.append({"architecture": architecture, "contrast": name, "mean": mean, "sample_sd": sd})
-        interaction = [
-            float(lookup["data10x_model2x", architecture, seed]["structured_holdout_sequence_accuracy"])
-            - float(lookup["data10x_model1x", architecture, seed]["structured_holdout_sequence_accuracy"])
-            - float(lookup["data1x_model2x", architecture, seed]["structured_holdout_sequence_accuracy"])
-            + float(lookup["baseline", architecture, seed]["structured_holdout_sequence_accuracy"])
-            for seed in MODEL_SEEDS
-        ]
-        mean, sd = _mean_sd(interaction)
-        effects.append({"architecture": architecture, "contrast": "data_by_model_interaction", "mean": mean, "sample_sd": sd})
+    effect_metrics = (
+        "structured_holdout_loss",
+        "structured_holdout_token_accuracy",
+        "structured_holdout_sequence_accuracy",
+    )
+    effects = _factorial_effect_rows(rows, effect_metrics)
     output = repository / config["results_dir"]
     raw_fields = tuple(rows[0])
     summary_fields = tuple(summary[0])
-    effect_fields = ("architecture", "contrast", "mean", "sample_sd")
+    effect_fields = ("architecture", "metric", "contrast", "mean", "sample_sd")
     _atomic_csv(rows, raw_fields, output / "model_results.csv")
     _atomic_csv(summary, summary_fields, output / "summary.csv")
     _atomic_csv(effects, effect_fields, output / "factorial_effects.csv")
@@ -372,16 +406,18 @@ def export_results(config_path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
         "",
         "The primary metric is exact sequence accuracy macro-averaged over `to_reduced_word`, `compose`, and `to_lehmer`. Values are mean +/- sample SD over three paired model seeds.",
         "",
-        "| Architecture | Condition | Structured exact | Parity exact |",
-        "|---|---|---:|---:|",
+        "| Architecture | Condition | Structured loss | Structured token | Structured exact | Parity exact |",
+        "|---|---|---:|---:|---:|---:|",
     ]
     for row in summary:
         lines.append(
             f"| {row['architecture']} | `{row['condition']}` | "
+            f"{row['structured_holdout_loss_mean']:.4f} +/- {row['structured_holdout_loss_sample_sd']:.4f} | "
+            f"{100 * row['structured_holdout_token_accuracy_mean']:.3f}% +/- {100 * row['structured_holdout_token_accuracy_sample_sd']:.3f}% | "
             f"{100 * row['structured_holdout_sequence_accuracy_mean']:.3f}% +/- {100 * row['structured_holdout_sequence_accuracy_sample_sd']:.3f}% | "
             f"{100 * row['parity_sequence_accuracy_mean']:.3f}% +/- {100 * row['parity_sequence_accuracy_sample_sd']:.3f}% |"
         )
-    lines.extend(["", "The table is descriptive with only three seeds. See `factorial_effects.csv` for paired data, depth, and interaction contrasts and `model_results.csv` for every endpoint.", ""])
+    lines.extend(["", "The table is descriptive with only three seeds. See `factorial_effects.csv` for seed-paired changes in structured loss, teacher-forced token accuracy, and exact accuracy. For loss, a negative contrast is an improvement; for accuracy, a positive contrast is an improvement. See `model_results.csv` for every endpoint.", ""])
     _atomic_text("\n".join(lines), output / "README.md")
     manifest = {
         "format_version": RESULT_FORMAT,
