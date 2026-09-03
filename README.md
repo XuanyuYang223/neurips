@@ -85,6 +85,14 @@ points below a task-specific majority baseline. Mean final-layer A-vs-B CKA is
 positive (Spearman rho 0.90) but not monotonic. Two of three replicates peak at
 `k=8`; the third increases monotonically and peaks at `k=16`.
 
+Henry's [linear-probing follow-up](results/property32-zero-overlap/linear-probing/README.md)
+finds a clearer but still non-monotonic internal signal. Final-layer
+length-conditioned R2 on the 16 opposite-pool properties is 0.198, 0.245,
+0.271, 0.307, and 0.297 for `k = 1, 2, 4, 8, 16`; a random Transformer reaches
+0.215. All three replicates improve from `k=1` to `k=8`, but two decline at
+`k=16`. The result supports progressive linear decodability through `k=8`,
+not reliable hard zero-shot execution or a monotonic scaling law.
+
 The [combinatorial task-geometry study](results/property-task-geometry/cka/README.md)
 provides a more controlled answer. Across single-task specialists, eight
 preregistered directly related task pairs have higher final-layer CKA than the

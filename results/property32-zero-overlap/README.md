@@ -26,12 +26,37 @@ generalization.
 - [Aggregate report and provenance](replicates/README.md)
 - [Per-replicate behavioral values](replicates/behavior_replicates.csv)
 - [Per-replicate CKA values](replicates/cka_replicates.csv)
+- [Linear-probing results](linear-probing/README.md)
 - [Frozen three-replicate protocol](../../PROPERTY32_REPLICATES.md)
 
 The values above are mean plus/minus sample standard deviation over three
 replicate-level measurements. Model seed and task split vary together, so the
 error bars capture their combined variability rather than separating the two
-sources. Test data were not used.
+sources. Test data were not used for that behavioral/CKA table. After its
+protocol and implementation were frozen at commit `077d767`, the separate
+linear-probing analysis used one deterministic sample of 4,096 test
+permutations.
+
+## Linear probing of unseen properties
+
+Henry's probing follow-up is complete for all 30 Transformers. Linear ridge
+probes use task-free `<ONE_END>` activations to predict all 32 properties. The
+primary score macro-averages the 16 opposite-pool properties that the base
+model never trained on.
+
+| k | Final-layer length-conditioned R2 | Rounded exact accuracy |
+|---:|---:|---:|
+| 1 | 0.1978 +/- 0.0770 | 45.49% +/- 2.75% |
+| 2 | 0.2447 +/- 0.0343 | 47.35% +/- 1.17% |
+| 4 | 0.2706 +/- 0.0154 | 48.14% +/- 0.67% |
+| 8 | 0.3069 +/- 0.0174 | 49.69% +/- 0.55% |
+| 16 | 0.2968 +/- 0.0141 | 49.31% +/- 0.71% |
+
+The random-initialization control reaches R2 0.2148 and 46.26% exact accuracy.
+Training therefore adds little at `k=1`, then produces a progressive gain
+through `k=8`; `k=16` retains most of that gain but is slightly lower. This is
+evidence for increasingly linearly decodable unseen-property information, not
+for direct zero-shot operation execution or causal use of that information.
 
 ## Question
 
@@ -118,21 +143,22 @@ controls, exact probe IDs, and hashes are in the
 
 - 16,000,000 generated examples, 500,000 per property
 - permutation length 2 through 30
-- 15.68M train / 160k validation / 160k untouched test split
+- 15.68M train / 160k validation / 160k held-out test split; the frozen linear
+  probe uses 4,096 test examples
 - all 16M answers and Passage encodings fully verified
 - four-layer pre-LN causal Transformer
 - `d_model=256`, eight heads, FFN width 1,024, context 128
 - 3,240,448 trainable parameters, tied embeddings, dropout 0.1
 - 20,000 AdamW updates, effective batch 64, bf16
-- one model seed: 17
+- three joint task-split/model-seed replicates: 17, 42, and 101
 
 The full property definitions and frozen pool order are in
 [PROPERTY32_PROTOCOL.md](../../PROPERTY32_PROTOCOL.md).
 
 ## Limitations
 
-1. One seed provides no error bars. At least two additional seeds per cell are
-   required before treating the trend as a population claim.
+1. Three replicates provide error bars, but task-pool split and model seed vary
+   together. They do not separately estimate either source of variation.
 2. The fixed 20,000-update budget reduces per-property exposure from about
    1.28M examples at `k=1` to about 80k at `k=16`. Task diversity and exposure
    are therefore confounded.
@@ -142,6 +168,7 @@ The full property definitions and frozen pool order are in
 4. The task tokens for opposite-pool properties are not semantically grounded
    during training. The weak hard-zero-shot result does not rule out
    information recoverable by linear probes or low-shot fine-tuning.
-5. All reported model metrics and CKA probes use validation data. The test
-   split remains unread and should be used only after a confirmatory protocol
-   is frozen.
+5. Behavioral metrics and CKA use validation data. Linear-probe fitting and
+   ridge selection also use validation, followed by one frozen evaluation on
+   4,096 independently selected test permutations. The remaining property test
+   records should not be used for iterative analysis decisions.

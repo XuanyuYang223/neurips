@@ -65,6 +65,8 @@ display percentages.
 - [Replicate-level CKA values](property32-zero-overlap/replicates/cka_replicates.csv)
 - [Original R0 behavioral results](property32-zero-overlap/behavior/README.md)
 - [Original R0 layerwise CKA results](property32-zero-overlap/cka/README.md)
+- [Layerwise linear-probing results](property32-zero-overlap/linear-probing/README.md)
+- [All 6,336 unaveraged model-property-layer probe rows](property32-zero-overlap/linear-probing/model_task_layer_probes.csv)
 
 This exploratory extension uses 32 scalar permutation properties divided into
 two disjoint 16-task pools. Three joint task-split/model-seed replicates train
@@ -73,6 +75,13 @@ validation model-task rows. Behavioral exact accuracy is compared with a
 per-task majority-answer baseline because several property distributions are
 highly imbalanced. CKA uses the same 4,096 task-free validation prefixes for
 all models and does not read the test split.
+
+The linear-probing follow-up reads task-free `<ONE_END>` activations from the
+same 30 trained Transformers and three random-initialization controls. Ridge
+probes are fitted and tuned on 4,096 validation permutations, then evaluated
+once on 4,096 independently selected property-test permutations. Its primary
+question is whether values of the 16 opposite-pool properties become more
+linearly decodable as base-training task count increases.
 
 ## Combinatorial task-geometry study
 

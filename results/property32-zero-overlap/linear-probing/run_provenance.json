@@ -1,0 +1,647 @@
+[
+  {
+    "checkpoint_path": "runs/property32-zero-overlap-pilot/property-a-transformer-tasks01-seed17/checkpoint.pt",
+    "checkpoint_sha256": "96cb96d163fb751d5c321c52b770b46a7918c1be275fc5eb0f3fae78a241e17a",
+    "model_kind": "trained",
+    "model_seed": 17,
+    "pool": "a",
+    "replicate_id": "r0",
+    "run_id": "property-a-transformer-tasks01-seed17",
+    "test_probe_sha256": "ac9129efdecdf6e6b3bcdc7e5d1830331ea208c5a99b5183d222cfc9a14d3ec7",
+    "trained_task_count": 1,
+    "trained_tasks": [
+      "descents"
+    ],
+    "validation_probe_sha256": "7df2ce6d75c95873061ac540ba6998f886921eaa0585d3ca0f14d6fec6fa7b91"
+  },
+  {
+    "checkpoint_path": "runs/property32-zero-overlap-pilot/property-a-transformer-tasks02-seed17/checkpoint.pt",
+    "checkpoint_sha256": "57f458ad3d791a698b62079505120f964ba763c1e097710a2569692408d04b1f",
+    "model_kind": "trained",
+    "model_seed": 17,
+    "pool": "a",
+    "replicate_id": "r0",
+    "run_id": "property-a-transformer-tasks02-seed17",
+    "test_probe_sha256": "ac9129efdecdf6e6b3bcdc7e5d1830331ea208c5a99b5183d222cfc9a14d3ec7",
+    "trained_task_count": 2,
+    "trained_tasks": [
+      "descents",
+      "fixed_points"
+    ],
+    "validation_probe_sha256": "7df2ce6d75c95873061ac540ba6998f886921eaa0585d3ca0f14d6fec6fa7b91"
+  },
+  {
+    "checkpoint_path": "runs/property32-zero-overlap-pilot/property-a-transformer-tasks04-seed17/checkpoint.pt",
+    "checkpoint_sha256": "5396208156b5943116b8d514544cfba8c6d62097bfa8d8bcb8d13439233f0834",
+    "model_kind": "trained",
+    "model_seed": 17,
+    "pool": "a",
+    "replicate_id": "r0",
+    "run_id": "property-a-transformer-tasks04-seed17",
+    "test_probe_sha256": "ac9129efdecdf6e6b3bcdc7e5d1830331ea208c5a99b5183d222cfc9a14d3ec7",
+    "trained_task_count": 4,
+    "trained_tasks": [
+      "descents",
+      "fixed_points",
+      "cycle_count",
+      "lis_length"
+    ],
+    "validation_probe_sha256": "7df2ce6d75c95873061ac540ba6998f886921eaa0585d3ca0f14d6fec6fa7b91"
+  },
+  {
+    "checkpoint_path": "runs/property32-zero-overlap-pilot/property-a-transformer-tasks08-seed17/checkpoint.pt",
+    "checkpoint_sha256": "87cb474f1b2be9de821c7666d9784ef5f9887c83a5de941282cf40a8cf52d9ab",
+    "model_kind": "trained",
+    "model_seed": 17,
+    "pool": "a",
+    "replicate_id": "r0",
+    "run_id": "property-a-transformer-tasks08-seed17",
+    "test_probe_sha256": "ac9129efdecdf6e6b3bcdc7e5d1830331ea208c5a99b5183d222cfc9a14d3ec7",
+    "trained_task_count": 8,
+    "trained_tasks": [
+      "descents",
+      "fixed_points",
+      "cycle_count",
+      "lis_length",
+      "peaks",
+      "exceedances",
+      "three_cycle_count",
+      "longest_increasing_run"
+    ],
+    "validation_probe_sha256": "7df2ce6d75c95873061ac540ba6998f886921eaa0585d3ca0f14d6fec6fa7b91"
+  },
+  {
+    "checkpoint_path": "runs/property32-zero-overlap-pilot/property-a-transformer-tasks16-seed17/checkpoint.pt",
+    "checkpoint_sha256": "4486dc44ffbf70868dd2684754b6a8af7e81f1fa3034305ae70247949391c29c",
+    "model_kind": "trained",
+    "model_seed": 17,
+    "pool": "a",
+    "replicate_id": "r0",
+    "run_id": "property-a-transformer-tasks16-seed17",
+    "test_probe_sha256": "ac9129efdecdf6e6b3bcdc7e5d1830331ea208c5a99b5183d222cfc9a14d3ec7",
+    "trained_task_count": 16,
+    "trained_tasks": [
+      "descents",
+      "fixed_points",
+      "cycle_count",
+      "lis_length",
+      "peaks",
+      "exceedances",
+      "three_cycle_count",
+      "longest_increasing_run",
+      "double_ascents",
+      "left_to_right_maxima",
+      "odd_cycle_count",
+      "global_descents",
+      "successions",
+      "right_to_left_maxima",
+      "longest_cycle",
+      "max_displacement"
+    ],
+    "validation_probe_sha256": "7df2ce6d75c95873061ac540ba6998f886921eaa0585d3ca0f14d6fec6fa7b91"
+  },
+  {
+    "checkpoint_path": "runs/property32-zero-overlap-pilot/property-b-transformer-tasks01-seed17/checkpoint.pt",
+    "checkpoint_sha256": "f9e4e8a56304d039a581514e0b55c324e7139f45f6a087096bfe469e9213ed11",
+    "model_kind": "trained",
+    "model_seed": 17,
+    "pool": "b",
+    "replicate_id": "r0",
+    "run_id": "property-b-transformer-tasks01-seed17",
+    "test_probe_sha256": "ac9129efdecdf6e6b3bcdc7e5d1830331ea208c5a99b5183d222cfc9a14d3ec7",
+    "trained_task_count": 1,
+    "trained_tasks": [
+      "recoils"
+    ],
+    "validation_probe_sha256": "7df2ce6d75c95873061ac540ba6998f886921eaa0585d3ca0f14d6fec6fa7b91"
+  },
+  {
+    "checkpoint_path": "runs/property32-zero-overlap-pilot/property-b-transformer-tasks02-seed17/checkpoint.pt",
+    "checkpoint_sha256": "d291011c1abfd9ff5beac29da59430cb1fa81eff28e364208f230b33c3fa1a23",
+    "model_kind": "trained",
+    "model_seed": 17,
+    "pool": "b",
+    "replicate_id": "r0",
+    "run_id": "property-b-transformer-tasks02-seed17",
+    "test_probe_sha256": "ac9129efdecdf6e6b3bcdc7e5d1830331ea208c5a99b5183d222cfc9a14d3ec7",
+    "trained_task_count": 2,
+    "trained_tasks": [
+      "recoils",
+      "anti_fixed_points"
+    ],
+    "validation_probe_sha256": "7df2ce6d75c95873061ac540ba6998f886921eaa0585d3ca0f14d6fec6fa7b91"
+  },
+  {
+    "checkpoint_path": "runs/property32-zero-overlap-pilot/property-b-transformer-tasks04-seed17/checkpoint.pt",
+    "checkpoint_sha256": "61dc5ae983922d571cf78e991277b43adcc52c5d7ee92dceabc20b2cdc7304ae",
+    "model_kind": "trained",
+    "model_seed": 17,
+    "pool": "b",
+    "replicate_id": "r0",
+    "run_id": "property-b-transformer-tasks04-seed17",
+    "test_probe_sha256": "ac9129efdecdf6e6b3bcdc7e5d1830331ea208c5a99b5183d222cfc9a14d3ec7",
+    "trained_task_count": 4,
+    "trained_tasks": [
+      "recoils",
+      "anti_fixed_points",
+      "two_cycle_count",
+      "lds_length"
+    ],
+    "validation_probe_sha256": "7df2ce6d75c95873061ac540ba6998f886921eaa0585d3ca0f14d6fec6fa7b91"
+  },
+  {
+    "checkpoint_path": "runs/property32-zero-overlap-pilot/property-b-transformer-tasks08-seed17/checkpoint.pt",
+    "checkpoint_sha256": "696d4cd22c9c637e11d2320853f8dd4db528d0c2978eadbd9510be3e50e2472f",
+    "model_kind": "trained",
+    "model_seed": 17,
+    "pool": "b",
+    "replicate_id": "r0",
+    "run_id": "property-b-transformer-tasks08-seed17",
+    "test_probe_sha256": "ac9129efdecdf6e6b3bcdc7e5d1830331ea208c5a99b5183d222cfc9a14d3ec7",
+    "trained_task_count": 8,
+    "trained_tasks": [
+      "recoils",
+      "anti_fixed_points",
+      "two_cycle_count",
+      "lds_length",
+      "valleys",
+      "deficiencies",
+      "even_cycle_count",
+      "longest_decreasing_run"
+    ],
+    "validation_probe_sha256": "7df2ce6d75c95873061ac540ba6998f886921eaa0585d3ca0f14d6fec6fa7b91"
+  },
+  {
+    "checkpoint_path": "runs/property32-zero-overlap-pilot/property-b-transformer-tasks16-seed17/checkpoint.pt",
+    "checkpoint_sha256": "bce83c6acd2ee2254055082a634c2a1aa3ab20167d18e53749de7acbb46af837",
+    "model_kind": "trained",
+    "model_seed": 17,
+    "pool": "b",
+    "replicate_id": "r0",
+    "run_id": "property-b-transformer-tasks16-seed17",
+    "test_probe_sha256": "ac9129efdecdf6e6b3bcdc7e5d1830331ea208c5a99b5183d222cfc9a14d3ec7",
+    "trained_task_count": 16,
+    "trained_tasks": [
+      "recoils",
+      "anti_fixed_points",
+      "two_cycle_count",
+      "lds_length",
+      "valleys",
+      "deficiencies",
+      "even_cycle_count",
+      "longest_decreasing_run",
+      "double_descents",
+      "left_to_right_minima",
+      "shortest_cycle",
+      "components",
+      "adjacencies",
+      "right_to_left_minima",
+      "nontrivial_cycle_count",
+      "displacement_one_count"
+    ],
+    "validation_probe_sha256": "7df2ce6d75c95873061ac540ba6998f886921eaa0585d3ca0f14d6fec6fa7b91"
+  },
+  {
+    "checkpoint_path": "runs/property32-zero-overlap-replicates/r1/property-a-transformer-tasks01-seed42/checkpoint.pt",
+    "checkpoint_sha256": "884340fa708a647b170f90f3f66a33fd903498cf5542624921d7c9800f32df94",
+    "model_kind": "trained",
+    "model_seed": 42,
+    "pool": "a",
+    "replicate_id": "r1",
+    "run_id": "property-a-transformer-tasks01-seed42",
+    "test_probe_sha256": "ac9129efdecdf6e6b3bcdc7e5d1830331ea208c5a99b5183d222cfc9a14d3ec7",
+    "trained_task_count": 1,
+    "trained_tasks": [
+      "peaks"
+    ],
+    "validation_probe_sha256": "7df2ce6d75c95873061ac540ba6998f886921eaa0585d3ca0f14d6fec6fa7b91"
+  },
+  {
+    "checkpoint_path": "runs/property32-zero-overlap-replicates/r1/property-a-transformer-tasks02-seed42/checkpoint.pt",
+    "checkpoint_sha256": "207f06cc023593d2d02f7e7d6b2be31bc13b17cb9da185b573a0876ed9ba05a9",
+    "model_kind": "trained",
+    "model_seed": 42,
+    "pool": "a",
+    "replicate_id": "r1",
+    "run_id": "property-a-transformer-tasks02-seed42",
+    "test_probe_sha256": "ac9129efdecdf6e6b3bcdc7e5d1830331ea208c5a99b5183d222cfc9a14d3ec7",
+    "trained_task_count": 2,
+    "trained_tasks": [
+      "peaks",
+      "left_to_right_minima"
+    ],
+    "validation_probe_sha256": "7df2ce6d75c95873061ac540ba6998f886921eaa0585d3ca0f14d6fec6fa7b91"
+  },
+  {
+    "checkpoint_path": "runs/property32-zero-overlap-replicates/r1/property-a-transformer-tasks04-seed42/checkpoint.pt",
+    "checkpoint_sha256": "873266b1a87cb32240c86bc5b9570ee13bf5248125aaf328c156f77dbda3f3ae",
+    "model_kind": "trained",
+    "model_seed": 42,
+    "pool": "a",
+    "replicate_id": "r1",
+    "run_id": "property-a-transformer-tasks04-seed42",
+    "test_probe_sha256": "ac9129efdecdf6e6b3bcdc7e5d1830331ea208c5a99b5183d222cfc9a14d3ec7",
+    "trained_task_count": 4,
+    "trained_tasks": [
+      "peaks",
+      "left_to_right_minima",
+      "even_cycle_count",
+      "longest_increasing_run"
+    ],
+    "validation_probe_sha256": "7df2ce6d75c95873061ac540ba6998f886921eaa0585d3ca0f14d6fec6fa7b91"
+  },
+  {
+    "checkpoint_path": "runs/property32-zero-overlap-replicates/r1/property-a-transformer-tasks08-seed42/checkpoint.pt",
+    "checkpoint_sha256": "e6d9bace1624a55f57ea9e3096635028062baa6f8627438275d0f53705baeb1e",
+    "model_kind": "trained",
+    "model_seed": 42,
+    "pool": "a",
+    "replicate_id": "r1",
+    "run_id": "property-a-transformer-tasks08-seed42",
+    "test_probe_sha256": "ac9129efdecdf6e6b3bcdc7e5d1830331ea208c5a99b5183d222cfc9a14d3ec7",
+    "trained_task_count": 8,
+    "trained_tasks": [
+      "peaks",
+      "left_to_right_minima",
+      "even_cycle_count",
+      "longest_increasing_run",
+      "descents",
+      "left_to_right_maxima",
+      "nontrivial_cycle_count",
+      "lds_length"
+    ],
+    "validation_probe_sha256": "7df2ce6d75c95873061ac540ba6998f886921eaa0585d3ca0f14d6fec6fa7b91"
+  },
+  {
+    "checkpoint_path": "runs/property32-zero-overlap-replicates/r1/property-a-transformer-tasks16-seed42/checkpoint.pt",
+    "checkpoint_sha256": "48d1c4206261799169bf76dbfe499bdada74d7e1f2c354df983f6b13cd2f43e4",
+    "model_kind": "trained",
+    "model_seed": 42,
+    "pool": "a",
+    "replicate_id": "r1",
+    "run_id": "property-a-transformer-tasks16-seed42",
+    "test_probe_sha256": "ac9129efdecdf6e6b3bcdc7e5d1830331ea208c5a99b5183d222cfc9a14d3ec7",
+    "trained_task_count": 16,
+    "trained_tasks": [
+      "peaks",
+      "left_to_right_minima",
+      "even_cycle_count",
+      "longest_increasing_run",
+      "descents",
+      "left_to_right_maxima",
+      "nontrivial_cycle_count",
+      "lds_length",
+      "valleys",
+      "fixed_points",
+      "cycle_count",
+      "longest_decreasing_run",
+      "double_descents",
+      "anti_fixed_points",
+      "longest_cycle",
+      "components"
+    ],
+    "validation_probe_sha256": "7df2ce6d75c95873061ac540ba6998f886921eaa0585d3ca0f14d6fec6fa7b91"
+  },
+  {
+    "checkpoint_path": "runs/property32-zero-overlap-replicates/r1/property-b-transformer-tasks01-seed42/checkpoint.pt",
+    "checkpoint_sha256": "0391f5b6d78ef2dad5a643be6b42d519ecbc29c6d469ea9b502141d3ca2d3ddc",
+    "model_kind": "trained",
+    "model_seed": 42,
+    "pool": "b",
+    "replicate_id": "r1",
+    "run_id": "property-b-transformer-tasks01-seed42",
+    "test_probe_sha256": "ac9129efdecdf6e6b3bcdc7e5d1830331ea208c5a99b5183d222cfc9a14d3ec7",
+    "trained_task_count": 1,
+    "trained_tasks": [
+      "adjacencies"
+    ],
+    "validation_probe_sha256": "7df2ce6d75c95873061ac540ba6998f886921eaa0585d3ca0f14d6fec6fa7b91"
+  },
+  {
+    "checkpoint_path": "runs/property32-zero-overlap-replicates/r1/property-b-transformer-tasks02-seed42/checkpoint.pt",
+    "checkpoint_sha256": "c5e354dcc442f73b8f08702b7a451d6e2e0062b5d11714054a1da088943a8bfe",
+    "model_kind": "trained",
+    "model_seed": 42,
+    "pool": "b",
+    "replicate_id": "r1",
+    "run_id": "property-b-transformer-tasks02-seed42",
+    "test_probe_sha256": "ac9129efdecdf6e6b3bcdc7e5d1830331ea208c5a99b5183d222cfc9a14d3ec7",
+    "trained_task_count": 2,
+    "trained_tasks": [
+      "adjacencies",
+      "right_to_left_maxima"
+    ],
+    "validation_probe_sha256": "7df2ce6d75c95873061ac540ba6998f886921eaa0585d3ca0f14d6fec6fa7b91"
+  },
+  {
+    "checkpoint_path": "runs/property32-zero-overlap-replicates/r1/property-b-transformer-tasks04-seed42/checkpoint.pt",
+    "checkpoint_sha256": "dc2abad1192dc3ad7c3010c6fb2f685d119b808f7189d5cf3ec2dffb0244f307",
+    "model_kind": "trained",
+    "model_seed": 42,
+    "pool": "b",
+    "replicate_id": "r1",
+    "run_id": "property-b-transformer-tasks04-seed42",
+    "test_probe_sha256": "ac9129efdecdf6e6b3bcdc7e5d1830331ea208c5a99b5183d222cfc9a14d3ec7",
+    "trained_task_count": 4,
+    "trained_tasks": [
+      "adjacencies",
+      "right_to_left_maxima",
+      "two_cycle_count",
+      "global_descents"
+    ],
+    "validation_probe_sha256": "7df2ce6d75c95873061ac540ba6998f886921eaa0585d3ca0f14d6fec6fa7b91"
+  },
+  {
+    "checkpoint_path": "runs/property32-zero-overlap-replicates/r1/property-b-transformer-tasks08-seed42/checkpoint.pt",
+    "checkpoint_sha256": "2eacc4f20b254acd552e843cab45156001559fd42aa9d098cb2658eda7abab2d",
+    "model_kind": "trained",
+    "model_seed": 42,
+    "pool": "b",
+    "replicate_id": "r1",
+    "run_id": "property-b-transformer-tasks08-seed42",
+    "test_probe_sha256": "ac9129efdecdf6e6b3bcdc7e5d1830331ea208c5a99b5183d222cfc9a14d3ec7",
+    "trained_task_count": 8,
+    "trained_tasks": [
+      "adjacencies",
+      "right_to_left_maxima",
+      "two_cycle_count",
+      "global_descents",
+      "double_ascents",
+      "right_to_left_minima",
+      "shortest_cycle",
+      "lis_length"
+    ],
+    "validation_probe_sha256": "7df2ce6d75c95873061ac540ba6998f886921eaa0585d3ca0f14d6fec6fa7b91"
+  },
+  {
+    "checkpoint_path": "runs/property32-zero-overlap-replicates/r1/property-b-transformer-tasks16-seed42/checkpoint.pt",
+    "checkpoint_sha256": "7dc11919f5b4546cc49f1783261d4b3ae24bd6993532cb6b3c70e11d9d7df53a",
+    "model_kind": "trained",
+    "model_seed": 42,
+    "pool": "b",
+    "replicate_id": "r1",
+    "run_id": "property-b-transformer-tasks16-seed42",
+    "test_probe_sha256": "ac9129efdecdf6e6b3bcdc7e5d1830331ea208c5a99b5183d222cfc9a14d3ec7",
+    "trained_task_count": 16,
+    "trained_tasks": [
+      "adjacencies",
+      "right_to_left_maxima",
+      "two_cycle_count",
+      "global_descents",
+      "double_ascents",
+      "right_to_left_minima",
+      "shortest_cycle",
+      "lis_length",
+      "recoils",
+      "deficiencies",
+      "three_cycle_count",
+      "max_displacement",
+      "successions",
+      "exceedances",
+      "odd_cycle_count",
+      "displacement_one_count"
+    ],
+    "validation_probe_sha256": "7df2ce6d75c95873061ac540ba6998f886921eaa0585d3ca0f14d6fec6fa7b91"
+  },
+  {
+    "checkpoint_path": "runs/property32-zero-overlap-replicates/r2/property-a-transformer-tasks01-seed101/checkpoint.pt",
+    "checkpoint_sha256": "8d7cf2210f023d2e4a8c7c06f1cd4b2400d803de611f5acffa2318b7f9cd0739",
+    "model_kind": "trained",
+    "model_seed": 101,
+    "pool": "a",
+    "replicate_id": "r2",
+    "run_id": "property-a-transformer-tasks01-seed101",
+    "test_probe_sha256": "ac9129efdecdf6e6b3bcdc7e5d1830331ea208c5a99b5183d222cfc9a14d3ec7",
+    "trained_task_count": 1,
+    "trained_tasks": [
+      "successions"
+    ],
+    "validation_probe_sha256": "7df2ce6d75c95873061ac540ba6998f886921eaa0585d3ca0f14d6fec6fa7b91"
+  },
+  {
+    "checkpoint_path": "runs/property32-zero-overlap-replicates/r2/property-a-transformer-tasks02-seed101/checkpoint.pt",
+    "checkpoint_sha256": "e2a2a1dd6688fc36732290bbdf54274b03fc6eb7f30a5a48417244cd24931c89",
+    "model_kind": "trained",
+    "model_seed": 101,
+    "pool": "a",
+    "replicate_id": "r2",
+    "run_id": "property-a-transformer-tasks02-seed101",
+    "test_probe_sha256": "ac9129efdecdf6e6b3bcdc7e5d1830331ea208c5a99b5183d222cfc9a14d3ec7",
+    "trained_task_count": 2,
+    "trained_tasks": [
+      "successions",
+      "deficiencies"
+    ],
+    "validation_probe_sha256": "7df2ce6d75c95873061ac540ba6998f886921eaa0585d3ca0f14d6fec6fa7b91"
+  },
+  {
+    "checkpoint_path": "runs/property32-zero-overlap-replicates/r2/property-a-transformer-tasks04-seed101/checkpoint.pt",
+    "checkpoint_sha256": "421570af68189bf5aa36facc5a98d9551b4f71e6f81fc11fded022d33b293326",
+    "model_kind": "trained",
+    "model_seed": 101,
+    "pool": "a",
+    "replicate_id": "r2",
+    "run_id": "property-a-transformer-tasks04-seed101",
+    "test_probe_sha256": "ac9129efdecdf6e6b3bcdc7e5d1830331ea208c5a99b5183d222cfc9a14d3ec7",
+    "trained_task_count": 4,
+    "trained_tasks": [
+      "successions",
+      "deficiencies",
+      "shortest_cycle",
+      "max_displacement"
+    ],
+    "validation_probe_sha256": "7df2ce6d75c95873061ac540ba6998f886921eaa0585d3ca0f14d6fec6fa7b91"
+  },
+  {
+    "checkpoint_path": "runs/property32-zero-overlap-replicates/r2/property-a-transformer-tasks08-seed101/checkpoint.pt",
+    "checkpoint_sha256": "929c5bc2d01fd9de47d616bd3666597fff0ddc7fd338918397d785f85f801c67",
+    "model_kind": "trained",
+    "model_seed": 101,
+    "pool": "a",
+    "replicate_id": "r2",
+    "run_id": "property-a-transformer-tasks08-seed101",
+    "test_probe_sha256": "ac9129efdecdf6e6b3bcdc7e5d1830331ea208c5a99b5183d222cfc9a14d3ec7",
+    "trained_task_count": 8,
+    "trained_tasks": [
+      "successions",
+      "deficiencies",
+      "shortest_cycle",
+      "max_displacement",
+      "double_descents",
+      "exceedances",
+      "two_cycle_count",
+      "components"
+    ],
+    "validation_probe_sha256": "7df2ce6d75c95873061ac540ba6998f886921eaa0585d3ca0f14d6fec6fa7b91"
+  },
+  {
+    "checkpoint_path": "runs/property32-zero-overlap-replicates/r2/property-a-transformer-tasks16-seed101/checkpoint.pt",
+    "checkpoint_sha256": "bf1d083501ac254536eb8c678d746294d73473a3007b417e20740bdc8a363fa6",
+    "model_kind": "trained",
+    "model_seed": 101,
+    "pool": "a",
+    "replicate_id": "r2",
+    "run_id": "property-a-transformer-tasks16-seed101",
+    "test_probe_sha256": "ac9129efdecdf6e6b3bcdc7e5d1830331ea208c5a99b5183d222cfc9a14d3ec7",
+    "trained_task_count": 16,
+    "trained_tasks": [
+      "successions",
+      "deficiencies",
+      "shortest_cycle",
+      "max_displacement",
+      "double_descents",
+      "exceedances",
+      "two_cycle_count",
+      "components",
+      "adjacencies",
+      "left_to_right_minima",
+      "even_cycle_count",
+      "displacement_one_count",
+      "recoils",
+      "right_to_left_minima",
+      "odd_cycle_count",
+      "lds_length"
+    ],
+    "validation_probe_sha256": "7df2ce6d75c95873061ac540ba6998f886921eaa0585d3ca0f14d6fec6fa7b91"
+  },
+  {
+    "checkpoint_path": "runs/property32-zero-overlap-replicates/r2/property-b-transformer-tasks01-seed101/checkpoint.pt",
+    "checkpoint_sha256": "e734bca31bb18bb64f0b688699e0d95611bd601921a8145fcd01c2824f71d509",
+    "model_kind": "trained",
+    "model_seed": 101,
+    "pool": "b",
+    "replicate_id": "r2",
+    "run_id": "property-b-transformer-tasks01-seed101",
+    "test_probe_sha256": "ac9129efdecdf6e6b3bcdc7e5d1830331ea208c5a99b5183d222cfc9a14d3ec7",
+    "trained_task_count": 1,
+    "trained_tasks": [
+      "descents"
+    ],
+    "validation_probe_sha256": "7df2ce6d75c95873061ac540ba6998f886921eaa0585d3ca0f14d6fec6fa7b91"
+  },
+  {
+    "checkpoint_path": "runs/property32-zero-overlap-replicates/r2/property-b-transformer-tasks02-seed101/checkpoint.pt",
+    "checkpoint_sha256": "d2c990f0735f7d36a617cdee6979d266a69842f478ba0d6b3d83e8ad689350a8",
+    "model_kind": "trained",
+    "model_seed": 101,
+    "pool": "b",
+    "replicate_id": "r2",
+    "run_id": "property-b-transformer-tasks02-seed101",
+    "test_probe_sha256": "ac9129efdecdf6e6b3bcdc7e5d1830331ea208c5a99b5183d222cfc9a14d3ec7",
+    "trained_task_count": 2,
+    "trained_tasks": [
+      "descents",
+      "left_to_right_maxima"
+    ],
+    "validation_probe_sha256": "7df2ce6d75c95873061ac540ba6998f886921eaa0585d3ca0f14d6fec6fa7b91"
+  },
+  {
+    "checkpoint_path": "runs/property32-zero-overlap-replicates/r2/property-b-transformer-tasks04-seed101/checkpoint.pt",
+    "checkpoint_sha256": "6a7f7604a2041ff45a0a789d67a817b1835d9d310322ee452fb739d952254004",
+    "model_kind": "trained",
+    "model_seed": 101,
+    "pool": "b",
+    "replicate_id": "r2",
+    "run_id": "property-b-transformer-tasks04-seed101",
+    "test_probe_sha256": "ac9129efdecdf6e6b3bcdc7e5d1830331ea208c5a99b5183d222cfc9a14d3ec7",
+    "trained_task_count": 4,
+    "trained_tasks": [
+      "descents",
+      "left_to_right_maxima",
+      "three_cycle_count",
+      "lis_length"
+    ],
+    "validation_probe_sha256": "7df2ce6d75c95873061ac540ba6998f886921eaa0585d3ca0f14d6fec6fa7b91"
+  },
+  {
+    "checkpoint_path": "runs/property32-zero-overlap-replicates/r2/property-b-transformer-tasks08-seed101/checkpoint.pt",
+    "checkpoint_sha256": "9baf85c35d305d2802c0b595b332a611988705a17dd1777fc1bc115202a8af07",
+    "model_kind": "trained",
+    "model_seed": 101,
+    "pool": "b",
+    "replicate_id": "r2",
+    "run_id": "property-b-transformer-tasks08-seed101",
+    "test_probe_sha256": "ac9129efdecdf6e6b3bcdc7e5d1830331ea208c5a99b5183d222cfc9a14d3ec7",
+    "trained_task_count": 8,
+    "trained_tasks": [
+      "descents",
+      "left_to_right_maxima",
+      "three_cycle_count",
+      "lis_length",
+      "double_ascents",
+      "right_to_left_maxima",
+      "nontrivial_cycle_count",
+      "global_descents"
+    ],
+    "validation_probe_sha256": "7df2ce6d75c95873061ac540ba6998f886921eaa0585d3ca0f14d6fec6fa7b91"
+  },
+  {
+    "checkpoint_path": "runs/property32-zero-overlap-replicates/r2/property-b-transformer-tasks16-seed101/checkpoint.pt",
+    "checkpoint_sha256": "c28e16b72916b9536a248a9d479e01cebd6edcf86f406515ddbf818d92cc2cf0",
+    "model_kind": "trained",
+    "model_seed": 101,
+    "pool": "b",
+    "replicate_id": "r2",
+    "run_id": "property-b-transformer-tasks16-seed101",
+    "test_probe_sha256": "ac9129efdecdf6e6b3bcdc7e5d1830331ea208c5a99b5183d222cfc9a14d3ec7",
+    "trained_task_count": 16,
+    "trained_tasks": [
+      "descents",
+      "left_to_right_maxima",
+      "three_cycle_count",
+      "lis_length",
+      "double_ascents",
+      "right_to_left_maxima",
+      "nontrivial_cycle_count",
+      "global_descents",
+      "peaks",
+      "anti_fixed_points",
+      "longest_cycle",
+      "longest_increasing_run",
+      "valleys",
+      "fixed_points",
+      "cycle_count",
+      "longest_decreasing_run"
+    ],
+    "validation_probe_sha256": "7df2ce6d75c95873061ac540ba6998f886921eaa0585d3ca0f14d6fec6fa7b91"
+  },
+  {
+    "checkpoint_path": null,
+    "checkpoint_sha256": "random_init",
+    "model_kind": "random",
+    "model_seed": 17,
+    "pool": "random",
+    "replicate_id": "random",
+    "run_id": "random-transformer-seed17",
+    "test_probe_sha256": "ac9129efdecdf6e6b3bcdc7e5d1830331ea208c5a99b5183d222cfc9a14d3ec7",
+    "trained_task_count": 0,
+    "trained_tasks": [],
+    "validation_probe_sha256": "7df2ce6d75c95873061ac540ba6998f886921eaa0585d3ca0f14d6fec6fa7b91"
+  },
+  {
+    "checkpoint_path": null,
+    "checkpoint_sha256": "random_init",
+    "model_kind": "random",
+    "model_seed": 42,
+    "pool": "random",
+    "replicate_id": "random",
+    "run_id": "random-transformer-seed42",
+    "test_probe_sha256": "ac9129efdecdf6e6b3bcdc7e5d1830331ea208c5a99b5183d222cfc9a14d3ec7",
+    "trained_task_count": 0,
+    "trained_tasks": [],
+    "validation_probe_sha256": "7df2ce6d75c95873061ac540ba6998f886921eaa0585d3ca0f14d6fec6fa7b91"
+  },
+  {
+    "checkpoint_path": null,
+    "checkpoint_sha256": "random_init",
+    "model_kind": "random",
+    "model_seed": 101,
+    "pool": "random",
+    "replicate_id": "random",
+    "run_id": "random-transformer-seed101",
+    "test_probe_sha256": "ac9129efdecdf6e6b3bcdc7e5d1830331ea208c5a99b5183d222cfc9a14d3ec7",
+    "trained_task_count": 0,
+    "trained_tasks": [],
+    "validation_probe_sha256": "7df2ce6d75c95873061ac540ba6998f886921eaa0585d3ca0f14d6fec6fa7b91"
+  }
+]
