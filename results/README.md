@@ -7,6 +7,10 @@ For the four-page manuscript, use the compact, reproducible
 [paper figure set](../paper/FIGURES.md) instead of placing every experiment's
 diagnostic plot in the main text.
 
+The completed [v3 category-model linear probes](v3/linear-probing/category/README.md)
+measure length-conditioned scalar-property decodability for the 18 E4/S4/A4
+models and seed-matched random-initialization controls.
+
 ## v2 baseline
 
 - [Report](v2/README.md)

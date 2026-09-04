@@ -45,6 +45,11 @@ experiments.
   stronger alignment than identity or incorrect-transform controls. Merely
   adding related tasks at a fixed task count did not yield a monotonic CKA dose
   response.
+- Frozen probes on the original E4/S4/A4 category models show that training
+  family changes scalar-property decodability, but the ordering depends on
+  architecture: Statistics S4 is strongest for the Transformer, while
+  Encoding E4 is strongest for the MLP. This complements CKA without implying
+  behavioral execution or causal use of the decoded properties.
 - The completed three-seed `k=16` 2x2 data-by-model-depth factorial finds 0%
   exact accuracy on reduced-word translation, composition, and Lehmer-code
   translation in every one of its 24 model endpoints. Tenfold exposure,

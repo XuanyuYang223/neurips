@@ -1,7 +1,7 @@
 # Four-page paper figure set
 
 The permutation contribution is compressed into two main-text composite
-figures and one supplementary diagnostic. Do not add separate plots for each
+figures and two supplementary diagnostics. Do not add separate plots for each
 experiment: they would repeat the same task-count axis and leave too little
 space for the integer study, methods, and limitations.
 
@@ -16,6 +16,9 @@ space for the integer study, methods, and limitations.
 3. Keep **Figure S1** in the supplement. The main-text scaling result needs
    only one sentence: every structured-holdout exact accuracy is zero, even
    after tenfold exposure and doubled depth.
+4. Keep **Figure S2** in the supplement. Use it only when discussing the
+   category-model linear probes; it should not displace either domain's main
+   behavioral result.
 
 Both main figures are 1,200 pixels wide in SVG coordinates and 2,400 pixels
 wide in the 300-dpi PNG export. They are designed for a full-width `figure*`
@@ -91,6 +94,24 @@ Recommended caption:
 > Transformer and MLP models, so they do not provide evidence of a general
 > scaling improvement. Bars show means and sample-standard-deviation error
 > bars over three paired seeds.
+
+## Figure S2: category-model linear probes
+
+Files:
+
+- [`figureS2_category_linear_probes.svg`](figures/figureS2_category_linear_probes.svg)
+- [`figureS2_category_linear_probes.png`](figures/figureS2_category_linear_probes.png)
+
+Recommended caption:
+
+> **Category-specific training changes which unseen scalar properties are
+> linearly decodable.** Bars show the paired trained-minus-random change in
+> final-layer, length-conditioned probe $R^2$ for four preregistered property
+> families. Transformer statistics training produces the largest overall
+> gain, whereas the MLP benefits most from encoding training. Error bars are
+> sample standard deviations over three seed-matched contrasts. The base
+> models are frozen, and probe accuracy does not imply behavioral execution or
+> causal use of the decoded feature.
 
 ## LaTeX snippets
 

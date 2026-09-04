@@ -75,8 +75,10 @@ by Henry:
 2. **Twenty-shot fine-tuning:** complete. Each nested base model was adapted
    to each fixed holdout using 20 labeled examples and a low learning rate,
    with random-initialization controls.
-3. **Linear probing:** not yet run. It requires a separately frozen protocol
-   that extracts hidden states while leaving every base-model weight fixed.
+3. **Linear probing:** complete. The original category models are evaluated on
+   a common 32-property scalar battery at the task-free `<ONE_END>` landmark,
+   with every base-model weight frozen and architecture/seed-matched random
+   controls. See the [category probe report](linear-probing/category/README.md).
 
 As an additional representation-level analysis, the completed
 [linear CKA study](cka/README.md) compares task-free `<ONE_END>` hidden states
@@ -86,6 +88,14 @@ whereas a probe tests whether a particular property is linearly decodable.
 Its [zero-overlap category follow-up](cka/category/README.md) holds `k=4`
 fixed: same-family cross-seed CKA is 0.5556 versus 0.3221 across disjoint
 families for the Transformer, and 0.6419 versus 0.2885 for the MLP.
+
+The category linear probes add a complementary information test. Final-layer
+all-property length-conditioned R2 is 0.357, 0.431, and 0.249 for Transformer
+Encoding E4, Statistics S4, and Algebra A4 models, compared with 0.223 at
+random initialization. The corresponding MLP values are 0.159, 0.131, and
+0.132, compared with 0.003 at random initialization. Thus the ordering is
+architecture dependent: Statistics S4 is strongest for the Transformer,
+whereas Encoding E4 is strongest for the MLP.
 
 The 48 independently trained base models comprise 30 nested models and 18
 category-comparison models. The fine-tuning follow-up adds 120 warm-start

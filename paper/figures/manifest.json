@@ -9,6 +9,7 @@
     "results/property32-zero-overlap/replicates/behavior_summary.csv": "74689033bfb3c6c8cf55a8d87a95063c6efc306d605402c478e7a7ed9dfb4616",
     "results/property32-zero-overlap/replicates/cka_replicates.csv": "cc377234cbb518b0d669accb73603674b492537e2382e89ccd8045d8d9844f80",
     "results/property32-zero-overlap/replicates/cka_summary.csv": "6c123157c7d191706a1f1b8a733ef9c7124c477b78d63f5141f4a98ea0701415",
+    "results/v3/linear-probing/category/paired_random_contrasts.csv": "b9567439a932c9a7b67164e918c4030f9b4695e866b3c836d41ea82f8f451818",
     "results/v3/scaling/k16/summary.csv": "346d509d5ec5bfa2208ae3b9cf29292962917f11fb0eb66d8e0fc75461588488"
   },
   "main_text_figures": [
@@ -39,10 +40,19 @@
     "figureS1_scaling_diagnostics.svg": {
       "bytes": 13161,
       "sha256": "dcb8a24e3b7d112617d80787f178c70b5726ff7aae1e8d83cff1337b48016edc"
+    },
+    "figureS2_category_linear_probes.png": {
+      "bytes": 37981,
+      "sha256": "6b9b5c1691f800da74ca5768284efb7fcef0b1eae0e0f77dbe41cd1ec2e3ad24"
+    },
+    "figureS2_category_linear_probes.svg": {
+      "bytes": 17159,
+      "sha256": "bbcdfd6bad8e8979f6cb3ffc419f94866206581e0ed0fe08853f2308d19e0006"
     }
   },
   "status": "completed",
   "supplementary_figures": [
-    "figureS1_scaling_diagnostics"
+    "figureS1_scaling_diagnostics",
+    "figureS2_category_linear_probes"
   ]
 }

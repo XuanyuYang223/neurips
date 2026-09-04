@@ -64,7 +64,9 @@ The shareable result packages are separated by protocol version:
 - [cross-domain paper synthesis](PAPER_STUDY_SYNTHESIS.md), which aligns the
   integer and permutation evidence without pooling incompatible metrics.
 - [four-page paper figure set](paper/FIGURES.md), with two main-text composite
-  figures, one supplementary scaling diagnostic, captions, and LaTeX snippets.
+  figures, two supplementary diagnostics, captions, and LaTeX snippets.
+- [v3 category-model linear probes](results/v3/linear-probing/category/README.md),
+  which compare a common 32-property probe battery across E4/S4/A4 training.
 
 The primary v3 generalization summaries exclude every task used to train the
 model being evaluated. In other words, trained-task performance is retained

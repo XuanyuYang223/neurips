@@ -35,6 +35,8 @@ FIGURE_FILES = (
     "figure2_task_geometry.png",
     "figureS1_scaling_diagnostics.svg",
     "figureS1_scaling_diagnostics.png",
+    "figureS2_category_linear_probes.svg",
+    "figureS2_category_linear_probes.png",
 )
 
 
@@ -784,6 +786,95 @@ def _figure_s1(canvas: Any, repository: Path) -> None:
     canvas.text(460, 397, "MLP", size=9, color=GRAY)
 
 
+def _figure_s2(canvas: Any, repository: Path) -> None:
+    rows = _rows(
+        repository
+        / "results/v3/linear-probing/category/paired_random_contrasts.csv"
+    )
+    indexed = {
+        (row["architecture"], row["condition"], row["probe_task_family"]): row
+        for row in rows
+        if row["layer"] == "final_norm"
+    }
+    families = ("local", "positional", "cycle", "global_run")
+    family_labels = ("Local", "Positional", "Cycle", "Global/run")
+    conditions = (
+        ("encoding_e4", "Encoding E4", BLUE),
+        ("statistics_s4", "Statistics S4", GREEN),
+        ("algebra_a4", "Algebra A4", ORANGE),
+    )
+    panel_xs = (30, 465)
+    plot_y, plot_h, plot_w = 82, 238, 350
+    minimum, maximum = -0.05, 0.35
+    canvas.text(
+        450,
+        25,
+        "Frozen category probes: trained minus random initialization",
+        size=14,
+        bold=True,
+        anchor="middle",
+    )
+    for panel, architecture in enumerate(("transformer", "mlp")):
+        x = panel_xs[panel]
+        title = "Transformer" if architecture == "transformer" else "MLP"
+        canvas.text(x, 52, f"({chr(ord('a') + panel)}) {title}", size=13, bold=True)
+        positions = _axes(
+            canvas,
+            x=x + 54,
+            y=plot_y,
+            width=plot_w,
+            height=plot_h,
+            xlabels=family_labels,
+            minimum=minimum,
+            maximum=maximum,
+            ticks=(-0.05, 0.0, 0.1, 0.2, 0.3),
+            tick_format=lambda value: f"{value:+.2f}",
+            metric_label="Paired delta length-conditioned R²",
+            x_padding=25,
+        )
+        zero_y = _map_y(0.0, plot_y, plot_h, minimum, maximum)
+        canvas.line(x + 54, zero_y, x + 54 + plot_w, zero_y, color=GRAY, width=1.1)
+        bar_width = 18
+        for px, family in zip(positions, families, strict=True):
+            for offset, (condition, _label, color) in zip(
+                (-22, 0, 22), conditions, strict=True
+            ):
+                row = indexed[(architecture, condition, family)]
+                mean = float(row["length_conditioned_r2_delta_mean"])
+                sd = float(row["length_conditioned_r2_delta_sample_sd"])
+                py = _map_y(mean, plot_y, plot_h, minimum, maximum)
+                canvas.rect(
+                    px + offset - bar_width / 2,
+                    min(py, zero_y),
+                    bar_width,
+                    abs(zero_y - py),
+                    fill=color,
+                )
+                _error_bar(
+                    canvas,
+                    px + offset,
+                    mean,
+                    sd,
+                    y=plot_y,
+                    height=plot_h,
+                    minimum=minimum,
+                    maximum=maximum,
+                    color=BLACK,
+                )
+        canvas.text(
+            x + 54 + plot_w / 2,
+            365,
+            "Scalar probe target family",
+            size=10,
+            color=GRAY,
+            anchor="middle",
+        )
+    legend_x = 270
+    for index, (_condition, label, color) in enumerate(conditions):
+        canvas.rect(legend_x + index * 145, 386, 12, 12, fill=color)
+        canvas.text(legend_x + 18 + index * 145, 397, label, size=9, color=GRAY)
+
+
 def _render_pair(
     output: Path,
     stem: str,
@@ -816,6 +907,7 @@ def generate(
         "results/property-task-geometry/cka/specialist_group_summary.csv",
         "results/property-task-geometry/cka/symmetry_summary.csv",
         "results/v3/scaling/k16/summary.csv",
+        "results/v3/linear-probing/category/paired_random_contrasts.csv",
     )
     for relative in inputs:
         if not (repository / relative).is_file():
@@ -824,6 +916,7 @@ def generate(
     _render_pair(output, "figure1_generalization_signals", 1200, 420, _figure1, repository)
     _render_pair(output, "figure2_task_geometry", 1200, 450, _figure2, repository)
     _render_pair(output, "figureS1_scaling_diagnostics", 900, 420, _figure_s1, repository)
+    _render_pair(output, "figureS2_category_linear_probes", 900, 420, _figure_s2, repository)
     manifest = {
         "format_version": "permutation-paper-figures/v1",
         "status": "completed",
@@ -831,7 +924,10 @@ def generate(
             "figure1_generalization_signals",
             "figure2_task_geometry",
         ],
-        "supplementary_figures": ["figureS1_scaling_diagnostics"],
+        "supplementary_figures": [
+            "figureS1_scaling_diagnostics",
+            "figureS2_category_linear_probes",
+        ],
         "inputs": {relative: _sha256(repository / relative) for relative in inputs},
         "outputs": {
             name: {

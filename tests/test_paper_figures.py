@@ -31,7 +31,7 @@ def test_generate_paper_figures_is_complete_and_deterministic(tmp_path: Path) ->
     assert first == second
     assert first_digests == _digests(output)
     assert first["status"] == "completed"
-    assert len(first["inputs"]) == 9
+    assert len(first["inputs"]) == 10
     assert set(first["outputs"]) == set(FIGURE_FILES)
 
     for name in FIGURE_FILES:

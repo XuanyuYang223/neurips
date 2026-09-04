@@ -159,10 +159,9 @@ the same optimizer-update budget, and seeds `17`, `42`, and `314159`:
 ```
 
 The completed accuracy matrix evaluates behavioral cross-category transfer on
-identical one-line input distributions. The separate representation analyses
-remain planned: their primary landmark will be the hidden state at `<ONE_END>`,
-before the task token, followed by layerwise CKA, frozen linear probes, and
-few-shot cross-category transfer.
+identical one-line input distributions. Layerwise CKA and frozen linear probes
+at `<ONE_END>`, before the task token, are also complete. Few-shot
+cross-category transfer remains an optional extension.
 
 ## Henry-style 20-shot adaptation follow-up
 

@@ -1,0 +1,380 @@
+[
+  {
+    "architecture": "transformer",
+    "checkpoint_path": "runs/henry-permutation-v3/category-comparison/category-encoding-e4-transformer-seed17/checkpoint.pt",
+    "checkpoint_sha256": "964eb5688b0185a252e13911188021d4cd992a4f306ed383a308d7794acf1985",
+    "condition": "encoding_e4",
+    "model_kind": "trained",
+    "model_seed": 17,
+    "run_id": "category-encoding-e4-transformer-seed17",
+    "test_probe_sha256": "73df02242e199c0c7eb29ceec90b5e8686650131361772b50c5be76ef6e38818",
+    "trained_tasks": [
+      "to_cycle",
+      "to_lehmer",
+      "to_inversion_vector",
+      "to_reduced_word"
+    ],
+    "validation_probe_sha256": "f8d02fc5bb3f67d0c16edea4674d936a0390b63b6cbbb1a5121c3e7dec072340"
+  },
+  {
+    "architecture": "transformer",
+    "checkpoint_path": "runs/henry-permutation-v3/category-comparison/category-encoding-e4-transformer-seed42/checkpoint.pt",
+    "checkpoint_sha256": "86301388c70b35ddd473b540837d562bc11b34594dc10bea1b11b43d718ccf1f",
+    "condition": "encoding_e4",
+    "model_kind": "trained",
+    "model_seed": 42,
+    "run_id": "category-encoding-e4-transformer-seed42",
+    "test_probe_sha256": "73df02242e199c0c7eb29ceec90b5e8686650131361772b50c5be76ef6e38818",
+    "trained_tasks": [
+      "to_cycle",
+      "to_lehmer",
+      "to_inversion_vector",
+      "to_reduced_word"
+    ],
+    "validation_probe_sha256": "f8d02fc5bb3f67d0c16edea4674d936a0390b63b6cbbb1a5121c3e7dec072340"
+  },
+  {
+    "architecture": "transformer",
+    "checkpoint_path": "runs/henry-permutation-v3/category-comparison/category-encoding-e4-transformer-seed314159/checkpoint.pt",
+    "checkpoint_sha256": "97bdd05d061992ad7610f99c431a0820a01c83b817c38d02795111e330046909",
+    "condition": "encoding_e4",
+    "model_kind": "trained",
+    "model_seed": 314159,
+    "run_id": "category-encoding-e4-transformer-seed314159",
+    "test_probe_sha256": "73df02242e199c0c7eb29ceec90b5e8686650131361772b50c5be76ef6e38818",
+    "trained_tasks": [
+      "to_cycle",
+      "to_lehmer",
+      "to_inversion_vector",
+      "to_reduced_word"
+    ],
+    "validation_probe_sha256": "f8d02fc5bb3f67d0c16edea4674d936a0390b63b6cbbb1a5121c3e7dec072340"
+  },
+  {
+    "architecture": "mlp",
+    "checkpoint_path": "runs/henry-permutation-v3/category-comparison/category-encoding-e4-mlp-seed17/checkpoint.pt",
+    "checkpoint_sha256": "c27488e77767f499a99d34d9154c8cf6238adfb680cfad1b34a49d0df568e1d1",
+    "condition": "encoding_e4",
+    "model_kind": "trained",
+    "model_seed": 17,
+    "run_id": "category-encoding-e4-mlp-seed17",
+    "test_probe_sha256": "73df02242e199c0c7eb29ceec90b5e8686650131361772b50c5be76ef6e38818",
+    "trained_tasks": [
+      "to_cycle",
+      "to_lehmer",
+      "to_inversion_vector",
+      "to_reduced_word"
+    ],
+    "validation_probe_sha256": "f8d02fc5bb3f67d0c16edea4674d936a0390b63b6cbbb1a5121c3e7dec072340"
+  },
+  {
+    "architecture": "mlp",
+    "checkpoint_path": "runs/henry-permutation-v3/category-comparison/category-encoding-e4-mlp-seed42/checkpoint.pt",
+    "checkpoint_sha256": "546c6c10aa70ab9f00228918de409a2a46761962663bd468bd1166a8635f7f10",
+    "condition": "encoding_e4",
+    "model_kind": "trained",
+    "model_seed": 42,
+    "run_id": "category-encoding-e4-mlp-seed42",
+    "test_probe_sha256": "73df02242e199c0c7eb29ceec90b5e8686650131361772b50c5be76ef6e38818",
+    "trained_tasks": [
+      "to_cycle",
+      "to_lehmer",
+      "to_inversion_vector",
+      "to_reduced_word"
+    ],
+    "validation_probe_sha256": "f8d02fc5bb3f67d0c16edea4674d936a0390b63b6cbbb1a5121c3e7dec072340"
+  },
+  {
+    "architecture": "mlp",
+    "checkpoint_path": "runs/henry-permutation-v3/category-comparison/category-encoding-e4-mlp-seed314159/checkpoint.pt",
+    "checkpoint_sha256": "042cd0ea1c49d5f57823b8b26cb469aab433d2a0a024e02c623e9249027565f0",
+    "condition": "encoding_e4",
+    "model_kind": "trained",
+    "model_seed": 314159,
+    "run_id": "category-encoding-e4-mlp-seed314159",
+    "test_probe_sha256": "73df02242e199c0c7eb29ceec90b5e8686650131361772b50c5be76ef6e38818",
+    "trained_tasks": [
+      "to_cycle",
+      "to_lehmer",
+      "to_inversion_vector",
+      "to_reduced_word"
+    ],
+    "validation_probe_sha256": "f8d02fc5bb3f67d0c16edea4674d936a0390b63b6cbbb1a5121c3e7dec072340"
+  },
+  {
+    "architecture": "transformer",
+    "checkpoint_path": "runs/henry-permutation-v3/category-comparison/category-statistics-s4-transformer-seed17/checkpoint.pt",
+    "checkpoint_sha256": "a9b9ad57d2153ef85e707914c915b4eafa8299853f7e6c9526d23e3314624c17",
+    "condition": "statistics_s4",
+    "model_kind": "trained",
+    "model_seed": 17,
+    "run_id": "category-statistics-s4-transformer-seed17",
+    "test_probe_sha256": "73df02242e199c0c7eb29ceec90b5e8686650131361772b50c5be76ef6e38818",
+    "trained_tasks": [
+      "length",
+      "cycle_type",
+      "rsk_shape",
+      "pattern_avoidance"
+    ],
+    "validation_probe_sha256": "f8d02fc5bb3f67d0c16edea4674d936a0390b63b6cbbb1a5121c3e7dec072340"
+  },
+  {
+    "architecture": "transformer",
+    "checkpoint_path": "runs/henry-permutation-v3/category-comparison/category-statistics-s4-transformer-seed42/checkpoint.pt",
+    "checkpoint_sha256": "131ebd4d874540cd13925d9e6ea7176653c765011c27efb43b2f019b57613fd9",
+    "condition": "statistics_s4",
+    "model_kind": "trained",
+    "model_seed": 42,
+    "run_id": "category-statistics-s4-transformer-seed42",
+    "test_probe_sha256": "73df02242e199c0c7eb29ceec90b5e8686650131361772b50c5be76ef6e38818",
+    "trained_tasks": [
+      "length",
+      "cycle_type",
+      "rsk_shape",
+      "pattern_avoidance"
+    ],
+    "validation_probe_sha256": "f8d02fc5bb3f67d0c16edea4674d936a0390b63b6cbbb1a5121c3e7dec072340"
+  },
+  {
+    "architecture": "transformer",
+    "checkpoint_path": "runs/henry-permutation-v3/category-comparison/category-statistics-s4-transformer-seed314159/checkpoint.pt",
+    "checkpoint_sha256": "71bdddde8ffa03d74256e85cdc5fbcc3e4880fa1c57b3e86e4f690edccb0b025",
+    "condition": "statistics_s4",
+    "model_kind": "trained",
+    "model_seed": 314159,
+    "run_id": "category-statistics-s4-transformer-seed314159",
+    "test_probe_sha256": "73df02242e199c0c7eb29ceec90b5e8686650131361772b50c5be76ef6e38818",
+    "trained_tasks": [
+      "length",
+      "cycle_type",
+      "rsk_shape",
+      "pattern_avoidance"
+    ],
+    "validation_probe_sha256": "f8d02fc5bb3f67d0c16edea4674d936a0390b63b6cbbb1a5121c3e7dec072340"
+  },
+  {
+    "architecture": "mlp",
+    "checkpoint_path": "runs/henry-permutation-v3/category-comparison/category-statistics-s4-mlp-seed17/checkpoint.pt",
+    "checkpoint_sha256": "d8dc12b5f26667a0003cf0bad9a6146fb8b7ef6e7feb0d5363e8acba2ad6fdeb",
+    "condition": "statistics_s4",
+    "model_kind": "trained",
+    "model_seed": 17,
+    "run_id": "category-statistics-s4-mlp-seed17",
+    "test_probe_sha256": "73df02242e199c0c7eb29ceec90b5e8686650131361772b50c5be76ef6e38818",
+    "trained_tasks": [
+      "length",
+      "cycle_type",
+      "rsk_shape",
+      "pattern_avoidance"
+    ],
+    "validation_probe_sha256": "f8d02fc5bb3f67d0c16edea4674d936a0390b63b6cbbb1a5121c3e7dec072340"
+  },
+  {
+    "architecture": "mlp",
+    "checkpoint_path": "runs/henry-permutation-v3/category-comparison/category-statistics-s4-mlp-seed42/checkpoint.pt",
+    "checkpoint_sha256": "60cca16c9f08df1c54ceb5b5ea1040b9cea03dd7a2664b0f376983c17018e332",
+    "condition": "statistics_s4",
+    "model_kind": "trained",
+    "model_seed": 42,
+    "run_id": "category-statistics-s4-mlp-seed42",
+    "test_probe_sha256": "73df02242e199c0c7eb29ceec90b5e8686650131361772b50c5be76ef6e38818",
+    "trained_tasks": [
+      "length",
+      "cycle_type",
+      "rsk_shape",
+      "pattern_avoidance"
+    ],
+    "validation_probe_sha256": "f8d02fc5bb3f67d0c16edea4674d936a0390b63b6cbbb1a5121c3e7dec072340"
+  },
+  {
+    "architecture": "mlp",
+    "checkpoint_path": "runs/henry-permutation-v3/category-comparison/category-statistics-s4-mlp-seed314159/checkpoint.pt",
+    "checkpoint_sha256": "6e7bef4a251db6eecc6493c60a55aecc7c868a23858da01234b937f666b74f5d",
+    "condition": "statistics_s4",
+    "model_kind": "trained",
+    "model_seed": 314159,
+    "run_id": "category-statistics-s4-mlp-seed314159",
+    "test_probe_sha256": "73df02242e199c0c7eb29ceec90b5e8686650131361772b50c5be76ef6e38818",
+    "trained_tasks": [
+      "length",
+      "cycle_type",
+      "rsk_shape",
+      "pattern_avoidance"
+    ],
+    "validation_probe_sha256": "f8d02fc5bb3f67d0c16edea4674d936a0390b63b6cbbb1a5121c3e7dec072340"
+  },
+  {
+    "architecture": "transformer",
+    "checkpoint_path": "runs/henry-permutation-v3/category-comparison/category-algebra-a4-transformer-seed17/checkpoint.pt",
+    "checkpoint_sha256": "ae3eedcd6549588e665551b2fb237def652a3c5a6b71579c5bede8da6ea38d6f",
+    "condition": "algebra_a4",
+    "model_kind": "trained",
+    "model_seed": 17,
+    "run_id": "category-algebra-a4-transformer-seed17",
+    "test_probe_sha256": "73df02242e199c0c7eb29ceec90b5e8686650131361772b50c5be76ef6e38818",
+    "trained_tasks": [
+      "inverse",
+      "compose",
+      "right_multiply_simple",
+      "bruhat_leq"
+    ],
+    "validation_probe_sha256": "f8d02fc5bb3f67d0c16edea4674d936a0390b63b6cbbb1a5121c3e7dec072340"
+  },
+  {
+    "architecture": "transformer",
+    "checkpoint_path": "runs/henry-permutation-v3/category-comparison/category-algebra-a4-transformer-seed42/checkpoint.pt",
+    "checkpoint_sha256": "c8799c255dc3fc34d64d511dd5e36ab54d6929029a096883d5921459410beb1a",
+    "condition": "algebra_a4",
+    "model_kind": "trained",
+    "model_seed": 42,
+    "run_id": "category-algebra-a4-transformer-seed42",
+    "test_probe_sha256": "73df02242e199c0c7eb29ceec90b5e8686650131361772b50c5be76ef6e38818",
+    "trained_tasks": [
+      "inverse",
+      "compose",
+      "right_multiply_simple",
+      "bruhat_leq"
+    ],
+    "validation_probe_sha256": "f8d02fc5bb3f67d0c16edea4674d936a0390b63b6cbbb1a5121c3e7dec072340"
+  },
+  {
+    "architecture": "transformer",
+    "checkpoint_path": "runs/henry-permutation-v3/category-comparison/category-algebra-a4-transformer-seed314159/checkpoint.pt",
+    "checkpoint_sha256": "36e1787d777c6da9299f8348af3bf0eaa6c173b05d1e8c375d4fb39333644522",
+    "condition": "algebra_a4",
+    "model_kind": "trained",
+    "model_seed": 314159,
+    "run_id": "category-algebra-a4-transformer-seed314159",
+    "test_probe_sha256": "73df02242e199c0c7eb29ceec90b5e8686650131361772b50c5be76ef6e38818",
+    "trained_tasks": [
+      "inverse",
+      "compose",
+      "right_multiply_simple",
+      "bruhat_leq"
+    ],
+    "validation_probe_sha256": "f8d02fc5bb3f67d0c16edea4674d936a0390b63b6cbbb1a5121c3e7dec072340"
+  },
+  {
+    "architecture": "mlp",
+    "checkpoint_path": "runs/henry-permutation-v3/category-comparison/category-algebra-a4-mlp-seed17/checkpoint.pt",
+    "checkpoint_sha256": "15d10dee99c4e64bc8b5ad01a7b36ce6b01b050469a4f81822486993d7407c51",
+    "condition": "algebra_a4",
+    "model_kind": "trained",
+    "model_seed": 17,
+    "run_id": "category-algebra-a4-mlp-seed17",
+    "test_probe_sha256": "73df02242e199c0c7eb29ceec90b5e8686650131361772b50c5be76ef6e38818",
+    "trained_tasks": [
+      "inverse",
+      "compose",
+      "right_multiply_simple",
+      "bruhat_leq"
+    ],
+    "validation_probe_sha256": "f8d02fc5bb3f67d0c16edea4674d936a0390b63b6cbbb1a5121c3e7dec072340"
+  },
+  {
+    "architecture": "mlp",
+    "checkpoint_path": "runs/henry-permutation-v3/category-comparison/category-algebra-a4-mlp-seed42/checkpoint.pt",
+    "checkpoint_sha256": "2f7333accf537e338750005f6ed20490c24668dd2b19e537985d23295be3fd83",
+    "condition": "algebra_a4",
+    "model_kind": "trained",
+    "model_seed": 42,
+    "run_id": "category-algebra-a4-mlp-seed42",
+    "test_probe_sha256": "73df02242e199c0c7eb29ceec90b5e8686650131361772b50c5be76ef6e38818",
+    "trained_tasks": [
+      "inverse",
+      "compose",
+      "right_multiply_simple",
+      "bruhat_leq"
+    ],
+    "validation_probe_sha256": "f8d02fc5bb3f67d0c16edea4674d936a0390b63b6cbbb1a5121c3e7dec072340"
+  },
+  {
+    "architecture": "mlp",
+    "checkpoint_path": "runs/henry-permutation-v3/category-comparison/category-algebra-a4-mlp-seed314159/checkpoint.pt",
+    "checkpoint_sha256": "f335ec702f84ceb2b824ad6f08623e8acdd5fec24a3ab8d46fe9ef92deaea6b8",
+    "condition": "algebra_a4",
+    "model_kind": "trained",
+    "model_seed": 314159,
+    "run_id": "category-algebra-a4-mlp-seed314159",
+    "test_probe_sha256": "73df02242e199c0c7eb29ceec90b5e8686650131361772b50c5be76ef6e38818",
+    "trained_tasks": [
+      "inverse",
+      "compose",
+      "right_multiply_simple",
+      "bruhat_leq"
+    ],
+    "validation_probe_sha256": "f8d02fc5bb3f67d0c16edea4674d936a0390b63b6cbbb1a5121c3e7dec072340"
+  },
+  {
+    "architecture": "transformer",
+    "checkpoint_path": null,
+    "checkpoint_sha256": "random_init",
+    "condition": "random_init",
+    "model_kind": "random",
+    "model_seed": 17,
+    "run_id": "random-transformer-seed17",
+    "test_probe_sha256": "73df02242e199c0c7eb29ceec90b5e8686650131361772b50c5be76ef6e38818",
+    "trained_tasks": [],
+    "validation_probe_sha256": "f8d02fc5bb3f67d0c16edea4674d936a0390b63b6cbbb1a5121c3e7dec072340"
+  },
+  {
+    "architecture": "transformer",
+    "checkpoint_path": null,
+    "checkpoint_sha256": "random_init",
+    "condition": "random_init",
+    "model_kind": "random",
+    "model_seed": 42,
+    "run_id": "random-transformer-seed42",
+    "test_probe_sha256": "73df02242e199c0c7eb29ceec90b5e8686650131361772b50c5be76ef6e38818",
+    "trained_tasks": [],
+    "validation_probe_sha256": "f8d02fc5bb3f67d0c16edea4674d936a0390b63b6cbbb1a5121c3e7dec072340"
+  },
+  {
+    "architecture": "transformer",
+    "checkpoint_path": null,
+    "checkpoint_sha256": "random_init",
+    "condition": "random_init",
+    "model_kind": "random",
+    "model_seed": 314159,
+    "run_id": "random-transformer-seed314159",
+    "test_probe_sha256": "73df02242e199c0c7eb29ceec90b5e8686650131361772b50c5be76ef6e38818",
+    "trained_tasks": [],
+    "validation_probe_sha256": "f8d02fc5bb3f67d0c16edea4674d936a0390b63b6cbbb1a5121c3e7dec072340"
+  },
+  {
+    "architecture": "mlp",
+    "checkpoint_path": null,
+    "checkpoint_sha256": "random_init",
+    "condition": "random_init",
+    "model_kind": "random",
+    "model_seed": 17,
+    "run_id": "random-mlp-seed17",
+    "test_probe_sha256": "73df02242e199c0c7eb29ceec90b5e8686650131361772b50c5be76ef6e38818",
+    "trained_tasks": [],
+    "validation_probe_sha256": "f8d02fc5bb3f67d0c16edea4674d936a0390b63b6cbbb1a5121c3e7dec072340"
+  },
+  {
+    "architecture": "mlp",
+    "checkpoint_path": null,
+    "checkpoint_sha256": "random_init",
+    "condition": "random_init",
+    "model_kind": "random",
+    "model_seed": 42,
+    "run_id": "random-mlp-seed42",
+    "test_probe_sha256": "73df02242e199c0c7eb29ceec90b5e8686650131361772b50c5be76ef6e38818",
+    "trained_tasks": [],
+    "validation_probe_sha256": "f8d02fc5bb3f67d0c16edea4674d936a0390b63b6cbbb1a5121c3e7dec072340"
+  },
+  {
+    "architecture": "mlp",
+    "checkpoint_path": null,
+    "checkpoint_sha256": "random_init",
+    "condition": "random_init",
+    "model_kind": "random",
+    "model_seed": 314159,
+    "run_id": "random-mlp-seed314159",
+    "test_probe_sha256": "73df02242e199c0c7eb29ceec90b5e8686650131361772b50c5be76ef6e38818",
+    "trained_tasks": [],
+    "validation_probe_sha256": "f8d02fc5bb3f67d0c16edea4674d936a0390b63b6cbbb1a5121c3e7dec072340"
+  }
+]
