@@ -860,7 +860,7 @@ To share these artifacts, use object storage, dataset hosting, GitHub Release as
 
 ## 15. Known Limitations and Next Steps
 
-The `permutation-20/v3` data, 30-run nested matrix, 18-run E4/S4/A4 category matrix, strict audits, one-time independent zero-shot test evaluation, 144-run Henry-style 20-shot adaptation study, layerwise CKA, and frozen category-model linear probes are complete. The 30 old v2 models remain baseline/appendix material; they were not deleted or relabeled as v3 results. [results/v3/README.md](results/v3/README.md) reports the behavioral zero-shot result, [results/v3/fewshot/README.md](results/v3/fewshot/README.md) reports few-shot adaptation, and [results/v3/linear-probing/category/README.md](results/v3/linear-probing/category/README.md) reports the category probe analysis.
+The `permutation-20/v3` data, 30-run nested matrix, 18-run E4/S4/A4 category matrix, strict audits, one-time independent zero-shot test evaluation, 144-run Henry-style 20-shot adaptation study, layerwise CKA, frozen category-model linear probes, and four-representation transfer grid are complete. The 30 old v2 models remain baseline/appendix material; they were not deleted or relabeled as v3 results. [results/v3/README.md](results/v3/README.md) reports the behavioral zero-shot result, [results/v3/fewshot/README.md](results/v3/fewshot/README.md) reports few-shot adaptation, [results/v3/linear-probing/category/README.md](results/v3/linear-probing/category/README.md) reports the category probe analysis, and [results/representation-transfer/README.md](results/representation-transfer/README.md) reports cross-representation/task transfer.
 
 1. **Few-shot generalization**: The primary 20-shot protocol in [configs/henry_permutation_fewshot.toml](configs/henry_permutation_fewshot.toml) is complete. It adapted every nested base model separately to every fixed holdout at low learning rate. The post-hoc nested 5/20/100-shot curve is also complete and does not show a consistent support-size improvement.
 2. **Random-init baseline**: The completed follow-up includes a paired random-initialization model for every architecture, task, and seed, using the same 20 support examples and number of updates. It uses the established from-scratch learning rate rather than the pretrained fine-tuning rate.
@@ -875,7 +875,7 @@ The `permutation-20/v3` data, 30-run nested matrix, 18-run E4/S4/A4 category mat
 11. **Opaque holdout tokens**: Hard zero-shot inference cannot recover the meaning of an unseen operation from the token itself. Shared semantics, task descriptions, cross-representation combinations, or few-shot supervision are needed.
 12. **Determinism**: The seed, data order, and sharding are deterministic, but `torch.use_deterministic_algorithms` was not enabled; bitwise-identical weights are not guaranteed across GPU, CUDA, or PyTorch versions.
 13. **Environment provenance**: The checkpoint/marker does not embed the Git commit or Python, Torch, CUDA, or driver versions. This document records the environment used here, but future protocols should write these values into the marker.
-14. **4×8 representation grid**: To answer the representation-transfer question from the second attachment, cycle notation, Lehmer code, and inversion vectors must also be supported as primary inputs, after which the specified 11 combinations should be trained and the remaining 21 tested.
+14. **4×8 representation grid**: This extension is complete. Three joint Transformers were trained on the one-line row and descents column (11 cells) and evaluated once on all 32 cells. Exact accuracy was `54.31 ± 0.96%` on trained cells and `30.61 ± 2.64%` on the 21 held-out cells; the held-out advantage over cell-specific constant-answer majority baselines was `+11.46 ± 2.64` percentage points. The complete matrix is in [results/representation-transfer/README.md](results/representation-transfer/README.md).
 
 ## 16. Key File Index
 
@@ -885,6 +885,7 @@ The `permutation-20/v3` data, 30-run nested matrix, 18-run E4/S4/A4 category mat
 - [results/v2/README.md](results/v2/README.md): v2 validation and generalization tables.
 - [results/v3/README.md](results/v3/README.md): completed 48-model v3 training and independent test results.
 - [results/v3/fewshot/README.md](results/v3/fewshot/README.md): completed Henry-style 20-shot adaptation results.
+- [results/representation-transfer/README.md](results/representation-transfer/README.md): completed four-representation by eight-task transfer matrix.
 - [configs/henry_permutation.toml](configs/henry_permutation.toml): frozen experiment configuration.
 - [configs/henry_permutation_revised.toml](configs/henry_permutation_revised.toml): frozen v3 launch design after Henry's feedback.
 - [configs/henry_permutation_fewshot.toml](configs/henry_permutation_fewshot.toml): frozen 20-shot follow-up.

@@ -76,6 +76,9 @@ The shareable result packages are separated by protocol version:
 - [four-representation transfer protocol](REPRESENTATION_TRANSFER_PROTOCOL.md),
   which jointly trains the one-line row and descents column before evaluating
   all 32 representation-task combinations.
+- [four-representation transfer results](results/representation-transfer/README.md),
+  with all 96 unaveraged model-cell measurements and the complete 4 x 8
+  transfer matrix.
 
 The primary v3 generalization summaries exclude every task used to train the
 model being evaluated. In other words, trained-task performance is retained
@@ -103,6 +106,14 @@ task overlap; the MLP does not show the same pattern.
 The [disjoint-category follow-up](results/v3/cka/category/README.md) fixes
 `k=4` and finds substantially higher CKA within the same training family than
 between zero-overlap task families for both architectures.
+
+The [four-representation transfer experiment](results/representation-transfer/README.md)
+trains three joint Transformers on the one-line row and descents column of a
+`4 representations x 8 tasks` grid. Exact accuracy is `54.31 +/- 0.96%` on
+the 11 trained cells and `30.61 +/- 2.64%` on the 21 held-out cells. After
+subtracting each cell's constant-answer majority baseline, held-out accuracy
+remains `+11.46 +/- 2.64` percentage points. This is evidence of partial
+cross-representation/task transfer, not uniformly successful transfer.
 
 The [32-property zero-overlap study](results/property32-zero-overlap/README.md)
 trains Pool A and Pool B independently at five values of `k` under three
@@ -237,6 +248,8 @@ are in [PROTOCOL.md](PROTOCOL.md).
   72-cell/60-model low-correlation 3x3 CKA follow-up;
 - [property-pair CKA protocol](PROPERTY_PAIR_CKA.md): the controlled
   known-related versus no-obvious-duality representation analysis;
+- [four-representation transfer results](results/representation-transfer/README.md):
+  complete one-line/cycle/Lehmer/inversion-vector by eight-task test matrix;
 - [combinatorial task-geometry protocol](PROPERTY_TASK_GEOMETRY.md): the
   108-model specialist and fixed-task-count composition study;
 - [TRAINING_PROCESS.md](TRAINING_PROCESS.md): full data, architecture,

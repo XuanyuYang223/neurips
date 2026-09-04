@@ -1,0 +1,31 @@
+{
+  "raw_row_count": 96,
+  "summary": [
+    {
+      "cell_count": 11,
+      "loss_mean": 0.5132157168331769,
+      "loss_sample_sd": 0.010096095849210148,
+      "majority_baseline_sequence_accuracy": 0.1496727272727273,
+      "sequence_accuracy_mean": 0.5430606060606061,
+      "sequence_accuracy_minus_majority_mean": 0.3933878787878788,
+      "sequence_accuracy_minus_majority_sample_sd": 0.009558905385885353,
+      "sequence_accuracy_sample_sd": 0.00955890538588541,
+      "task_status": "seen",
+      "token_accuracy_mean": 0.7819668105860718,
+      "token_accuracy_sample_sd": 0.004936335229928678
+    },
+    {
+      "cell_count": 21,
+      "loss_mean": 1.4569279428395105,
+      "loss_sample_sd": 0.18321382080108642,
+      "majority_baseline_sequence_accuracy": 0.19154285714285715,
+      "sequence_accuracy_mean": 0.3061333333333333,
+      "sequence_accuracy_minus_majority_mean": 0.11459047619047619,
+      "sequence_accuracy_minus_majority_sample_sd": 0.026360929310331765,
+      "sequence_accuracy_sample_sd": 0.02636092931033178,
+      "task_status": "held_out",
+      "token_accuracy_mean": 0.6710691376638606,
+      "token_accuracy_sample_sd": 0.012949231808837895
+    }
+  ]
+}

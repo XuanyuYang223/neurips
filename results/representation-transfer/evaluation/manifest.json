@@ -1,0 +1,81 @@
+{
+  "cell_count": 32,
+  "examples_per_cell_per_run": 5000,
+  "format_version": "permutation-representation-transfer-test/v1",
+  "run_count": 3,
+  "runs": [
+    {
+      "checkpoint_sha256": "df454e43fe7c354ea97358e657e59be3f4707bb10cfe06a7f9322fa81f54041d",
+      "elapsed_seconds": 33.473501584958285,
+      "evaluator_commit": "422b802b45551eb1a29159341821067cd301ac44",
+      "format_version": "permutation-representation-transfer-test/v1",
+      "run_id": "representation-transfer-transformer-seed17",
+      "seed": 17,
+      "status": "completed",
+      "test_manifest_sha256": "eafef1c091fe31374304e3b6f010519f4bd14c0d115d4527fc05f0c724a62749"
+    },
+    {
+      "checkpoint_sha256": "418a0c78cc519f48afc5b3f8742f97a1b112b9e912df289d3a69d98c13d9e1b9",
+      "elapsed_seconds": 31.623910274007358,
+      "evaluator_commit": "422b802b45551eb1a29159341821067cd301ac44",
+      "format_version": "permutation-representation-transfer-test/v1",
+      "run_id": "representation-transfer-transformer-seed42",
+      "seed": 42,
+      "status": "completed",
+      "test_manifest_sha256": "eafef1c091fe31374304e3b6f010519f4bd14c0d115d4527fc05f0c724a62749"
+    },
+    {
+      "checkpoint_sha256": "e4e362b7c9f3d857f9574995fa6465bffab5be883000301912e87fb258903132",
+      "elapsed_seconds": 30.564599782112055,
+      "evaluator_commit": "422b802b45551eb1a29159341821067cd301ac44",
+      "format_version": "permutation-representation-transfer-test/v1",
+      "run_id": "representation-transfer-transformer-seed314159",
+      "seed": 314159,
+      "status": "completed",
+      "test_manifest_sha256": "eafef1c091fe31374304e3b6f010519f4bd14c0d115d4527fc05f0c724a62749"
+    }
+  ],
+  "status": "completed",
+  "test_verification": {
+    "full": true,
+    "ok": true,
+    "record_count": 160000,
+    "split": "test",
+    "task_counts": {
+      "cycle:descents": 5000,
+      "cycle:exceedances": 5000,
+      "cycle:fixed_points": 5000,
+      "cycle:length": 5000,
+      "cycle:lis_length": 5000,
+      "cycle:parity": 5000,
+      "cycle:peaks": 5000,
+      "cycle:recoils": 5000,
+      "inversion_vector:descents": 5000,
+      "inversion_vector:exceedances": 5000,
+      "inversion_vector:fixed_points": 5000,
+      "inversion_vector:length": 5000,
+      "inversion_vector:lis_length": 5000,
+      "inversion_vector:parity": 5000,
+      "inversion_vector:peaks": 5000,
+      "inversion_vector:recoils": 5000,
+      "lehmer:descents": 5000,
+      "lehmer:exceedances": 5000,
+      "lehmer:fixed_points": 5000,
+      "lehmer:length": 5000,
+      "lehmer:lis_length": 5000,
+      "lehmer:parity": 5000,
+      "lehmer:peaks": 5000,
+      "lehmer:recoils": 5000,
+      "one_line:descents": 5000,
+      "one_line:exceedances": 5000,
+      "one_line:fixed_points": 5000,
+      "one_line:length": 5000,
+      "one_line:lis_length": 5000,
+      "one_line:parity": 5000,
+      "one_line:peaks": 5000,
+      "one_line:recoils": 5000
+    },
+    "total_bytes": 4826188
+  },
+  "total_model_examples": 480000
+}
