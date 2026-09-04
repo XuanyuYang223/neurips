@@ -1,0 +1,163 @@
+{
+  "data_manifest_sha256": "0634aa08c114ae0aa705ffe97f71202fca4145729c00bf13b3606afbd9081aa3",
+  "evaluator_commit": "fda84a6f37f467eb733b192450592a33bfa37f7f",
+  "examples_per_task_per_run": 1000,
+  "format_version": "v3-size-extrapolation-evaluation/v1",
+  "full_verification": {
+    "full": true,
+    "ok": true,
+    "record_count": 20000,
+    "shard_count": 1,
+    "split": null,
+    "task_counts": {
+      "bruhat_leq": 1000,
+      "compose": 1000,
+      "cycle_type": 1000,
+      "descents": 1000,
+      "exceedances": 1000,
+      "fixed_points": 1000,
+      "inverse": 1000,
+      "lds_length": 1000,
+      "length": 1000,
+      "lis_length": 1000,
+      "parity": 1000,
+      "pattern_avoidance": 1000,
+      "peaks": 1000,
+      "recoils": 1000,
+      "right_multiply_simple": 1000,
+      "rsk_shape": 1000,
+      "to_cycle": 1000,
+      "to_inversion_vector": 1000,
+      "to_lehmer": 1000,
+      "to_reduced_word": 1000
+    },
+    "total_bytes": 4599286,
+    "workers": 1
+  },
+  "run_count": 30,
+  "runs": [
+    {
+      "result_file": "per-run/transformer-tasks01-seed17.json",
+      "run_id": "transformer-tasks01-seed17"
+    },
+    {
+      "result_file": "per-run/transformer-tasks01-seed42.json",
+      "run_id": "transformer-tasks01-seed42"
+    },
+    {
+      "result_file": "per-run/transformer-tasks01-seed314159.json",
+      "run_id": "transformer-tasks01-seed314159"
+    },
+    {
+      "result_file": "per-run/mlp-tasks01-seed17.json",
+      "run_id": "mlp-tasks01-seed17"
+    },
+    {
+      "result_file": "per-run/mlp-tasks01-seed42.json",
+      "run_id": "mlp-tasks01-seed42"
+    },
+    {
+      "result_file": "per-run/mlp-tasks01-seed314159.json",
+      "run_id": "mlp-tasks01-seed314159"
+    },
+    {
+      "result_file": "per-run/transformer-tasks02-seed17.json",
+      "run_id": "transformer-tasks02-seed17"
+    },
+    {
+      "result_file": "per-run/transformer-tasks02-seed42.json",
+      "run_id": "transformer-tasks02-seed42"
+    },
+    {
+      "result_file": "per-run/transformer-tasks02-seed314159.json",
+      "run_id": "transformer-tasks02-seed314159"
+    },
+    {
+      "result_file": "per-run/mlp-tasks02-seed17.json",
+      "run_id": "mlp-tasks02-seed17"
+    },
+    {
+      "result_file": "per-run/mlp-tasks02-seed42.json",
+      "run_id": "mlp-tasks02-seed42"
+    },
+    {
+      "result_file": "per-run/mlp-tasks02-seed314159.json",
+      "run_id": "mlp-tasks02-seed314159"
+    },
+    {
+      "result_file": "per-run/transformer-tasks04-seed17.json",
+      "run_id": "transformer-tasks04-seed17"
+    },
+    {
+      "result_file": "per-run/transformer-tasks04-seed42.json",
+      "run_id": "transformer-tasks04-seed42"
+    },
+    {
+      "result_file": "per-run/transformer-tasks04-seed314159.json",
+      "run_id": "transformer-tasks04-seed314159"
+    },
+    {
+      "result_file": "per-run/mlp-tasks04-seed17.json",
+      "run_id": "mlp-tasks04-seed17"
+    },
+    {
+      "result_file": "per-run/mlp-tasks04-seed42.json",
+      "run_id": "mlp-tasks04-seed42"
+    },
+    {
+      "result_file": "per-run/mlp-tasks04-seed314159.json",
+      "run_id": "mlp-tasks04-seed314159"
+    },
+    {
+      "result_file": "per-run/transformer-tasks08-seed17.json",
+      "run_id": "transformer-tasks08-seed17"
+    },
+    {
+      "result_file": "per-run/transformer-tasks08-seed42.json",
+      "run_id": "transformer-tasks08-seed42"
+    },
+    {
+      "result_file": "per-run/transformer-tasks08-seed314159.json",
+      "run_id": "transformer-tasks08-seed314159"
+    },
+    {
+      "result_file": "per-run/mlp-tasks08-seed17.json",
+      "run_id": "mlp-tasks08-seed17"
+    },
+    {
+      "result_file": "per-run/mlp-tasks08-seed42.json",
+      "run_id": "mlp-tasks08-seed42"
+    },
+    {
+      "result_file": "per-run/mlp-tasks08-seed314159.json",
+      "run_id": "mlp-tasks08-seed314159"
+    },
+    {
+      "result_file": "per-run/transformer-tasks16-seed17.json",
+      "run_id": "transformer-tasks16-seed17"
+    },
+    {
+      "result_file": "per-run/transformer-tasks16-seed42.json",
+      "run_id": "transformer-tasks16-seed42"
+    },
+    {
+      "result_file": "per-run/transformer-tasks16-seed314159.json",
+      "run_id": "transformer-tasks16-seed314159"
+    },
+    {
+      "result_file": "per-run/mlp-tasks16-seed17.json",
+      "run_id": "mlp-tasks16-seed17"
+    },
+    {
+      "result_file": "per-run/mlp-tasks16-seed42.json",
+      "run_id": "mlp-tasks16-seed42"
+    },
+    {
+      "result_file": "per-run/mlp-tasks16-seed314159.json",
+      "run_id": "mlp-tasks16-seed314159"
+    }
+  ],
+  "status": "completed",
+  "task_count": 19,
+  "total_model_examples": 570000
+}

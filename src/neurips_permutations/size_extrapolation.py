@@ -22,6 +22,9 @@ from .verify import verify_manifest
 
 
 DEFAULT_CONFIG = Path("configs/v3_size_extrapolation.toml")
+FIXED_TRAIN_HOLDOUTS = frozenset(
+    {"to_reduced_word", "compose", "parity", "to_lehmer"}
+)
 RAW_FIELDS = (
     "run_id",
     "architecture",
@@ -228,9 +231,7 @@ def evaluate_all(
 def _status(task: str, trained_tasks: Sequence[str]) -> str:
     if task in trained_tasks:
         return "seen"
-    if task in V3_TASK_NAMES[:16]:
-        return "pool_unseen"
-    return "fixed_train_holdout"
+    return "fixed_train_holdout" if task in FIXED_TRAIN_HOLDOUTS else "pool_unseen"
 
 
 def build_summary(rows: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
@@ -355,7 +356,7 @@ def report(config_path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
     ]
     for row in summary:
         lines.append(
-            f"| {str(row['architecture']).title()} | {row['trained_task_count']} | {row['task_status']} | "
+            f"| {'MLP' if row['architecture'] == 'mlp' else 'Transformer'} | {row['trained_task_count']} | {row['task_status']} | "
             f"{100*float(row['in_domain_sequence_accuracy_mean']):.2f}% | "
             f"{100*float(row['sequence_accuracy_mean']):.2f}% +/- {100*float(row['sequence_accuracy_sample_sd']):.2f}% | "
             f"{100*float(row['sequence_accuracy_delta_out_minus_in_mean']):+.2f} pp |"

@@ -1,0 +1,12 @@
+{
+  "artifacts": {
+    "README.md": "eaacf90fa97262183775712773f4aa1908dc1d0ac203d31dccadfb1abf7b2a02",
+    "model_task_results.csv": "63843e1da3c93eeb8002b303b30ac464928c81dd6ae8c3516d28e0ee0e00654d",
+    "summary.csv": "639f18f9a39e8b3224f49fd48c5090e5f17be026fbdc39da023694b8ac56354d"
+  },
+  "data_manifest_sha256": "0634aa08c114ae0aa705ffe97f71202fca4145729c00bf13b3606afbd9081aa3",
+  "format_version": "v3-size-extrapolation-results/v1",
+  "row_count": 570,
+  "status": "completed",
+  "summary_count": 28
+}
