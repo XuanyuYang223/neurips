@@ -38,12 +38,12 @@ test_manifest_sha256 = "257ff2ea900b90cd6f1edf3c9f0fcea5d2891c746c94440d744f6968
 
 # Filled with deterministic manifest hashes after `prepare` completes.
 [derived_artifact]
-train_manifest_sha256 = "afd0acbab8b3acb390e1eb9dabedf7d2312b2ee9068122249883f3dbc875093c"
-validation_manifest_sha256 = "ec6c31556f03c6c84904f0639ac00f8012649375649f1038c0ab3d9f3e3d2723"
-test_manifest_sha256 = "9d4363f677e7b69f68440d73526225c8a4863a8551ddb4de819ea07754541d1c"
-train_compressed_bytes = 237804753
-validation_compressed_bytes = 4318981
-test_compressed_bytes = 4329614
+train_manifest_sha256 = "a0762b699a48751fd626ded81094ba7268612a26015a5469540beb90f0a50ad3"
+validation_manifest_sha256 = "510cd61c42d11164d59fd8fd1e73ad1c90e1f3a3bd790afbbaf1b800d8ccf348"
+test_manifest_sha256 = "eafef1c091fe31374304e3b6f010519f4bd14c0d115d4527fc05f0c724a62749"
+train_compressed_bytes = 252970642
+validation_compressed_bytes = 4816057
+test_compressed_bytes = 4826188
 
 [data]
 shuffle_buffer = 10000
