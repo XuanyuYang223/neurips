@@ -31,7 +31,7 @@ import torch
 
 from . import math_ops as ops
 from .evaluate import _atomic_json, _git_commit, evaluate_records
-from .passage import REPRESENTATIONS, TOKEN_TO_ID, passage_tokens
+from .passage import PERMUTATION20_VOCABULARY, REPRESENTATIONS, passage_tokens
 from .training import StreamingPermutationDataset, TrainConfig, _default_model_factory, train_run
 
 
@@ -410,7 +410,10 @@ def _train_config(run: RepresentationRun, config_path: Path) -> TrainConfig:
         dropout=float(model["dropout"]),
         mlp_ratio=float(model["ff_multiplier"]),
         tie_embeddings=bool(model["tie_embeddings"]),
-        model_config={"vocab_size": len(TOKEN_TO_ID)},
+        # Every representation and task token in this 4x8 grid belongs to the
+        # original permutation vocabulary.  Do not add the 25 Property32-only
+        # tokens merely because the source permutations came from that corpus.
+        model_config={"vocab_size": len(PERMUTATION20_VOCABULARY)},
         tasks=TRAIN_COMBINATIONS,
         validation_tasks=FULL_COMBINATIONS,
         seed=run.seed,

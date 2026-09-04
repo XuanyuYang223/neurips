@@ -31,8 +31,10 @@ Every training cell contains 490,000 records; every validation and test cell
 contains 5,000 records. The derived training corpus therefore has 5,390,000
 rows, and each evaluation split has 160,000 rows.
 
-All cells use the same base-100 tokenizer and scalar answer grammar. Only the
-representation boundary and body tokens change. Three standard decoder-only
+All cells use the same 163-token permutation vocabulary, base-100 tokenizer,
+and scalar answer grammar. The 25 Property32-only tokens are not included in
+the models merely because the source permutations came from that corpus. Only
+the representation boundary and body tokens change. Three standard decoder-only
 Transformers use the frozen seeds 17, 42, and 314159. Each has four pre-LN
 layers, eight heads, hidden width 256, feed-forward width 1,024, dropout 0.1,
 and tied input/output embeddings. Optimization matches the other permutation

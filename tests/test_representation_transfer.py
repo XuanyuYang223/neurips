@@ -73,6 +73,13 @@ def test_derived_record_recomputes_truth() -> None:
     assert relabeled["answer"] == ops.parity((3, 1, 4, 2))
 
 
+def test_transfer_model_uses_only_the_permutation_vocabulary() -> None:
+    from neurips_permutations.passage import PERMUTATION20_VOCABULARY, VOCABULARY
+
+    assert len(PERMUTATION20_VOCABULARY) == 163
+    assert len(VOCABULARY) == 188
+
+
 def test_full_verifier_rejects_a_consistently_wrong_answer(tmp_path: Path) -> None:
     source = {
         "id": 0,
