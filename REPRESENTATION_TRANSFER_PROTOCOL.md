@@ -50,7 +50,10 @@ matrix is also reported. Token accuracy is secondary because it is
 teacher-forced and can be inflated by shared formatting tokens.
 
 The result package includes all 96 unaveraged model-cell rows and a complete
-4 × 8 table of mean ± sample standard deviation over the three seeds.
+4 × 8 table of mean ± sample standard deviation over the three seeds. Because
+all eight tasks are scalar and several answer distributions are imbalanced,
+the report also gives a constant-answer majority baseline and exact accuracy
+minus that baseline for every cell.
 
 The 21 held-out cells test cross-representation behavioral transfer. They do
 not by themselves prove that the internal representations are identical;

@@ -654,12 +654,36 @@ def summarize_cells(rows: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
             "task_status": "seen" if combination in TRAIN_COMBINATIONS else "held_out",
             "seed_count": 3,
         }
-        for metric in ("loss", "token_accuracy", "sequence_accuracy"):
+        for metric in (
+            "loss",
+            "token_accuracy",
+            "sequence_accuracy",
+            "majority_baseline_sequence_accuracy",
+            "sequence_accuracy_minus_majority",
+        ):
             mean, sample_sd = _mean_sd(float(row[metric]) for row in selected)
             values[f"{metric}_mean"] = mean
             values[f"{metric}_sample_sd"] = sample_sd
         result.append(values)
     return result
+
+
+def majority_baselines(manifest_path: Path) -> dict[str, float]:
+    """Return the constant-answer exact baseline for every test-grid cell."""
+
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    answers = {combination: Counter() for combination in FULL_COMBINATIONS}
+    for entry in manifest["shards"]:
+        with gzip.open(manifest_path.parent / entry["filename"], "rt", encoding="utf-8") as handle:
+            for line in handle:
+                value = json.loads(line)
+                answers[value["task"]][json.dumps(value["answer"], sort_keys=True)] += 1
+    if any(sum(counter.values()) != 5_000 for counter in answers.values()):
+        raise ValueError("majority baseline requires 5,000 examples per cell")
+    return {
+        combination: max(counter.values()) / sum(counter.values())
+        for combination, counter in answers.items()
+    }
 
 
 def report(config_path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
@@ -671,6 +695,8 @@ def report(config_path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
         json.loads((evaluation_dir / f"{run.run_id}.json").read_text(encoding="utf-8"))
         for run in build_runs(config_path)
     ]
+    test_manifest = repository / str(config["test_manifest"])
+    baselines = majority_baselines(test_manifest)
     raw = []
     for result in results:
         for combination in FULL_COMBINATIONS:
@@ -689,6 +715,10 @@ def report(config_path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
                     "loss": metric["loss"],
                     "token_accuracy": metric["token_accuracy"],
                     "sequence_accuracy": metric["sequence_accuracy"],
+                    "majority_baseline_sequence_accuracy": baselines[combination],
+                    "sequence_accuracy_minus_majority": (
+                        float(metric["sequence_accuracy"]) - baselines[combination]
+                    ),
                 }
             )
     output_dir = repository / str(config["result_output_dir"])
@@ -718,6 +748,14 @@ def report(config_path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
                     statistics.fmean(float(row["loss"]) for row in rows),
                     statistics.fmean(float(row["token_accuracy"]) for row in rows),
                     statistics.fmean(float(row["sequence_accuracy"]) for row in rows),
+                    statistics.fmean(
+                        float(row["majority_baseline_sequence_accuracy"])
+                        for row in rows
+                    ),
+                    statistics.fmean(
+                        float(row["sequence_accuracy_minus_majority"])
+                        for row in rows
+                    ),
                 )
             )
         summary.append(
@@ -730,6 +768,15 @@ def report(config_path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
                 "token_accuracy_sample_sd": statistics.stdev(value[1] for value in per_seed),
                 "sequence_accuracy_mean": statistics.fmean(value[2] for value in per_seed),
                 "sequence_accuracy_sample_sd": statistics.stdev(value[2] for value in per_seed),
+                "majority_baseline_sequence_accuracy": statistics.fmean(
+                    value[3] for value in per_seed
+                ),
+                "sequence_accuracy_minus_majority_mean": statistics.fmean(
+                    value[4] for value in per_seed
+                ),
+                "sequence_accuracy_minus_majority_sample_sd": statistics.stdev(
+                    value[4] for value in per_seed
+                ),
             }
         )
     _atomic_json({"raw_row_count": len(raw), "summary": summary}, output_dir / "summary.json")
@@ -739,15 +786,18 @@ def report(config_path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
         "Three jointly trained Transformers saw the one-line row and descents column (11 cells).",
         "The other 21 representation-task combinations received no gradient updates.",
         "",
-        "| Status | Cells | Loss | Token accuracy | Exact-sequence accuracy |",
-        "|---|---:|---:|---:|---:|",
+        "| Status | Cells | Loss | Token accuracy | Exact accuracy | Majority baseline | Exact minus majority |",
+        "|---|---:|---:|---:|---:|---:|---:|",
     ]
     for row in summary:
         lines.append(
             f"| {row['task_status']} | {row['cell_count']} | "
             f"{row['loss_mean']:.3f} ± {row['loss_sample_sd']:.3f} | "
             f"{100*row['token_accuracy_mean']:.2f} ± {100*row['token_accuracy_sample_sd']:.2f}% | "
-            f"{100*row['sequence_accuracy_mean']:.2f} ± {100*row['sequence_accuracy_sample_sd']:.2f}% |"
+            f"{100*row['sequence_accuracy_mean']:.2f} ± {100*row['sequence_accuracy_sample_sd']:.2f}% | "
+            f"{100*row['majority_baseline_sequence_accuracy']:.2f}% | "
+            f"{100*row['sequence_accuracy_minus_majority_mean']:+.2f} ± "
+            f"{100*row['sequence_accuracy_minus_majority_sample_sd']:.2f} pp |"
         )
     lines.extend(
         [
@@ -772,6 +822,25 @@ def report(config_path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
             entries.append(
                 f"{100*float(row['sequence_accuracy_mean']):.2f} ± "
                 f"{100*float(row['sequence_accuracy_sample_sd']):.2f}%{suffix}"
+            )
+        lines.append(f"| {representation} | " + " | ".join(entries) + " |")
+    lines.extend(
+        [
+            "",
+            "## Exact accuracy minus the constant-answer majority baseline",
+            "",
+            "| Representation | " + " | ".join(BASE_TASKS) + " |",
+            "|---|" + "---:|" * len(BASE_TASKS),
+        ]
+    )
+    for representation in REPRESENTATIONS:
+        entries = []
+        for task in BASE_TASKS:
+            row = by_cell[f"{representation}:{task}"]
+            suffix = "*" if row["task_status"] == "seen" else ""
+            entries.append(
+                f"{100*float(row['sequence_accuracy_minus_majority_mean']):+.2f} ± "
+                f"{100*float(row['sequence_accuracy_minus_majority_sample_sd']):.2f} pp{suffix}"
             )
         lines.append(f"| {representation} | " + " | ".join(entries) + " |")
     lines.extend(
@@ -852,6 +921,7 @@ __all__ = [
     "derive_split",
     "evaluate_test",
     "main",
+    "majority_baselines",
     "prepare_datasets",
     "report",
     "run_matrix",

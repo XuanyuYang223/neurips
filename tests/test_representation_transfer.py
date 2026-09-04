@@ -130,6 +130,8 @@ def test_cell_summary_averages_only_across_seeds() -> None:
                     "loss": float(index),
                     "token_accuracy": index / 10,
                     "sequence_accuracy": index / 20,
+                    "majority_baseline_sequence_accuracy": 0.05,
+                    "sequence_accuracy_minus_majority": index / 20 - 0.05,
                 }
             )
     summary = summarize_cells(rows)
@@ -137,3 +139,4 @@ def test_cell_summary_averages_only_across_seeds() -> None:
     assert summary[0]["seed_count"] == 3
     assert summary[0]["loss_mean"] == 2.0
     assert summary[0]["sequence_accuracy_mean"] == pytest.approx(0.1)
+    assert summary[0]["sequence_accuracy_minus_majority_mean"] == pytest.approx(0.05)
