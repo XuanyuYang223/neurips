@@ -46,6 +46,7 @@ permutation-paper-figures = "neurips_permutations.paper_figures:main"
 permutation-category-linear-probe = "neurips_permutations.category_linear_probe:main"
 permutation-size-extrapolation = "neurips_permutations.size_extrapolation:main"
 permutation-representation-transfer = "neurips_permutations.representation_transfer:main"
+permutation-property-subset-replicate-results = "neurips_permutations.property_subset_replicate_results:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

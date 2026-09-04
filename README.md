@@ -33,6 +33,8 @@ The shareable result packages are separated by protocol version:
   error bars, and layerwise CKA;
 - [three-replicate protocol](PROPERTY32_REPLICATES.md), with the frozen task
   splits, model seeds, and aggregation rules;
+- [fixed-seed task-subset replicate protocol](PROPERTY32_SUBSET_REPLICATES.md),
+  which isolates task-partition sensitivity with R0/R3/R4 at model seed 17;
 - [linear-probing protocol](PROPERTY32_LINEAR_PROBING.md), which tests whether
   unseen property values become more linearly decodable as `k` increases;
 - [Property32 twenty-shot protocol](PROPERTY32_FEWSHOT.md), which applies

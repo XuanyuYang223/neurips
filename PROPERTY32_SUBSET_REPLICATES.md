@@ -54,3 +54,14 @@ identify a variance component.
 - All models receive 20,000 updates, so per-task exposure falls as `k` grows.
 - A common seed reduces one source of variation but induces dependence across
   the three task-partition replicates.
+
+## Reproduction
+
+```bash
+python -m neurips_permutations.property_experiments --config configs/property32_zero_overlap_r3.toml --run
+python -m neurips_permutations.property_experiments --config configs/property32_zero_overlap_r4.toml --run
+python -m neurips_permutations.property_subset_replicate_results --device cuda
+```
+
+The final command creates the R3/R4 behavioral and CKA artifacts and then
+aggregates R0/R3/R4 without changing the original R0/R1/R2 result package.
