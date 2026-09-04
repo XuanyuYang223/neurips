@@ -1,0 +1,83 @@
+# Frozen four-representation by eight-task row-plus-column transfer study.
+
+protocol_version = "permutation-representation-transfer/v1"
+status = "data_preparation"
+source_train_manifest = "data/permutation-properties-16m-v1/train_manifest.json"
+source_validation_manifest = "data/permutation-properties-16m-v1/validation_manifest.json"
+source_test_manifest = "data/permutation-properties-16m-v1/test_manifest.json"
+data_output_dir = "data/permutation-representation-transfer-v1"
+train_manifest = "data/permutation-representation-transfer-v1/train_manifest.json"
+validation_manifest = "data/permutation-representation-transfer-v1/validation_manifest.json"
+test_manifest = "data/permutation-representation-transfer-v1/test_manifest.json"
+run_output_dir = "runs/permutation-representation-transfer-v1"
+result_output_dir = "results/representation-transfer"
+representations = ["one_line", "cycle", "lehmer", "inversion_vector"]
+tasks = ["length", "parity", "peaks", "exceedances", "fixed_points", "descents", "recoils", "lis_length"]
+model_seeds = [17, 42, 314159]
+
+training_combinations = [
+  "one_line:length", "one_line:parity", "one_line:peaks", "one_line:exceedances",
+  "one_line:fixed_points", "one_line:descents", "one_line:recoils", "one_line:lis_length",
+  "cycle:descents", "lehmer:descents", "inversion_vector:descents",
+]
+
+held_out_combinations = [
+  "cycle:length", "cycle:parity", "cycle:peaks", "cycle:exceedances",
+  "cycle:fixed_points", "cycle:recoils", "cycle:lis_length",
+  "lehmer:length", "lehmer:parity", "lehmer:peaks", "lehmer:exceedances",
+  "lehmer:fixed_points", "lehmer:recoils", "lehmer:lis_length",
+  "inversion_vector:length", "inversion_vector:parity", "inversion_vector:peaks",
+  "inversion_vector:exceedances", "inversion_vector:fixed_points",
+  "inversion_vector:recoils", "inversion_vector:lis_length",
+]
+
+[source_artifact]
+train_manifest_sha256 = "f93ad5624b2c8d7e7e866ce99bf75527691de51cc4806be2f40cca415958054e"
+validation_manifest_sha256 = "b60539df6456fdb9e9a78623134ed279f90909d0c2433f8f770c9e5b8c95ec9d"
+test_manifest_sha256 = "257ff2ea900b90cd6f1edf3c9f0fcea5d2891c746c94440d744f6968dd817979"
+
+# Filled with deterministic manifest hashes after `prepare` completes.
+[derived_artifact]
+train_manifest_sha256 = "TO_BE_GENERATED"
+validation_manifest_sha256 = "TO_BE_GENERATED"
+test_manifest_sha256 = "TO_BE_GENERATED"
+
+[data]
+shuffle_buffer = 10000
+max_sequence_length = 128
+train_records = 5390000
+validation_records = 160000
+test_records = 160000
+train_records_per_cell = 490000
+evaluation_records_per_cell = 5000
+
+[model]
+architecture = "transformer"
+d_model = 256
+layers = 4
+num_heads = 8
+ff_multiplier = 4
+dropout = 0.1
+tie_embeddings = true
+
+[training]
+max_steps = 20000
+micro_batch_size = 16
+validation_batch_size = 32
+gradient_accumulation_steps = 4
+max_tokens_per_batch = 4096
+learning_rate = 0.0003
+min_learning_rate_ratio = 0.1
+weight_decay = 0.01
+warmup_steps = 1000
+gradient_clip_norm = 1.0
+precision = "bf16"
+validate_every_steps = 1000
+validation_batches_per_task = 5
+checkpoint_every_steps = 1000
+num_workers = 0
+
+[evaluation]
+max_examples_per_batch = 64
+max_padded_tokens = 8192
+test_policy = "read_once_after_all_three_checkpoints_pass_strict_audit"

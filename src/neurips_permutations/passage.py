@@ -451,6 +451,35 @@ def inversion_vector_tokens(permutation: Iterable[int]) -> tuple[str, ...]:
     )
 
 
+REPRESENTATIONS: tuple[str, ...] = (
+    "one_line",
+    "cycle",
+    "lehmer",
+    "inversion_vector",
+)
+
+
+def representation_tokens(
+    permutation: Iterable[int], representation: str = "one_line"
+) -> tuple[str, ...]:
+    """Render a permutation in one of the four frozen input representations."""
+
+    renderers = {
+        "one_line": one_line_tokens,
+        "cycle": cycle_tokens,
+        "lehmer": lehmer_tokens,
+        "inversion_vector": inversion_vector_tokens,
+    }
+    try:
+        renderer = renderers[representation]
+    except (KeyError, TypeError):
+        raise ValueError(
+            f"unknown representation {representation!r}; expected one of: "
+            + ", ".join(REPRESENTATIONS)
+        ) from None
+    return renderer(permutation)
+
+
 def _partition_answer(
     answer: Iterable[int], *, n: int, start: str, end: str, name: str
 ) -> tuple[str, ...]:
@@ -607,6 +636,7 @@ def passage_tokens(
     pattern: Iterable[int] | None = None,
     exponent: int | None = None,
     simple_index: int | None = None,
+    representation: str = "one_line",
 ) -> tuple[str, ...]:
     """Build one validated Passage Math sequence for any supported task."""
 
@@ -630,7 +660,7 @@ def passage_tokens(
         "<BOS>",
         "<SIZE>",
         *encode_number(len(primary_values)),
-        *one_line_tokens(primary_values),
+        *representation_tokens(primary_values, representation),
         *operands,
         spec.token,
         "=",
@@ -648,6 +678,7 @@ def render_passage(
     pattern: Iterable[int] | None = None,
     exponent: int | None = None,
     simple_index: int | None = None,
+    representation: str = "one_line",
 ) -> str:
     """Render one Passage Math sequence with exactly one space per token."""
 
@@ -660,6 +691,7 @@ def render_passage(
             pattern=pattern,
             exponent=exponent,
             simple_index=simple_index,
+            representation=representation,
         )
     )
 
@@ -674,6 +706,7 @@ __all__ = [
     "TASK_SPECS",
     "TOKEN_TO_ID",
     "PERMUTATION20_VOCABULARY",
+    "REPRESENTATIONS",
     "TaskSpec",
     "VOCABULARY",
     "canonical_cycles",
@@ -688,6 +721,7 @@ __all__ = [
     "one_line_tokens",
     "passage_tokens",
     "render_passage",
+    "representation_tokens",
     "token_ids",
     "tokenize",
     "validate_permutation",

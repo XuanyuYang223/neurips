@@ -67,6 +67,9 @@ The shareable result packages are separated by protocol version:
   figures, two supplementary diagnostics, captions, and LaTeX snippets.
 - [v3 category-model linear probes](results/v3/linear-probing/category/README.md),
   which compare a common 32-property probe battery across E4/S4/A4 training.
+- [four-representation transfer protocol](REPRESENTATION_TRANSFER_PROTOCOL.md),
+  which jointly trains the one-line row and descents column before evaluating
+  all 32 representation-task combinations.
 
 The primary v3 generalization summaries exclude every task used to train the
 model being evaluated. In other words, trained-task performance is retained
