@@ -1,0 +1,24 @@
+{
+  "architecture": "mlp",
+  "base_run_id": "mlp-tasks04-seed42",
+  "base_trained_task_count": 4,
+  "checkpoint_sha256": "694a45b78f7fe71e59dc163a29aa31f4d56a11b9bb2f5a87899ce73e768199fa",
+  "elapsed_seconds": 4.955815359018743,
+  "evaluator_commit": "0b2aca740c27dfc793b4657a632c9ee7e38856e9",
+  "fewshot_config_sha256": "af2c70b009a5f3aaddc3974b33ff6ee4ec6e29c3f4f99750a7e4933ee1d7ce04",
+  "format_version": "henry-permutation-fewshot-shot-curve-test/v1",
+  "initialization": "pretrained",
+  "metrics": {
+    "examples": 5000,
+    "loss": 1.2927670732975005,
+    "sequence_accuracy": 0.4062,
+    "token_accuracy": 0.7031,
+    "tokens": 10000
+  },
+  "run_id": "pretrained-mlp-tasks04-seed42-parity",
+  "seed": 42,
+  "status": "completed",
+  "support_artifact_sha256": "df635aea1de880d652c7ce13d7d3e70114eab9e12cbabf9e805a919f1a21cb38",
+  "task": "parity",
+  "test_manifest_sha256": "3ca12e6b6eeb29fc0ddd441b9c44c80d7a160faaf7e832eb55007f4c6a3ab52b"
+}

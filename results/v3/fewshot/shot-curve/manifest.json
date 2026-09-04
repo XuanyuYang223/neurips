@@ -1,0 +1,30 @@
+{
+  "artifacts": {
+    "README.md": "d6fb85116877f7b0421b8d4285abe8e7332469d515307629db9e8a0d8da12c92",
+    "adaptation_gains.csv": "27d7eb765bfa8ec767d1b7915815263cc024409aaa0f899b8fedf41d91d6924d",
+    "endpoint_delta.csv": "a435c07e7b0ce875148d0c3e54b5637025a2cf03ed959f13ab8ffc109c6857c7",
+    "model_task_results.csv": "5b235347a0a2c3f166fae14d51caa5cceb585d27b561c7e464328794ea8efa90",
+    "structured_summary.csv": "9cb542bda65fb5c339d6fde7d9b740a44d7b1385ebfbb454d6d5189d4396f575",
+    "summary.csv": "0006efbfcc84ac08120b2e39364e39a4b5391a810a7e462132a4999c21041f0d",
+    "task_summary.csv": "5ebfb9dee52775d9bb9acd327eb31509ca10a72c76d9d5dbe5bf9674ee148b00"
+  },
+  "config_sha256": {
+    "100": "af2c70b009a5f3aaddc3974b33ff6ee4ec6e29c3f4f99750a7e4933ee1d7ce04",
+    "20": "8151ca27cabc61db753714bc3003db88815553a3ad1220e6f54268bc72714ad0",
+    "5": "f788f8d94c6b9914ed99002376f2e88474aa3654f79fbf3624656c25bd4ef5b5"
+  },
+  "protocol_version": "henry-permutation-fewshot-shot-curve-results/v1",
+  "run_count": 432,
+  "shots": [
+    5,
+    20,
+    100
+  ],
+  "status": "completed",
+  "support_artifact_sha256": {
+    "100": "df635aea1de880d652c7ce13d7d3e70114eab9e12cbabf9e805a919f1a21cb38",
+    "20": "a9463d6402dde0425048ff156f94a32e6d2115cc4cbed3788398333ae3aedc0a",
+    "5": "2f40d0987604639945509b844a1f7fe1d0f7490415143673d149f8029ae6f622"
+  },
+  "test_manifest_sha256": "3ca12e6b6eeb29fc0ddd441b9c44c80d7a160faaf7e832eb55007f4c6a3ab52b"
+}

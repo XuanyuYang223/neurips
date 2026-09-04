@@ -229,6 +229,8 @@ def _render_readme(
             "so the full curve is a fixed post-hoc robustness analysis rather than a ",
             "new untouched confirmatory test.",
             "",
+            "Observed support-size result: increasing support from 5 to 100 examples did not produce a consistent pretrained-model improvement. The largest Transformer all-task exact gain was about 2.55 percentage points at base k=4; the other k values changed much less or decreased. Exact accuracy on the three structured outputs remained essentially zero. Matched random-initialization controls also improved with more unique examples, so the curve does not provide strong evidence that pretraining created a robust few-shot operation learner.",
+            "",
             "All endpoints use 800 training presentations (200 steps times batch size ",
             "4). Consequently, each support example is reused about 160, 40, or 8 ",
             "times at 5, 20, or 100 shots. This controls update compute but intentionally ",
