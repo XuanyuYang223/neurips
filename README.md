@@ -210,6 +210,8 @@ are in [PROTOCOL.md](PROTOCOL.md).
   properties and two disjoint balanced pools;
 - [three-replicate protocol](PROPERTY32_REPLICATES.md): the 30-model
   confirmatory extension and frozen aggregation;
+- [fixed-seed task-subset extension](PROPERTY32_SUBSET_REPLICATES.md): two
+  additional balanced partitions for separating task-selection variability;
 - [linear-probing protocol](PROPERTY32_LINEAR_PROBING.md): task-free layerwise
   probes for all 32 properties across the 30 zero-overlap Transformers;
 - [Property32 twenty-shot protocol](PROPERTY32_FEWSHOT.md): 120 warm-start
