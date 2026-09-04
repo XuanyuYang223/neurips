@@ -1,0 +1,39 @@
+# Frozen linear-probing protocol for the 18 completed v3 category models.
+# The analysis uses a common 32-property scalar battery; none of these probe
+# labels is appended to a base-model input or used to update a base-model weight.
+
+protocol_version = "v3-category-linear-probe/v1"
+status = "frozen_before_test_evaluation"
+base_experiment_config = "configs/henry_permutation_revised.toml"
+dataset_manifest = "data/permutation-10m-v3/manifest.json"
+validation_manifest = "data/permutation-10m-v3/validation_manifest.json"
+test_manifest = "data/permutation-10m-v3/test_manifest.json"
+output_dir = "results/v3/linear-probing/category"
+
+[frozen_artifacts]
+base_experiment_config_sha256 = "dd75f31277e42f554ed681beda44bb53f2d4f65089fd9583540b9e645c4f1b40"
+dataset_schema_version = "permutation-20/v3"
+dataset_manifest_sha256 = "b20a16cee7710cee4a21cc4575c8651ade1bcfca18219d2e6c230d4a3ab0cf6f"
+validation_manifest_sha256 = "90e88845f3f58947f317c67144c83bc5e38c27b248227e311632af834d2fd068"
+test_manifest_sha256 = "3ca12e6b6eeb29fc0ddd441b9c44c80d7a160faaf7e832eb55007f4c6a3ab52b"
+trained_model_count = 18
+
+[probe]
+activation_landmark = "<ONE_END>"
+validation_shard_index = 98
+test_shard_index = 99
+validation_examples = 8192
+test_examples = 8192
+validation_probe_seed = 20260903
+test_probe_seed = 20260913
+validation_tune_fraction = 0.25
+validation_split_seed = 20260914
+batch_size = 256
+ridge_alphas = [0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.1, 1.0, 10.0]
+random_baseline_seeds = [17, 42, 314159]
+target_registry = "permutation-properties-32/v1"
+target_transform = "train-length-conditional-zscore"
+alpha_selection_metric = "length_conditioned_r2"
+primary_layer = "final_norm"
+primary_metric = "length_conditioned_r2"
+test_policy = "single_frozen_pass_after_protocol_and_implementation_commit"

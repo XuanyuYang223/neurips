@@ -42,6 +42,7 @@ permutation-property-fewshot-results = "neurips_permutations.property_fewshot_re
 permutation-scaling-k16 = "neurips_permutations.scaling_k16:main"
 permutation-property-fewshot-lr-sensitivity = "neurips_permutations.property_fewshot_lr_sensitivity:main"
 permutation-paper-figures = "neurips_permutations.paper_figures:main"
+permutation-category-linear-probe = "neurips_permutations.category_linear_probe:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

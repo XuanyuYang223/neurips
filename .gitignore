@@ -11,6 +11,7 @@ results/property32-zero-overlap/replicates/*/cka/cache/
 results/property32-relation-controlled/cka/cache/
 results/property-task-geometry/cka/cache/
 results/property32-zero-overlap/linear-probing/cache/
+results/v3/linear-probing/category/cache/
 
 # The generated corpus is intentionally local: 10M records are too large for GitHub.
 data/**/*.jsonl
