@@ -26,6 +26,7 @@ DEFAULT_WORKERS = 1
 class _ShardVerificationJob:
     path: str
     entry: dict[str, Any]
+    min_entries: int
     max_entries: int
     full: bool
     schema_version: str
@@ -181,6 +182,7 @@ def _verify_record(
     record: object,
     *,
     expected_id: int,
+    min_entries: int,
     max_entries: int,
     shard_name: str,
     line_number: int,
@@ -199,6 +201,8 @@ def _verify_record(
         _fail(f"{location}: expected task {expected_task!r}")
 
     size = _require_int(record.get("n"), name=f"{location}.n", minimum=2)
+    if size < min_entries:
+        _fail(f"{location}: n is below manifest min_entries")
     if size > max_entries:
         _fail(f"{location}: n exceeds manifest max_entries")
     inputs = record.get("inputs")
@@ -264,6 +268,7 @@ def _verify_full_shard(
     path: Path,
     *,
     entry: Mapping[str, Any],
+    min_entries: int,
     max_entries: int,
     schema_version: str,
 ) -> Counter[str]:
@@ -284,6 +289,7 @@ def _verify_full_shard(
                 task = _verify_record(
                     record,
                     expected_id=expected_id,
+                    min_entries=min_entries,
                     max_entries=max_entries,
                     shard_name=path.name,
                     line_number=line_number,
@@ -328,6 +334,7 @@ def _verify_shard(job: _ShardVerificationJob) -> tuple[int, int, dict[str, int] 
             _verify_full_shard(
                 path,
                 entry=entry,
+                min_entries=job.min_entries,
                 max_entries=job.max_entries,
                 schema_version=job.schema_version,
             )
@@ -379,6 +386,8 @@ def _load_parent_manifest(
     ):
         if manifest.get(key) != parent.get(key):
             _fail(f"split view disagrees with parent manifest field {key}")
+    if manifest.get("min_entries", 2) != parent.get("min_entries", 2):
+        _fail("split view disagrees with parent manifest field min_entries")
     return parent
 
 
@@ -421,6 +430,11 @@ def verify_manifest(
     max_entries = _require_int(
         manifest.get("max_entries"), name="max_entries", minimum=2
     )
+    min_entries = _require_int(
+        manifest.get("min_entries", 2), name="min_entries", minimum=2
+    )
+    if min_entries > max_entries:
+        _fail("min_entries must not exceed max_entries")
     if manifest.get("base") != 100:
         _fail("manifest base must be 100")
     _require_int(manifest.get("seed"), name="seed", minimum=0)
@@ -544,6 +558,7 @@ def verify_manifest(
             _ShardVerificationJob(
                 path=str(path.parent / filename),
                 entry=entry,
+                min_entries=min_entries,
                 max_entries=max_entries,
                 full=full,
                 schema_version=schema_version,

@@ -16,6 +16,7 @@ from neurips_permutations import math_ops as ops
 from neurips_permutations.generate import (
     DEFAULT_BASE,
     DEFAULT_COUNT,
+    DEFAULT_MIN_ENTRIES,
     DEFAULT_MAX_ENTRIES,
     DEFAULT_SHARD_SIZE,
     SCHEMA_VERSION,
@@ -94,6 +95,7 @@ def _rewrite_one_shard(
 def test_cli_defaults_freeze_the_production_request() -> None:
     args = build_parser().parse_args([])
     assert args.count == DEFAULT_COUNT == 10_000_000
+    assert args.min_entries == DEFAULT_MIN_ENTRIES == 2
     assert args.max_entries == DEFAULT_MAX_ENTRIES == 30
     assert args.base == DEFAULT_BASE == 100
     assert args.shard_size == DEFAULT_SHARD_SIZE == 100_000
@@ -152,6 +154,28 @@ def test_multiple_shards_have_exact_global_task_and_label_balance(
         assert gap > 0
         gaps_by_label[record["answer"]].append(gap)
     assert gaps_by_label[0] == gaps_by_label[1]
+
+
+def test_minimum_entries_freezes_an_extrapolation_range(tmp_path: Path) -> None:
+    manifest_path = generate_dataset(
+        count=40,
+        min_entries=31,
+        max_entries=35,
+        seed=4321,
+        shard_size=20,
+        output_dir=tmp_path / "extrapolation",
+        workers=2,
+    )
+    manifest = _manifest(manifest_path)
+    records = _records(manifest_path)
+    assert manifest["min_entries"] == 31
+    assert {int(record["n"]) for record in records} <= set(range(31, 36))
+    assert min(int(record["n"]) for record in records) >= 31
+    assert verify_manifest(manifest_path, full=True, workers=2)["ok"] is True
+
+    _rewrite_one_shard(manifest_path, 0, lambda record: record.update({"n": 30}))
+    with pytest.raises(VerificationError, match="below manifest min_entries"):
+        verify_manifest(manifest_path, full=True)
 
 
 def test_v3_replaces_expensive_operations_with_three_scalar_statistics() -> None:

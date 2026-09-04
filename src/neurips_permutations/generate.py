@@ -34,6 +34,7 @@ TASKS_BY_SCHEMA: Mapping[str, tuple[str, ...]] = {
     PROPERTY32_SCHEMA_VERSION: PROPERTY32_TASK_NAMES,
 }
 DEFAULT_COUNT = 10_000_000
+DEFAULT_MIN_ENTRIES = 2
 DEFAULT_MAX_ENTRIES = 30
 DEFAULT_BASE = 100
 DEFAULT_SEED = 20_260_830
@@ -52,6 +53,7 @@ class _ShardJob:
     record_count: int
     filename: str
     output_dir: str
+    min_entries: int
     max_entries: int
     base: int
     seed: int
@@ -79,6 +81,7 @@ def task_names_for_schema(schema_version: str) -> tuple[str, ...]:
 def _validate_config(
     *,
     count: int,
+    min_entries: int,
     max_entries: int,
     base: int,
     shard_size: int,
@@ -89,8 +92,11 @@ def _validate_config(
     _checked_int("count", count, minimum=1)
     # V2/V3 include Bruhat examples whose balanced negative construction needs
     # S_4.  The scalar-only property registry is well-defined from S_2.
-    minimum_entries = 2 if schema_version == PROPERTY32_SCHEMA_VERSION else 4
-    _checked_int("max_entries", max_entries, minimum=minimum_entries)
+    _checked_int("min_entries", min_entries, minimum=2)
+    minimum_maximum = 2 if schema_version == PROPERTY32_SCHEMA_VERSION else 4
+    _checked_int("max_entries", max_entries, minimum=minimum_maximum)
+    if min_entries > max_entries:
+        raise ValueError("min_entries must not exceed max_entries")
     _checked_int("base", base, minimum=2)
     _checked_int("shard_size", shard_size, minimum=1)
     _checked_int("seed", seed, minimum=0)
@@ -296,6 +302,7 @@ def _balanced_bruhat_pair(
 def build_record(
     record_id: int,
     *,
+    min_entries: int = DEFAULT_MIN_ENTRIES,
     max_entries: int = DEFAULT_MAX_ENTRIES,
     base: int = DEFAULT_BASE,
     seed: int = DEFAULT_SEED,
@@ -304,8 +311,11 @@ def build_record(
     """Build one compact record, deterministically addressed by ``record_id``."""
 
     _checked_int("record_id", record_id, minimum=0)
-    minimum_entries = 2 if schema_version == PROPERTY32_SCHEMA_VERSION else 3
-    _checked_int("max_entries", max_entries, minimum=minimum_entries)
+    _checked_int("min_entries", min_entries, minimum=2)
+    minimum_maximum = 2 if schema_version == PROPERTY32_SCHEMA_VERSION else 3
+    _checked_int("max_entries", max_entries, minimum=minimum_maximum)
+    if min_entries > max_entries:
+        raise ValueError("min_entries must not exceed max_entries")
     if base != 100:
         raise ValueError("the Passage Math grammar currently requires base=100")
 
@@ -322,11 +332,12 @@ def build_record(
         # preventing either quantity from leaking the binary label.
         pair_index = task_occurrence // 2
         pair_rng = _record_rng(seed ^ 0xB8A7_4A7, pair_index)
-        size = pair_rng.randint(4, max_entries)
+        size = pair_rng.randint(max(4, min_entries), max_entries)
         gap_limit = 2 if size == 4 else min(4, size - 1)
         bruhat_gap = 1 + pair_index % gap_limit
     else:
-        size = rng.randint(3 if task == "pattern_avoidance" else 2, max_entries)
+        task_minimum = 3 if task == "pattern_avoidance" else 2
+        size = rng.randint(max(task_minimum, min_entries), max_entries)
     primary = _random_permutation(size, rng)
     answer: object
     render_kwargs: dict[str, object] = {}
@@ -488,6 +499,7 @@ def _write_shard(job: _ShardJob) -> dict[str, Any]:
             for record_id in range(job.start_id, job.start_id + job.record_count):
                 record = build_record(
                     record_id,
+                    min_entries=job.min_entries,
                     max_entries=job.max_entries,
                     base=job.base,
                     seed=job.seed,
@@ -516,6 +528,7 @@ def _expected_jobs(
     count: int,
     shard_size: int,
     output_dir: Path,
+    min_entries: int,
     max_entries: int,
     base: int,
     seed: int,
@@ -532,6 +545,7 @@ def _expected_jobs(
                 record_count=min(shard_size, count - start_id),
                 filename=f"part-{index:0{width}d}.jsonl.gz",
                 output_dir=str(output_dir),
+                min_entries=min_entries,
                 max_entries=max_entries,
                 base=base,
                 seed=seed,
@@ -555,6 +569,7 @@ def _assert_compatible_manifest(
     manifest: Mapping[str, Any],
     *,
     count: int,
+    min_entries: int,
     max_entries: int,
     base: int,
     seed: int,
@@ -571,6 +586,10 @@ def _assert_compatible_manifest(
         "shard_size": shard_size,
         "tasks": list(task_names),
     }
+    if min_entries != DEFAULT_MIN_ENTRIES:
+        expected["min_entries"] = min_entries
+    elif manifest.get("min_entries", DEFAULT_MIN_ENTRIES) != DEFAULT_MIN_ENTRIES:
+        expected["min_entries"] = min_entries
     mismatches = [key for key, value in expected.items() if manifest.get(key) != value]
     if mismatches:
         raise ValueError(
@@ -658,6 +677,7 @@ def _write_manifest(path: Path, manifest: Mapping[str, Any]) -> None:
 def generate_dataset(
     *,
     count: int = DEFAULT_COUNT,
+    min_entries: int = DEFAULT_MIN_ENTRIES,
     max_entries: int = DEFAULT_MAX_ENTRIES,
     base: int = DEFAULT_BASE,
     seed: int = DEFAULT_SEED,
@@ -671,6 +691,7 @@ def generate_dataset(
 
     _validate_config(
         count=count,
+        min_entries=min_entries,
         max_entries=max_entries,
         base=base,
         shard_size=shard_size,
@@ -685,6 +706,7 @@ def generate_dataset(
         count=count,
         shard_size=shard_size,
         output_dir=destination,
+        min_entries=min_entries,
         max_entries=max_entries,
         base=base,
         seed=seed,
@@ -698,6 +720,7 @@ def generate_dataset(
         _assert_compatible_manifest(
             old_manifest,
             count=count,
+            min_entries=min_entries,
             max_entries=max_entries,
             base=base,
             seed=seed,
@@ -760,6 +783,8 @@ def generate_dataset(
         "total_bytes": sum(shard["byte_size"] for shard in shards),
         "shards": shards,
     }
+    if min_entries != DEFAULT_MIN_ENTRIES:
+        manifest["min_entries"] = min_entries
     _write_manifest(manifest_path, manifest)
     return manifest_path
 
@@ -769,6 +794,7 @@ def build_parser() -> argparse.ArgumentParser:
         description="Generate deterministic Passage Math permutation shards."
     )
     parser.add_argument("--count", type=int, default=DEFAULT_COUNT)
+    parser.add_argument("--min-entries", type=int, default=DEFAULT_MIN_ENTRIES)
     parser.add_argument("--max-entries", type=int, default=DEFAULT_MAX_ENTRIES)
     parser.add_argument("--base", type=int, default=DEFAULT_BASE)
     parser.add_argument("--seed", type=int, default=DEFAULT_SEED)
@@ -795,6 +821,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     manifest = generate_dataset(
         count=args.count,
+        min_entries=args.min_entries,
         max_entries=args.max_entries,
         base=args.base,
         seed=args.seed,
@@ -815,6 +842,7 @@ if __name__ == "__main__":  # pragma: no cover
 __all__ = [
     "DEFAULT_BASE",
     "DEFAULT_COUNT",
+    "DEFAULT_MIN_ENTRIES",
     "DEFAULT_MAX_ENTRIES",
     "DEFAULT_OUTPUT_DIR",
     "DEFAULT_SEED",
