@@ -263,6 +263,17 @@ study.
 The few-shot component is complete as a separate 20-example adaptation
 follow-up. Its [protocol](FEW_SHOT_PROTOCOL.md) and
 [results](fewshot/README.md) are kept separate from the zero-shot tables above.
+
+The post-hoc [paired 5/20/100-shot curve](fewshot/shot-curve/README.md) holds
+the base model, task, seed, update count, and learning rate fixed. Increasing
+the number of unique support examples does not produce a consistent
+pretrained-model gain, and structured-output exact accuracy remains
+essentially zero.
+
+The post-hoc [length-31–40 extrapolation](size-extrapolation/README.md) shifts
+beyond the training range of 2–30. Exact accuracy falls sharply for both
+architectures at every nested task count, so the in-distribution results do
+not extend to reliable length extrapolation.
 Transformer four-task exact accuracy rises from 3.37% at one base task to
 12.68% at eight tasks, but the increase is almost entirely Boolean `parity`;
 exact accuracy on the three structured holdouts remains at or below 0.113%.

@@ -26,6 +26,8 @@ validation results, not an untouched final test evaluation.
 - [Launch and provenance record](v3/LAUNCH.md)
 - [Henry-style 20-shot follow-up protocol](v3/FEW_SHOT_PROTOCOL.md)
 - [Henry-style 20-shot results](v3/fewshot/README.md)
+- [Paired 5/20/100-shot curve](v3/fewshot/shot-curve/README.md)
+- [Length-31–40 extrapolation](v3/size-extrapolation/README.md)
 - [Layerwise CKA representation analysis](v3/cka/README.md)
 - [Disjoint-category CKA follow-up](v3/cka/category/README.md)
 - [Data and model scaling protocol](v3/SCALING_PROTOCOL.md)

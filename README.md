@@ -45,6 +45,10 @@ The shareable result packages are separated by protocol version:
   a validation-only completion of the initialization-by-learning-rate factorial;
 - [Property32 matched-learning-rate sensitivity results](results/property32-zero-overlap/fewshot/lr-sensitivity/README.md),
   including all 288 endpoints and paired learning-rate interactions;
+- [paired v3 5/20/100-shot curve](results/v3/fewshot/shot-curve/README.md),
+  which varies the nested support size while retaining matched random controls;
+- [v3 length-extrapolation results](results/v3/size-extrapolation/README.md),
+  which evaluate the 30 nested models on permutations of length 31–40;
 - [deadline-scoped k=16 scaling protocol](SCALING_K16.md), a three-seed 2x2
   data-by-depth factorial using both architectures;
 - [completed k=16 scaling results](results/v3/scaling/k16/README.md), including
