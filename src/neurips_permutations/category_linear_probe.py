@@ -395,6 +395,12 @@ def _render_readme(
         for row in contrasts
         if row["layer"] == "final_norm" and row["probe_task_family"] == "all"
     }
+    architecture_labels = {"transformer": "Transformer", "mlp": "MLP"}
+    condition_labels = {
+        "encoding_e4": "Encoding E4",
+        "statistics_s4": "Statistics S4",
+        "algebra_a4": "Algebra A4",
+    }
     lines = [
         "# V3 category-model linear probing",
         "",
@@ -423,7 +429,7 @@ def _render_readme(
             row = final_all[("trained", architecture, condition)]
             delta = final_contrasts[(architecture, condition)]
             lines.append(
-                f"| {architecture.title()} | {condition} | "
+                f"| {architecture_labels[architecture]} | {condition_labels[condition]} | "
                 f"{float(row['length_conditioned_r2_mean']):.4f} +/- "
                 f"{float(row['length_conditioned_r2_sample_sd']):.4f} | "
                 f"{float(delta['length_conditioned_r2_delta_mean']):+.4f} +/- "
@@ -434,7 +440,7 @@ def _render_readme(
                 f"{100 * float(delta['exact_accuracy_delta_sample_sd']):.2f} pp |"
             )
         lines.append(
-            f"| {architecture.title()} | random_init | "
+            f"| {architecture_labels[architecture]} | Random init | "
             f"{float(random['length_conditioned_r2_mean']):.4f} +/- "
             f"{float(random['length_conditioned_r2_sample_sd']):.4f} | -- | "
             f"{100 * float(random['exact_accuracy_mean']):.2f}% +/- "
@@ -442,6 +448,19 @@ def _render_readme(
         )
     lines.extend(
         [
+            "",
+            "For the Transformer, Statistics S4 has the largest all-property R2 ",
+            "gain over random initialization, followed by Encoding E4; Algebra A4 ",
+            "adds little overall. For the MLP, all three trained conditions exceed ",
+            "its weak random-feature baseline, with Encoding E4 highest overall. ",
+            "The architecture-dependent ordering argues against a single universal ",
+            "claim that one task family always produces the richest representation.",
+            "",
+            "No exact scalar probe task was a category-model training target. Some ",
+            "training outputs nevertheless determine probe labels: for example, ",
+            "cycle type determines cycle-count properties and RSK shape determines ",
+            "LIS and LDS lengths. The family table should therefore be interpreted ",
+            "as mathematical alignment, not as 32 equally unrelated holdouts.",
             "",
             "The complete CSVs separate local, positional, cycle, and global/run ",
             "target families at every layer. These are linear-decodability results, ",
