@@ -1,0 +1,48 @@
+{
+  "format_version": "permutation-paper-figures/v1",
+  "inputs": {
+    "results/property-task-geometry/cka/specialist_group_summary.csv": "5efff28f9d597681a9dc06693e7f888593579d67990ead11fc1bc9fb392cad54",
+    "results/property-task-geometry/cka/symmetry_summary.csv": "41e1e510b1195dde486d77be2f8c1f247739b683122da9e4770c507d41f8b271",
+    "results/property32-zero-overlap/fewshot/lr-sensitivity/matched_lr_summary.csv": "4d1730785c0503a5e8e4c3fd1bb28a63f5239ec51e20d9b4de1f82d408719ee1",
+    "results/property32-zero-overlap/linear-probing/opposite_pool_summary.csv": "ec2cdea209e63e1be3896d2dcf61223d2f7614eb8b5543d4bfbee79c34d5bfda",
+    "results/property32-zero-overlap/linear-probing/random_baseline_summary.csv": "bbdb695d2c006ae44a1c6396f8a8271d3a3c3c753e79a6c2962b46f7c9a17f1b",
+    "results/property32-zero-overlap/replicates/behavior_summary.csv": "74689033bfb3c6c8cf55a8d87a95063c6efc306d605402c478e7a7ed9dfb4616",
+    "results/property32-zero-overlap/replicates/cka_replicates.csv": "cc377234cbb518b0d669accb73603674b492537e2382e89ccd8045d8d9844f80",
+    "results/property32-zero-overlap/replicates/cka_summary.csv": "6c123157c7d191706a1f1b8a733ef9c7124c477b78d63f5141f4a98ea0701415",
+    "results/v3/scaling/k16/summary.csv": "346d509d5ec5bfa2208ae3b9cf29292962917f11fb0eb66d8e0fc75461588488"
+  },
+  "main_text_figures": [
+    "figure1_generalization_signals",
+    "figure2_task_geometry"
+  ],
+  "outputs": {
+    "figure1_generalization_signals.png": {
+      "bytes": 51489,
+      "sha256": "a835ef3a3c12f8933655d694b4d17389017718b5d8870cf41e68b263e4f685a3"
+    },
+    "figure1_generalization_signals.svg": {
+      "bytes": 21555,
+      "sha256": "8b8034941535876393b896de6f908ec1b84233fc1e03208ba903bb991743538b"
+    },
+    "figure2_task_geometry.png": {
+      "bytes": 62739,
+      "sha256": "fa6327bbc94876b2a2c628e1287988e73c198475c6ffa5be79d817be33241313"
+    },
+    "figure2_task_geometry.svg": {
+      "bytes": 20912,
+      "sha256": "9cca3fda208990a175ac48b91d6dd55f31afc380edd6a5a1a6ffbc9650896e4a"
+    },
+    "figureS1_scaling_diagnostics.png": {
+      "bytes": 41199,
+      "sha256": "9881807a4b142bd5ccc3c0eec4ede427fa22dd1427f67e97f21c38a14ce1b7f9"
+    },
+    "figureS1_scaling_diagnostics.svg": {
+      "bytes": 13161,
+      "sha256": "dcb8a24e3b7d112617d80787f178c70b5726ff7aae1e8d83cff1337b48016edc"
+    }
+  },
+  "status": "completed",
+  "supplementary_figures": [
+    "figureS1_scaling_diagnostics"
+  ]
+}

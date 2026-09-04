@@ -1,0 +1,177 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img">
+<rect width="100%" height="100%" fill="#FFFFFF"/>
+<text x="18.00" y="25.00" fill="#202124" font-size="13.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="600" text-anchor="start">(a) Hard zero-shot execution</text>
+<text x="73.00" y="66.00" fill="#687078" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="start">Opposite-pool exact accuracy (%)</text>
+<line x1="73.00" y1="320.00" x2="365.00" y2="320.00" stroke="#D9DEE3" stroke-width="0.80" opacity="1.000"/>
+<text x="65.00" y="324.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="end">0</text>
+<line x1="73.00" y1="259.00" x2="365.00" y2="259.00" stroke="#D9DEE3" stroke-width="0.80" opacity="1.000"/>
+<text x="65.00" y="263.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="end">10</text>
+<line x1="73.00" y1="198.00" x2="365.00" y2="198.00" stroke="#D9DEE3" stroke-width="0.80" opacity="1.000"/>
+<text x="65.00" y="202.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="end">20</text>
+<line x1="73.00" y1="137.00" x2="365.00" y2="137.00" stroke="#D9DEE3" stroke-width="0.80" opacity="1.000"/>
+<text x="65.00" y="141.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="end">30</text>
+<line x1="73.00" y1="76.00" x2="365.00" y2="76.00" stroke="#D9DEE3" stroke-width="0.80" opacity="1.000"/>
+<text x="65.00" y="80.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="end">40</text>
+<line x1="73.00" y1="76.00" x2="73.00" y2="320.00" stroke="#202124" stroke-width="1.00" opacity="1.000"/>
+<line x1="73.00" y1="320.00" x2="365.00" y2="320.00" stroke="#202124" stroke-width="1.00" opacity="1.000"/>
+<text x="73.00" y="338.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">1</text>
+<text x="146.00" y="338.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">2</text>
+<text x="219.00" y="338.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">4</text>
+<text x="292.00" y="338.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">8</text>
+<text x="365.00" y="338.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">16</text>
+<line x1="73.00" y1="245.30" x2="146.00" y2="249.91" stroke="#0072B2" stroke-width="2.40" opacity="1.000"/>
+<line x1="146.00" y1="249.91" x2="219.00" y2="247.05" stroke="#0072B2" stroke-width="2.40" opacity="1.000"/>
+<line x1="219.00" y1="247.05" x2="292.00" y2="236.80" stroke="#0072B2" stroke-width="2.40" opacity="1.000"/>
+<line x1="292.00" y1="236.80" x2="365.00" y2="218.02" stroke="#0072B2" stroke-width="2.40" opacity="1.000"/>
+<line x1="73.00" y1="261.51" x2="73.00" y2="229.09" stroke="#0072B2" stroke-width="1.40" opacity="1.000"/>
+<line x1="69.00" y1="261.51" x2="77.00" y2="261.51" stroke="#0072B2" stroke-width="1.40" opacity="1.000"/>
+<line x1="69.00" y1="229.09" x2="77.00" y2="229.09" stroke="#0072B2" stroke-width="1.40" opacity="1.000"/>
+<circle cx="73.00" cy="245.30" r="4.00" fill="#0072B2" stroke="#FFFFFF" stroke-width="1.00" opacity="1.000"/>
+<line x1="146.00" y1="263.43" x2="146.00" y2="236.38" stroke="#0072B2" stroke-width="1.40" opacity="1.000"/>
+<line x1="142.00" y1="263.43" x2="150.00" y2="263.43" stroke="#0072B2" stroke-width="1.40" opacity="1.000"/>
+<line x1="142.00" y1="236.38" x2="150.00" y2="236.38" stroke="#0072B2" stroke-width="1.40" opacity="1.000"/>
+<circle cx="146.00" cy="249.91" r="4.00" fill="#0072B2" stroke="#FFFFFF" stroke-width="1.00" opacity="1.000"/>
+<line x1="219.00" y1="258.66" x2="219.00" y2="235.43" stroke="#0072B2" stroke-width="1.40" opacity="1.000"/>
+<line x1="215.00" y1="258.66" x2="223.00" y2="258.66" stroke="#0072B2" stroke-width="1.40" opacity="1.000"/>
+<line x1="215.00" y1="235.43" x2="223.00" y2="235.43" stroke="#0072B2" stroke-width="1.40" opacity="1.000"/>
+<circle cx="219.00" cy="247.05" r="4.00" fill="#0072B2" stroke="#FFFFFF" stroke-width="1.00" opacity="1.000"/>
+<line x1="292.00" y1="259.56" x2="292.00" y2="214.04" stroke="#0072B2" stroke-width="1.40" opacity="1.000"/>
+<line x1="288.00" y1="259.56" x2="296.00" y2="259.56" stroke="#0072B2" stroke-width="1.40" opacity="1.000"/>
+<line x1="288.00" y1="214.04" x2="296.00" y2="214.04" stroke="#0072B2" stroke-width="1.40" opacity="1.000"/>
+<circle cx="292.00" cy="236.80" r="4.00" fill="#0072B2" stroke="#FFFFFF" stroke-width="1.00" opacity="1.000"/>
+<line x1="365.00" y1="233.27" x2="365.00" y2="202.76" stroke="#0072B2" stroke-width="1.40" opacity="1.000"/>
+<line x1="361.00" y1="233.27" x2="369.00" y2="233.27" stroke="#0072B2" stroke-width="1.40" opacity="1.000"/>
+<line x1="361.00" y1="202.76" x2="369.00" y2="202.76" stroke="#0072B2" stroke-width="1.40" opacity="1.000"/>
+<circle cx="365.00" cy="218.02" r="4.00" fill="#0072B2" stroke="#FFFFFF" stroke-width="1.00" opacity="1.000"/>
+<line x1="73.00" y1="119.72" x2="365.00" y2="119.72" stroke="#D55E00" stroke-width="1.50" opacity="1.000" stroke-dasharray="6 4"/>
+<line x1="76.00" y1="48.00" x2="94.00" y2="48.00" stroke="#0072B2" stroke-width="2.40" opacity="1.000"/>
+<circle cx="85.00" cy="48.00" r="3.00" fill="#0072B2" stroke="#FFFFFF" stroke-width="1.00" opacity="1.000"/>
+<text x="100.00" y="52.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="start">model mean +/- SD</text>
+<line x1="218.00" y1="48.00" x2="236.00" y2="48.00" stroke="#D55E00" stroke-width="1.50" opacity="1.000" stroke-dasharray="6 4"/>
+<text x="242.00" y="52.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="start">majority baseline</text>
+<text x="412.00" y="25.00" fill="#202124" font-size="13.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="600" text-anchor="start">(b) Linear decodability</text>
+<text x="467.00" y="66.00" fill="#687078" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="start">Final-layer length-conditioned R²</text>
+<line x1="467.00" y1="320.00" x2="759.00" y2="320.00" stroke="#D9DEE3" stroke-width="0.80" opacity="1.000"/>
+<text x="459.00" y="324.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="end">0.0</text>
+<line x1="467.00" y1="259.00" x2="759.00" y2="259.00" stroke="#D9DEE3" stroke-width="0.80" opacity="1.000"/>
+<text x="459.00" y="263.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="end">0.1</text>
+<line x1="467.00" y1="198.00" x2="759.00" y2="198.00" stroke="#D9DEE3" stroke-width="0.80" opacity="1.000"/>
+<text x="459.00" y="202.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="end">0.2</text>
+<line x1="467.00" y1="137.00" x2="759.00" y2="137.00" stroke="#D9DEE3" stroke-width="0.80" opacity="1.000"/>
+<text x="459.00" y="141.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="end">0.3</text>
+<line x1="467.00" y1="76.00" x2="759.00" y2="76.00" stroke="#D9DEE3" stroke-width="0.80" opacity="1.000"/>
+<text x="459.00" y="80.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="end">0.4</text>
+<line x1="467.00" y1="76.00" x2="467.00" y2="320.00" stroke="#202124" stroke-width="1.00" opacity="1.000"/>
+<line x1="467.00" y1="320.00" x2="759.00" y2="320.00" stroke="#202124" stroke-width="1.00" opacity="1.000"/>
+<text x="467.00" y="338.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">1</text>
+<text x="540.00" y="338.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">2</text>
+<text x="613.00" y="338.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">4</text>
+<text x="686.00" y="338.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">8</text>
+<text x="759.00" y="338.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">16</text>
+<line x1="467.00" y1="199.34" x2="540.00" y2="170.75" stroke="#009E73" stroke-width="2.40" opacity="1.000"/>
+<line x1="540.00" y1="170.75" x2="613.00" y2="154.92" stroke="#009E73" stroke-width="2.40" opacity="1.000"/>
+<line x1="613.00" y1="154.92" x2="686.00" y2="132.79" stroke="#009E73" stroke-width="2.40" opacity="1.000"/>
+<line x1="686.00" y1="132.79" x2="759.00" y2="138.95" stroke="#009E73" stroke-width="2.40" opacity="1.000"/>
+<line x1="467.00" y1="246.34" x2="467.00" y2="152.35" stroke="#009E73" stroke-width="1.40" opacity="1.000"/>
+<line x1="463.00" y1="246.34" x2="471.00" y2="246.34" stroke="#009E73" stroke-width="1.40" opacity="1.000"/>
+<line x1="463.00" y1="152.35" x2="471.00" y2="152.35" stroke="#009E73" stroke-width="1.40" opacity="1.000"/>
+<circle cx="467.00" cy="199.34" r="4.00" fill="#009E73" stroke="#FFFFFF" stroke-width="1.00" opacity="1.000"/>
+<line x1="540.00" y1="191.69" x2="540.00" y2="149.81" stroke="#009E73" stroke-width="1.40" opacity="1.000"/>
+<line x1="536.00" y1="191.69" x2="544.00" y2="191.69" stroke="#009E73" stroke-width="1.40" opacity="1.000"/>
+<line x1="536.00" y1="149.81" x2="544.00" y2="149.81" stroke="#009E73" stroke-width="1.40" opacity="1.000"/>
+<circle cx="540.00" cy="170.75" r="4.00" fill="#009E73" stroke="#FFFFFF" stroke-width="1.00" opacity="1.000"/>
+<line x1="613.00" y1="164.33" x2="613.00" y2="145.51" stroke="#009E73" stroke-width="1.40" opacity="1.000"/>
+<line x1="609.00" y1="164.33" x2="617.00" y2="164.33" stroke="#009E73" stroke-width="1.40" opacity="1.000"/>
+<line x1="609.00" y1="145.51" x2="617.00" y2="145.51" stroke="#009E73" stroke-width="1.40" opacity="1.000"/>
+<circle cx="613.00" cy="154.92" r="4.00" fill="#009E73" stroke="#FFFFFF" stroke-width="1.00" opacity="1.000"/>
+<line x1="686.00" y1="143.38" x2="686.00" y2="122.21" stroke="#009E73" stroke-width="1.40" opacity="1.000"/>
+<line x1="682.00" y1="143.38" x2="690.00" y2="143.38" stroke="#009E73" stroke-width="1.40" opacity="1.000"/>
+<line x1="682.00" y1="122.21" x2="690.00" y2="122.21" stroke="#009E73" stroke-width="1.40" opacity="1.000"/>
+<circle cx="686.00" cy="132.79" r="4.00" fill="#009E73" stroke="#FFFFFF" stroke-width="1.00" opacity="1.000"/>
+<line x1="759.00" y1="147.56" x2="759.00" y2="130.34" stroke="#009E73" stroke-width="1.40" opacity="1.000"/>
+<line x1="755.00" y1="147.56" x2="763.00" y2="147.56" stroke="#009E73" stroke-width="1.40" opacity="1.000"/>
+<line x1="755.00" y1="130.34" x2="763.00" y2="130.34" stroke="#009E73" stroke-width="1.40" opacity="1.000"/>
+<circle cx="759.00" cy="138.95" r="4.00" fill="#009E73" stroke="#FFFFFF" stroke-width="1.00" opacity="1.000"/>
+<line x1="467.00" y1="188.99" x2="759.00" y2="188.99" stroke="#687078" stroke-width="1.50" opacity="1.000" stroke-dasharray="6 4"/>
+<line x1="470.00" y1="48.00" x2="488.00" y2="48.00" stroke="#009E73" stroke-width="2.40" opacity="1.000"/>
+<circle cx="479.00" cy="48.00" r="3.00" fill="#009E73" stroke="#FFFFFF" stroke-width="1.00" opacity="1.000"/>
+<text x="494.00" y="52.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="start">trained</text>
+<line x1="572.00" y1="48.00" x2="590.00" y2="48.00" stroke="#687078" stroke-width="1.50" opacity="1.000" stroke-dasharray="6 4"/>
+<text x="596.00" y="52.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="start">random init</text>
+<text x="806.00" y="25.00" fill="#202124" font-size="13.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="600" text-anchor="start">(c) Twenty-shot transfer</text>
+<text x="861.00" y="66.00" fill="#687078" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="start">Pretrained - random exact accuracy (pp)</text>
+<line x1="861.00" y1="281.47" x2="1153.00" y2="281.47" stroke="#D9DEE3" stroke-width="0.80" opacity="1.000"/>
+<text x="853.00" y="285.47" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="end">-10</text>
+<line x1="861.00" y1="217.26" x2="1153.00" y2="217.26" stroke="#D9DEE3" stroke-width="0.80" opacity="1.000"/>
+<text x="853.00" y="221.26" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="end">+0</text>
+<line x1="861.00" y1="153.05" x2="1153.00" y2="153.05" stroke="#D9DEE3" stroke-width="0.80" opacity="1.000"/>
+<text x="853.00" y="157.05" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="end">+10</text>
+<line x1="861.00" y1="88.84" x2="1153.00" y2="88.84" stroke="#D9DEE3" stroke-width="0.80" opacity="1.000"/>
+<text x="853.00" y="92.84" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="end">+20</text>
+<line x1="861.00" y1="76.00" x2="861.00" y2="320.00" stroke="#202124" stroke-width="1.00" opacity="1.000"/>
+<line x1="861.00" y1="320.00" x2="1153.00" y2="320.00" stroke="#202124" stroke-width="1.00" opacity="1.000"/>
+<text x="861.00" y="338.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">1</text>
+<text x="934.00" y="338.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">2</text>
+<text x="1007.00" y="338.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">4</text>
+<text x="1080.00" y="338.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">8</text>
+<text x="1153.00" y="338.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">16</text>
+<line x1="861.00" y1="217.26" x2="1153.00" y2="217.26" stroke="#687078" stroke-width="1.20" opacity="1.000" stroke-dasharray="5 4"/>
+<line x1="861.00" y1="251.32" x2="934.00" y2="226.09" stroke="#CC79A7" stroke-width="2.40" opacity="1.000"/>
+<line x1="934.00" y1="226.09" x2="1007.00" y2="191.84" stroke="#CC79A7" stroke-width="2.40" opacity="1.000"/>
+<line x1="1007.00" y1="191.84" x2="1080.00" y2="154.19" stroke="#CC79A7" stroke-width="2.40" opacity="1.000"/>
+<line x1="1080.00" y1="154.19" x2="1153.00" y2="142.09" stroke="#CC79A7" stroke-width="2.40" opacity="1.000"/>
+<line x1="861.00" y1="300.85" x2="861.00" y2="201.80" stroke="#CC79A7" stroke-width="1.40" opacity="1.000"/>
+<line x1="857.00" y1="300.85" x2="865.00" y2="300.85" stroke="#CC79A7" stroke-width="1.40" opacity="1.000"/>
+<line x1="857.00" y1="201.80" x2="865.00" y2="201.80" stroke="#CC79A7" stroke-width="1.40" opacity="1.000"/>
+<circle cx="861.00" cy="251.32" r="4.00" fill="#CC79A7" stroke="#FFFFFF" stroke-width="1.00" opacity="1.000"/>
+<line x1="934.00" y1="288.14" x2="934.00" y2="164.03" stroke="#CC79A7" stroke-width="1.40" opacity="1.000"/>
+<line x1="930.00" y1="288.14" x2="938.00" y2="288.14" stroke="#CC79A7" stroke-width="1.40" opacity="1.000"/>
+<line x1="930.00" y1="164.03" x2="938.00" y2="164.03" stroke="#CC79A7" stroke-width="1.40" opacity="1.000"/>
+<circle cx="934.00" cy="226.09" r="4.00" fill="#CC79A7" stroke="#FFFFFF" stroke-width="1.00" opacity="1.000"/>
+<line x1="1007.00" y1="245.94" x2="1007.00" y2="137.75" stroke="#CC79A7" stroke-width="1.40" opacity="1.000"/>
+<line x1="1003.00" y1="245.94" x2="1011.00" y2="245.94" stroke="#CC79A7" stroke-width="1.40" opacity="1.000"/>
+<line x1="1003.00" y1="137.75" x2="1011.00" y2="137.75" stroke="#CC79A7" stroke-width="1.40" opacity="1.000"/>
+<circle cx="1007.00" cy="191.84" r="4.00" fill="#CC79A7" stroke="#FFFFFF" stroke-width="1.00" opacity="1.000"/>
+<line x1="1080.00" y1="183.09" x2="1080.00" y2="125.30" stroke="#CC79A7" stroke-width="1.40" opacity="1.000"/>
+<line x1="1076.00" y1="183.09" x2="1084.00" y2="183.09" stroke="#CC79A7" stroke-width="1.40" opacity="1.000"/>
+<line x1="1076.00" y1="125.30" x2="1084.00" y2="125.30" stroke="#CC79A7" stroke-width="1.40" opacity="1.000"/>
+<circle cx="1080.00" cy="154.19" r="4.00" fill="#CC79A7" stroke="#FFFFFF" stroke-width="1.00" opacity="1.000"/>
+<line x1="1153.00" y1="175.71" x2="1153.00" y2="108.47" stroke="#CC79A7" stroke-width="1.40" opacity="1.000"/>
+<line x1="1149.00" y1="175.71" x2="1157.00" y2="175.71" stroke="#CC79A7" stroke-width="1.40" opacity="1.000"/>
+<line x1="1149.00" y1="108.47" x2="1157.00" y2="108.47" stroke="#CC79A7" stroke-width="1.40" opacity="1.000"/>
+<circle cx="1153.00" cy="142.09" r="4.00" fill="#CC79A7" stroke="#FFFFFF" stroke-width="1.00" opacity="1.000"/>
+<line x1="861.00" y1="219.58" x2="934.00" y2="210.57" stroke="#D55E00" stroke-width="2.40" opacity="1.000"/>
+<line x1="934.00" y1="210.57" x2="1007.00" y2="204.59" stroke="#D55E00" stroke-width="2.40" opacity="1.000"/>
+<line x1="1007.00" y1="204.59" x2="1080.00" y2="209.92" stroke="#D55E00" stroke-width="2.40" opacity="1.000"/>
+<line x1="1080.00" y1="209.92" x2="1153.00" y2="198.26" stroke="#D55E00" stroke-width="2.40" opacity="1.000"/>
+<line x1="861.00" y1="242.39" x2="861.00" y2="196.77" stroke="#D55E00" stroke-width="1.40" opacity="1.000"/>
+<line x1="857.00" y1="242.39" x2="865.00" y2="242.39" stroke="#D55E00" stroke-width="1.40" opacity="1.000"/>
+<line x1="857.00" y1="196.77" x2="865.00" y2="196.77" stroke="#D55E00" stroke-width="1.40" opacity="1.000"/>
+<circle cx="861.00" cy="219.58" r="4.00" fill="#D55E00" stroke="#FFFFFF" stroke-width="1.00" opacity="1.000"/>
+<line x1="934.00" y1="227.96" x2="934.00" y2="193.18" stroke="#D55E00" stroke-width="1.40" opacity="1.000"/>
+<line x1="930.00" y1="227.96" x2="938.00" y2="227.96" stroke="#D55E00" stroke-width="1.40" opacity="1.000"/>
+<line x1="930.00" y1="193.18" x2="938.00" y2="193.18" stroke="#D55E00" stroke-width="1.40" opacity="1.000"/>
+<circle cx="934.00" cy="210.57" r="4.00" fill="#D55E00" stroke="#FFFFFF" stroke-width="1.00" opacity="1.000"/>
+<line x1="1007.00" y1="216.16" x2="1007.00" y2="193.03" stroke="#D55E00" stroke-width="1.40" opacity="1.000"/>
+<line x1="1003.00" y1="216.16" x2="1011.00" y2="216.16" stroke="#D55E00" stroke-width="1.40" opacity="1.000"/>
+<line x1="1003.00" y1="193.03" x2="1011.00" y2="193.03" stroke="#D55E00" stroke-width="1.40" opacity="1.000"/>
+<circle cx="1007.00" cy="204.59" r="4.00" fill="#D55E00" stroke="#FFFFFF" stroke-width="1.00" opacity="1.000"/>
+<line x1="1080.00" y1="226.50" x2="1080.00" y2="193.33" stroke="#D55E00" stroke-width="1.40" opacity="1.000"/>
+<line x1="1076.00" y1="226.50" x2="1084.00" y2="226.50" stroke="#D55E00" stroke-width="1.40" opacity="1.000"/>
+<line x1="1076.00" y1="193.33" x2="1084.00" y2="193.33" stroke="#D55E00" stroke-width="1.40" opacity="1.000"/>
+<circle cx="1080.00" cy="209.92" r="4.00" fill="#D55E00" stroke="#FFFFFF" stroke-width="1.00" opacity="1.000"/>
+<line x1="1153.00" y1="208.96" x2="1153.00" y2="187.56" stroke="#D55E00" stroke-width="1.40" opacity="1.000"/>
+<line x1="1149.00" y1="208.96" x2="1157.00" y2="208.96" stroke="#D55E00" stroke-width="1.40" opacity="1.000"/>
+<line x1="1149.00" y1="187.56" x2="1157.00" y2="187.56" stroke="#D55E00" stroke-width="1.40" opacity="1.000"/>
+<circle cx="1153.00" cy="198.26" r="4.00" fill="#D55E00" stroke="#FFFFFF" stroke-width="1.00" opacity="1.000"/>
+<line x1="864.00" y1="48.00" x2="882.00" y2="48.00" stroke="#CC79A7" stroke-width="2.40" opacity="1.000"/>
+<circle cx="873.00" cy="48.00" r="3.00" fill="#CC79A7" stroke="#FFFFFF" stroke-width="1.00" opacity="1.000"/>
+<text x="888.00" y="52.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="start">LR 1e-5</text>
+<line x1="976.00" y1="48.00" x2="994.00" y2="48.00" stroke="#D55E00" stroke-width="2.40" opacity="1.000"/>
+<circle cx="985.00" cy="48.00" r="3.00" fill="#D55E00" stroke="#FFFFFF" stroke-width="1.00" opacity="1.000"/>
+<text x="1000.00" y="52.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="start">LR 3e-4</text>
+<text x="218.00" y="382.00" fill="#687078" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">Number of base-training tasks (k)</text>
+<text x="612.00" y="382.00" fill="#687078" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">Number of base-training tasks (k)</text>
+<text x="1006.00" y="382.00" fill="#687078" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">Number of base-training tasks (k)</text>
+<text x="600.00" y="405.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">Error bars are sample SD over three joint task-split/model-seed replicates.</text>
+</svg>

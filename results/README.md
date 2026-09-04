@@ -3,6 +3,10 @@
 Results are separated by dataset and experiment protocol so that the v2
 baseline cannot be mistaken for the revised v3 study.
 
+For the four-page manuscript, use the compact, reproducible
+[paper figure set](../paper/FIGURES.md) instead of placing every experiment's
+diagnostic plot in the main text.
+
 ## v2 baseline
 
 - [Report](v2/README.md)

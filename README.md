@@ -63,6 +63,8 @@ The shareable result packages are separated by protocol version:
 - [result-file index](results/README.md), which explains every CSV.
 - [cross-domain paper synthesis](PAPER_STUDY_SYNTHESIS.md), which aligns the
   integer and permutation evidence without pooling incompatible metrics.
+- [four-page paper figure set](paper/FIGURES.md), with two main-text composite
+  figures, one supplementary scaling diagnostic, captions, and LaTeX snippets.
 
 The primary v3 generalization summaries exclude every task used to train the
 model being evaluated. In other words, trained-task performance is retained
@@ -287,6 +289,10 @@ permutation-scaling-k16 run --config configs/permutation_scaling_k16.toml
 permutation-scaling-k16 audit --config configs/permutation_scaling_k16.toml
 permutation-scaling-k16 evaluate --config configs/permutation_scaling_k16.toml --device cuda
 permutation-scaling-k16 results --config configs/permutation_scaling_k16.toml
+
+# Regenerate the compact paper figure set from committed result CSVs.
+pip install -e '.[figures]'
+permutation-paper-figures --repository . --output-dir paper/figures
 ```
 
 Production data shards and checkpoints are intentionally ignored by Git. The
