@@ -49,6 +49,9 @@ as mean ± sample standard deviation over the three seeds. The complete 4 × 8
 matrix is also reported. Token accuracy is secondary because it is
 teacher-forced and can be inflated by shared formatting tokens.
 
+The result package includes all 96 unaveraged model-cell rows and a complete
+4 × 8 table of mean ± sample standard deviation over the three seeds.
+
 The 21 held-out cells test cross-representation behavioral transfer. They do
 not by themselves prove that the internal representations are identical;
 hidden-state CKA or probing would be a separate mechanistic analysis.

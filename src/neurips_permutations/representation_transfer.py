@@ -634,6 +634,34 @@ def _mean_sd(values: Iterable[float]) -> tuple[float, float]:
     return statistics.fmean(values), statistics.stdev(values) if len(values) > 1 else 0.0
 
 
+def summarize_cells(rows: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
+    """Aggregate each representation-task cell over the three model seeds."""
+
+    result = []
+    for combination in FULL_COMBINATIONS:
+        selected = [row for row in rows if row["combination"] == combination]
+        if len(selected) != 3 or {int(row["seed"]) for row in selected} != {
+            17,
+            42,
+            314159,
+        }:
+            raise ValueError(f"cell {combination} does not contain the three seeds")
+        representation, task = combination.split(":", 1)
+        values: dict[str, Any] = {
+            "representation": representation,
+            "task": task,
+            "combination": combination,
+            "task_status": "seen" if combination in TRAIN_COMBINATIONS else "held_out",
+            "seed_count": 3,
+        }
+        for metric in ("loss", "token_accuracy", "sequence_accuracy"):
+            mean, sample_sd = _mean_sd(float(row[metric]) for row in selected)
+            values[f"{metric}_mean"] = mean
+            values[f"{metric}_sample_sd"] = sample_sd
+        result.append(values)
+    return result
+
+
 def report(config_path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
     import csv
 
@@ -672,6 +700,14 @@ def report(config_path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
         writer.writeheader()
         writer.writerows(raw)
     os.replace(temporary, output_dir / "MODEL_CELL_ACCURACIES.csv")
+    cells = summarize_cells(raw)
+    cell_fields = tuple(cells[0])
+    temporary = output_dir / ".cells.csv.tmp"
+    with temporary.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=cell_fields)
+        writer.writeheader()
+        writer.writerows(cells)
+    os.replace(temporary, output_dir / "CELL_SUMMARY.csv")
     summary = []
     for status_name in ("seen", "held_out"):
         per_seed = []
@@ -719,13 +755,38 @@ def report(config_path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
             "Means are cell-macro averages computed within each seed, followed by mean ± sample SD over three seeds.",
             "Exact-sequence accuracy is the primary complete-answer metric; token accuracy is teacher-forced.",
             "",
+            "## Exact-sequence accuracy by cell",
+            "",
+            "Each entry is mean ± sample SD over the three seeds. Cells marked `*` were used for training.",
+            "",
+            "| Representation | " + " | ".join(BASE_TASKS) + " |",
+            "|---|" + "---:|" * len(BASE_TASKS),
+        ]
+    )
+    by_cell = {row["combination"]: row for row in cells}
+    for representation in REPRESENTATIONS:
+        entries = []
+        for task in BASE_TASKS:
+            row = by_cell[f"{representation}:{task}"]
+            suffix = "*" if row["task_status"] == "seen" else ""
+            entries.append(
+                f"{100*float(row['sequence_accuracy_mean']):.2f} ± "
+                f"{100*float(row['sequence_accuracy_sample_sd']):.2f}%{suffix}"
+            )
+        lines.append(f"| {representation} | " + " | ".join(entries) + " |")
+    lines.extend(
+        [
+            "",
+            "[MODEL_CELL_ACCURACIES.csv](MODEL_CELL_ACCURACIES.csv) contains all 96 unaveraged model-cell rows; "
+            "[CELL_SUMMARY.csv](CELL_SUMMARY.csv) contains loss, token accuracy, and exact accuracy for every cell.",
+            "",
         ]
     )
     destination = output_dir / "README.md"
     temporary = output_dir / ".README.md.tmp"
     temporary.write_text("\n".join(lines), encoding="utf-8")
     os.replace(temporary, destination)
-    return {"raw_row_count": len(raw), "summary": summary}
+    return {"raw_row_count": len(raw), "cell_count": len(cells), "summary": summary}
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -795,5 +856,6 @@ __all__ = [
     "report",
     "run_matrix",
     "status",
+    "summarize_cells",
     "verify_manifest",
 ]

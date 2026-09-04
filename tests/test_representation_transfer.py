@@ -16,6 +16,7 @@ from neurips_permutations.representation_transfer import (
     TRAIN_COMBINATIONS,
     _record,
     combinations_for_split,
+    summarize_cells,
     verify_manifest,
 )
 
@@ -113,3 +114,26 @@ def test_full_verifier_rejects_a_consistently_wrong_answer(tmp_path: Path) -> No
     path.write_text(json.dumps(manifest), encoding="utf-8")
     with pytest.raises(ValueError, match="mathematical truth"):
         verify_manifest(path, full=True)
+
+
+def test_cell_summary_averages_only_across_seeds() -> None:
+    rows = []
+    for combination in FULL_COMBINATIONS:
+        representation, task = combination.split(":", 1)
+        for index, seed in enumerate((17, 42, 314159), start=1):
+            rows.append(
+                {
+                    "seed": seed,
+                    "representation": representation,
+                    "task": task,
+                    "combination": combination,
+                    "loss": float(index),
+                    "token_accuracy": index / 10,
+                    "sequence_accuracy": index / 20,
+                }
+            )
+    summary = summarize_cells(rows)
+    assert len(summary) == 32
+    assert summary[0]["seed_count"] == 3
+    assert summary[0]["loss_mean"] == 2.0
+    assert summary[0]["sequence_accuracy_mean"] == pytest.approx(0.1)
