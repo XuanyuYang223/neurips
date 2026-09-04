@@ -124,6 +124,15 @@ points below a task-specific majority baseline. Mean final-layer A-vs-B CKA is
 positive (Spearman rho 0.90) but not monotonic. Two of three replicates peak at
 `k=8`; the third increases monotonically and peaks at `k=16`.
 
+The [fixed-seed task-subset extension](results/property32-zero-overlap/subset-replicates/README.md)
+holds Transformer initialization at seed 17 while changing the balanced A/B
+partition across R0, R3, and R4. Mean final-layer CKA is 0.101, 0.175, 0.302,
+0.644, and 0.600 for `k = 1, 2, 4, 8, 16` (Spearman rho 0.90). R3 and R4
+increase monotonically and peak at `k=16`, whereas R0 peaks at `k=8`.
+Task-subset sample SD remains 0.11--0.18, so the positive association is more
+replicable than strict monotonicity. Opposite-pool exact accuracy remains
+below the majority baseline at every `k`.
+
 Henry's [linear-probing follow-up](results/property32-zero-overlap/linear-probing/README.md)
 finds a clearer but still non-monotonic internal signal. Final-layer
 length-conditioned R2 on the 16 opposite-pool properties is 0.198, 0.245,
@@ -232,6 +241,8 @@ are in [PROTOCOL.md](PROTOCOL.md).
   confirmatory extension and frozen aggregation;
 - [fixed-seed task-subset extension](PROPERTY32_SUBSET_REPLICATES.md): two
   additional balanced partitions for separating task-selection variability;
+- [fixed-seed task-subset results](results/property32-zero-overlap/subset-replicates/README.md):
+  R0/R3/R4 behavioral and CKA curves with initialization held fixed;
 - [linear-probing protocol](PROPERTY32_LINEAR_PROBING.md): task-free layerwise
   probes for all 32 properties across the 30 zero-overlap Transformers;
 - [Property32 twenty-shot protocol](PROPERTY32_FEWSHOT.md): 120 warm-start

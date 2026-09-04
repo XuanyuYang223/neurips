@@ -83,6 +83,8 @@ display percentages.
 
 - [Combined report](property32-zero-overlap/README.md)
 - [Three-replicate aggregate](property32-zero-overlap/replicates/README.md)
+- [Fixed-seed task-subset aggregate](property32-zero-overlap/subset-replicates/README.md)
+- [Fixed-seed task-subset CKA values](property32-zero-overlap/subset-replicates/cka_replicates.csv)
 - [Replicate-level behavioral values](property32-zero-overlap/replicates/behavior_replicates.csv)
 - [Replicate-level CKA values](property32-zero-overlap/replicates/cka_replicates.csv)
 - [Original R0 behavioral results](property32-zero-overlap/behavior/README.md)
@@ -101,6 +103,13 @@ validation model-task rows. Behavioral exact accuracy is compared with a
 per-task majority-answer baseline because several property distributions are
 highly imbalanced. CKA uses the same 4,096 task-free validation prefixes for
 all models and does not read the test split.
+
+The fixed-seed subset extension adds R3 and R4 and combines them with R0.
+All three use Transformer seed 17, so its error bars isolate sensitivity to
+the balanced A/B task partition. The final-layer CKA mean rises from 0.101 at
+`k=1` to 0.600 at `k=16`, with a peak of 0.644 at `k=8` and Spearman rho 0.90.
+Two of the three partition curves are monotonic; task-subset variability
+remains substantial. This analysis uses validation data only.
 
 The linear-probing follow-up reads task-free `<ONE_END>` activations from the
 same 30 trained Transformers and three random-initialization controls. Ridge

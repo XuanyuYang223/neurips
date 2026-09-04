@@ -24,6 +24,7 @@ supports noisy representational convergence, not reliable hard zero-shot
 generalization.
 
 - [Aggregate report and provenance](replicates/README.md)
+- [Fixed-seed task-subset report](subset-replicates/README.md)
 - [Per-replicate behavioral values](replicates/behavior_replicates.csv)
 - [Per-replicate CKA values](replicates/cka_replicates.csv)
 - [Linear-probing results](linear-probing/README.md)
@@ -37,6 +38,19 @@ sources. Test data were not used for that behavioral/CKA table. After its
 protocol and implementation were frozen at commit `077d767`, the separate
 linear-probing analysis used one deterministic sample of 4,096 test
 permutations.
+
+## Fixed-seed task-subset extension
+
+R0, R3, and R4 instead hold the Transformer initialization fixed at seed 17
+while independently changing the family-balanced A/B partition. Their
+final-layer CKA means are 0.1006, 0.1752, 0.3023, 0.6440, and 0.6004 for
+`k = 1, 2, 4, 8, 16`; sample SD is 0.1121--0.1803. R3 and R4 increase
+monotonically and peak at `k=16`, while R0 peaks at `k=8`. The resulting
+Spearman rho of the mean curve is 0.90, supporting a positive task-count
+association but not a strict monotonic law. Opposite-pool exact accuracy is
+11.17%, 8.95%, 10.61%, 10.57%, and 16.35%, and remains below the
+task-specific majority baseline at every `k`. The extension uses validation
+data only; see the [full report](subset-replicates/README.md).
 
 ## Linear probing of unseen properties
 

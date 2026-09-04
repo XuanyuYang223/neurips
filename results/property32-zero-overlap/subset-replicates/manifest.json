@@ -1,0 +1,114 @@
+{
+  "analysis_commit": "6707fb611616bc15d235dc7ddb0435df16a879e0",
+  "artifacts": {
+    "README.md": "51e73f7996179ce706ee627e1d9e01f89dfed79c7d95824ca0d9dcff477fe4e7",
+    "behavior_replicates.csv": "cc2483c8b195a0af79424aa574bfec46d26bc4ee1185c1ad97e0ac121ef344b3",
+    "behavior_summary.csv": "afbcb2f333e83cde81c1d155246b75fb54e43098d08ce469c2c2a55e5a27c405",
+    "cka_replicates.csv": "cef8e192ba15784d148ae2a1a6d5c2abd291a87602c4186a6f8c0a2cba8074fc",
+    "cka_summary.csv": "23f12061563cf366de1c1d16c13d988bf457b0db290a56aaca9b235c3cc2c3c2",
+    "r0/behavior/manifest.json": "64fdce489e518f057906a53de8a03f503c550799863ddd1901b19f931bef2a59",
+    "r0/cka/manifest.json": "cb7db01c3e877ac573efe36c2e37d445f7ba1fa7c88a9903ee791bec44704e62",
+    "r3/behavior/manifest.json": "663cc0ff433c94f4ea34f728acfea2340c114beb17214489873c09003a0a5f3c",
+    "r3/cka/manifest.json": "a176acc737cfccec89fd47f6684f798f534766e53c1dcf58b306f0d7f0f0e401",
+    "r4/behavior/manifest.json": "9508ceda87a100fe603cf1e5602441d6c513737275f86280576d1db85c0350dc",
+    "r4/cka/manifest.json": "50c2e3f196fb815b937bc7fce5094e6f000b679859e1580bf9a61c17a34b232b"
+  },
+  "mean_cka_trend": {
+    "delta_k16_minus_k1": 0.499845084609103,
+    "final_layer_linear_cka": [
+      0.10058331535862745,
+      0.17524413837718378,
+      0.30232145549397726,
+      0.643951276867977,
+      0.6004283999677305
+    ],
+    "k8_peak_replicate_count": 1,
+    "monotonic_non_decreasing": false,
+    "pearson_r_log2_k": 0.9418006056410938,
+    "per_replicate": {
+      "r0": {
+        "delta_k16_minus_k1": 0.20894973009918075,
+        "final_layer_linear_cka": [
+          0.22384582077792706,
+          0.3303524888153667,
+          0.3192263593511833,
+          0.8033356166098011,
+          0.4327955508771078
+        ],
+        "monotonic_non_decreasing": false,
+        "pearson_r_log2_k": 0.624109615333738,
+        "spearman_rho": 0.8,
+        "task_counts": [
+          1,
+          2,
+          4,
+          8,
+          16
+        ]
+      },
+      "r3": {
+        "delta_k16_minus_k1": 0.7181704179564589,
+        "final_layer_linear_cka": [
+          0.07302908225669853,
+          0.11537319700007398,
+          0.13489909277509024,
+          0.6327657750857498,
+          0.7911995002131574
+        ],
+        "monotonic_non_decreasing": true,
+        "pearson_r_log2_k": 0.9183059386859098,
+        "spearman_rho": 1.0,
+        "task_counts": [
+          1,
+          2,
+          4,
+          8,
+          16
+        ]
+      },
+      "r4": {
+        "delta_k16_minus_k1": 0.5724151057716694,
+        "final_layer_linear_cka": [
+          0.004875043041256785,
+          0.08000672931611066,
+          0.4528389143556582,
+          0.4957524389083803,
+          0.5772901488129262
+        ],
+        "monotonic_non_decreasing": true,
+        "pearson_r_log2_k": 0.946916096399173,
+        "spearman_rho": 1.0,
+        "task_counts": [
+          1,
+          2,
+          4,
+          8,
+          16
+        ]
+      }
+    },
+    "replicate_peak_k": {
+      "r0": 8,
+      "r3": 16,
+      "r4": 16
+    },
+    "spearman_rho": 0.9,
+    "task_counts": [
+      1,
+      2,
+      4,
+      8,
+      16
+    ]
+  },
+  "model_seed": 17,
+  "protocol_version": "property32-fixed-seed-subset-replicates/v1",
+  "replicate_ids": [
+    "r0",
+    "r3",
+    "r4"
+  ],
+  "run_count": 30,
+  "status": "completed",
+  "test_split_used": false
+}
