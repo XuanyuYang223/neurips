@@ -70,7 +70,9 @@ The shareable result packages are separated by protocol version:
 - [cross-domain paper synthesis](PAPER_STUDY_SYNTHESIS.md), which aligns the
   integer and permutation evidence without pooling incompatible metrics.
 - [four-page paper figure set](paper/FIGURES.md), with two main-text composite
-  figures, two supplementary diagnostics, captions, and LaTeX snippets.
+  figures, three supplementary diagnostics, captions, and LaTeX snippets.
+- [final paper tables](paper/TABLES.md), with the selected main-text trend
+  table, supplementary extension summary, and copy-ready LaTeX.
 - [v3 category-model linear probes](results/v3/linear-probing/category/README.md),
   which compare a common 32-property probe battery across E4/S4/A4 training.
 - [four-representation transfer protocol](REPRESENTATION_TRANSFER_PROTOCOL.md),

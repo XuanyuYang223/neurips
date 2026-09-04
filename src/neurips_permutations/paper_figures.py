@@ -37,6 +37,8 @@ FIGURE_FILES = (
     "figureS1_scaling_diagnostics.png",
     "figureS2_category_linear_probes.svg",
     "figureS2_category_linear_probes.png",
+    "figureS3_representation_transfer.svg",
+    "figureS3_representation_transfer.png",
 )
 
 
@@ -391,6 +393,24 @@ def _legend_line(canvas: Any, x: float, y: float, label: str, color: str) -> Non
     canvas.text(x + 24, y + 4, label, size=9, color=GRAY)
 
 
+def _blend_hex(left: str, right: str, fraction: float) -> str:
+    """Linearly blend two hexadecimal colors for deterministic heatmaps."""
+
+    fraction = min(1.0, max(0.0, fraction))
+    left_rgb = tuple(int(left[index : index + 2], 16) for index in (1, 3, 5))
+    right_rgb = tuple(int(right[index : index + 2], 16) for index in (1, 3, 5))
+    values = tuple(
+        round(a + fraction * (b - a)) for a, b in zip(left_rgb, right_rgb, strict=True)
+    )
+    return "#" + "".join(f"{value:02X}" for value in values)
+
+
+def _transfer_color(value: float) -> str:
+    if value >= 0.0:
+        return _blend_hex(PALE_GRAY, BLUE, value / 0.8)
+    return _blend_hex(PALE_GRAY, ORANGE, -value / 0.1)
+
+
 def _figure1(canvas: Any, repository: Path) -> None:
     behavior = {
         int(row["trained_task_count"]): row
@@ -545,12 +565,14 @@ def _figure1(canvas: Any, repository: Path) -> None:
 
 def _figure2(canvas: Any, repository: Path) -> None:
     cka_replicates = _rows(
-        repository / "results/property32-zero-overlap/replicates/cka_replicates.csv"
+        repository
+        / "results/property32-zero-overlap/subset-replicates/cka_replicates.csv"
     )
     cka_summary = {
         int(row["trained_task_count"]): row
         for row in _rows(
-            repository / "results/property32-zero-overlap/replicates/cka_summary.csv"
+            repository
+            / "results/property32-zero-overlap/subset-replicates/cka_summary.csv"
         )
     }
     specialist = {
@@ -875,6 +897,102 @@ def _figure_s2(canvas: Any, repository: Path) -> None:
         canvas.text(legend_x + 18 + index * 145, 397, label, size=9, color=GRAY)
 
 
+def _figure_s3(canvas: Any, repository: Path) -> None:
+    rows = _rows(repository / "results/representation-transfer/CELL_SUMMARY.csv")
+    indexed = {(row["representation"], row["task"]): row for row in rows}
+    representations = ("one_line", "cycle", "lehmer", "inversion_vector")
+    representation_labels = ("One-line", "Cycle", "Lehmer", "Inv. vector")
+    tasks = (
+        "length",
+        "parity",
+        "peaks",
+        "exceedances",
+        "fixed_points",
+        "descents",
+        "recoils",
+        "lis_length",
+    )
+    task_labels = (
+        "Length",
+        "Parity",
+        "Peaks",
+        "Exceed.",
+        "Fixed pts",
+        "Descents",
+        "Recoils",
+        "LIS",
+    )
+    if set(indexed) != {(representation, task) for representation in representations for task in tasks}:
+        raise ValueError("representation-transfer heatmap requires the complete 4 x 8 grid")
+
+    canvas.text(
+        450,
+        28,
+        "Cross-representation/task transfer above the majority baseline",
+        size=14,
+        bold=True,
+        anchor="middle",
+    )
+    left, top = 142.0, 92.0
+    cell_width, cell_height = 88.0, 54.0
+    for column, label in enumerate(task_labels):
+        canvas.text(
+            left + (column + 0.5) * cell_width,
+            top - 14,
+            label,
+            size=9,
+            color=GRAY,
+            anchor="middle",
+        )
+    for row_index, (representation, representation_label) in enumerate(
+        zip(representations, representation_labels, strict=True)
+    ):
+        y = top + row_index * cell_height
+        canvas.text(left - 12, y + 33, representation_label, size=10, color=GRAY, anchor="end")
+        for column, task in enumerate(tasks):
+            value = float(indexed[(representation, task)]["sequence_accuracy_minus_majority_mean"])
+            trained = indexed[(representation, task)]["task_status"] == "seen"
+            x = left + column * cell_width
+            color = _transfer_color(value)
+            canvas.rect(
+                x,
+                y,
+                cell_width - 2,
+                cell_height - 2,
+                fill=color,
+                stroke=WHITE,
+                stroke_width=1.0,
+            )
+            text_color = WHITE if value >= 0.45 else BLACK
+            suffix = "*" if trained else ""
+            canvas.text(
+                x + (cell_width - 2) / 2,
+                y + 32,
+                f"{100 * value:+.1f}{suffix}",
+                size=10,
+                color=text_color,
+                anchor="middle",
+                bold=trained,
+            )
+
+    legend_y = 338.0
+    legend_values = (-0.1, 0.0, 0.2, 0.4, 0.6, 0.8)
+    legend_x = 250.0
+    for index, value in enumerate(legend_values):
+        x = legend_x + index * 64
+        canvas.rect(x, legend_y, 62, 14, fill=_transfer_color(value))
+        canvas.text(x + 31, legend_y + 30, f"{100 * value:+.0f}", size=8, color=GRAY, anchor="middle")
+    canvas.text(450, legend_y - 8, "Exact accuracy minus majority baseline (percentage points)", size=9, color=GRAY, anchor="middle")
+    canvas.text(
+        450,
+        405,
+        "* Trained cell. Values are means over three jointly trained Transformer seeds; the other 21 cells were held out from gradients.",
+        size=9,
+        color=GRAY,
+        anchor="middle",
+    )
+
+
 def _render_pair(
     output: Path,
     stem: str,
@@ -899,8 +1017,8 @@ def generate(
     output = output.resolve()
     inputs = (
         "results/property32-zero-overlap/replicates/behavior_summary.csv",
-        "results/property32-zero-overlap/replicates/cka_replicates.csv",
-        "results/property32-zero-overlap/replicates/cka_summary.csv",
+        "results/property32-zero-overlap/subset-replicates/cka_replicates.csv",
+        "results/property32-zero-overlap/subset-replicates/cka_summary.csv",
         "results/property32-zero-overlap/linear-probing/opposite_pool_summary.csv",
         "results/property32-zero-overlap/linear-probing/random_baseline_summary.csv",
         "results/property32-zero-overlap/fewshot/lr-sensitivity/matched_lr_summary.csv",
@@ -908,6 +1026,7 @@ def generate(
         "results/property-task-geometry/cka/symmetry_summary.csv",
         "results/v3/scaling/k16/summary.csv",
         "results/v3/linear-probing/category/paired_random_contrasts.csv",
+        "results/representation-transfer/CELL_SUMMARY.csv",
     )
     for relative in inputs:
         if not (repository / relative).is_file():
@@ -917,6 +1036,7 @@ def generate(
     _render_pair(output, "figure2_task_geometry", 1200, 450, _figure2, repository)
     _render_pair(output, "figureS1_scaling_diagnostics", 900, 420, _figure_s1, repository)
     _render_pair(output, "figureS2_category_linear_probes", 900, 420, _figure_s2, repository)
+    _render_pair(output, "figureS3_representation_transfer", 900, 420, _figure_s3, repository)
     manifest = {
         "format_version": "permutation-paper-figures/v1",
         "status": "completed",
@@ -927,6 +1047,7 @@ def generate(
         "supplementary_figures": [
             "figureS1_scaling_diagnostics",
             "figureS2_category_linear_probes",
+            "figureS3_representation_transfer",
         ],
         "inputs": {relative: _sha256(repository / relative) for relative in inputs},
         "outputs": {

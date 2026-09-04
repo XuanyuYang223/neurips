@@ -1,7 +1,7 @@
 # Four-page paper figure set
 
 The permutation contribution is compressed into two main-text composite
-figures and two supplementary diagnostics. Do not add separate plots for each
+figures and three supplementary diagnostics. Do not add separate plots for each
 experiment: they would repeat the same task-count axis and leave too little
 space for the integer study, methods, and limitations.
 
@@ -19,6 +19,9 @@ space for the integer study, methods, and limitations.
 4. Keep **Figure S2** in the supplement. Use it only when discussing the
    category-model linear probes; it should not displace either domain's main
    behavioral result.
+5. Keep **Figure S3** in the supplement. It is the complete four-representation
+   transfer matrix and directly answers the representation/task-grid follow-up,
+   but it should not displace the task-geometry result in a four-page paper.
 
 Both main figures are 1,200 pixels wide in SVG coordinates and 2,400 pixels
 wide in the 300-dpi PNG export. They are designed for a full-width `figure*`
@@ -60,9 +63,10 @@ Files:
 Recommended caption:
 
 > **Learned representation geometry reflects specific combinatorial
-> correspondences rather than task count alone.** (a) Final-layer CKA between
-> disjoint task pools rises sharply at $k=8$ but is non-monotonic across three
-> independently frozen task-split/model-seed replicates. (b) Single-task
+> correspondences rather than task count alone.** (a) With Transformer seed
+> fixed at 17, final-layer CKA between disjoint task pools generally increases
+> across three independently frozen task partitions, but the mean remains
+> non-monotonic at $k=16$. (b) Single-task
 > specialists for directly related properties have higher CKA than other
 > cross-task pairs (task-label permutation $p=0.015$), although both remain
 > far below same-task alignment. (c) Relating probe inputs by the correct
@@ -113,6 +117,25 @@ Recommended caption:
 > models are frozen, and probe accuracy does not imply behavioral execution or
 > causal use of the decoded feature.
 
+## Figure S3: four-representation transfer grid
+
+Files:
+
+- [`figureS3_representation_transfer.svg`](figures/figureS3_representation_transfer.svg)
+- [`figureS3_representation_transfer.png`](figures/figureS3_representation_transfer.png)
+
+Recommended caption:
+
+> **Cross-representation and cross-task transfer is positive but highly
+> cell-dependent.** Three joint Transformers were trained on the complete
+> one-line row and the descents column, totaling 11 of 32 cells. Each heatmap
+> entry reports exact-sequence accuracy minus the constant-answer majority
+> baseline, averaged over three seeds; asterisks mark trained cells. The 21
+> held-out cells average $+11.46\pm2.64$ percentage points above baseline, but
+> individual effects range from negative transfer on fixed points to strong
+> transfer on recoils. Thus the grounded row/column design supports partial,
+> not uniform, transfer.
+
 ## LaTeX snippets
 
 ```latex
@@ -134,11 +157,11 @@ Recommended caption:
 ```
 
 Use the full captions above in the submitted paper; the snippets keep the
-example short. Figure S1 should use the same pattern in the supplement.
+example short. Figures S1--S3 should use the same pattern in the supplement.
 
 ## Reproduction and provenance
 
-Regenerate all six image files and their SHA-256 manifest with:
+Regenerate all ten image files and their SHA-256 manifest with:
 
 ```bash
 pip install -e '.[figures]'

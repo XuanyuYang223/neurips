@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="420" viewBox="0 0 900 420" role="img">
+<rect width="100%" height="100%" fill="#FFFFFF"/>
+<text x="450.00" y="28.00" fill="#202124" font-size="14.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="600" text-anchor="middle">Cross-representation/task transfer above the majority baseline</text>
+<text x="186.00" y="78.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">Length</text>
+<text x="274.00" y="78.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">Parity</text>
+<text x="362.00" y="78.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">Peaks</text>
+<text x="450.00" y="78.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">Exceed.</text>
+<text x="538.00" y="78.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">Fixed pts</text>
+<text x="626.00" y="78.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">Descents</text>
+<text x="714.00" y="78.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">Recoils</text>
+<text x="802.00" y="78.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">LIS</text>
+<text x="130.00" y="125.00" fill="#687078" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="end">One-line</text>
+<rect x="142.00" y="92.00" width="86.00" height="52.00" fill="#A1C9E0" stroke="#FFFFFF" stroke-width="1.00"/>
+<text x="185.00" y="124.00" fill="#202124" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="600" text-anchor="middle">+27.3*</text>
+<rect x="230.00" y="92.00" width="86.00" height="52.00" fill="#EAF1F5" stroke="#FFFFFF" stroke-width="1.00"/>
+<text x="273.00" y="124.00" fill="#202124" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="600" text-anchor="middle">+3.2*</text>
+<rect x="318.00" y="92.00" width="86.00" height="52.00" fill="#7AB4D5" stroke="#FFFFFF" stroke-width="1.00"/>
+<text x="361.00" y="124.00" fill="#202124" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="600" text-anchor="middle">+39.9*</text>
+<rect x="406.00" y="92.00" width="86.00" height="52.00" fill="#0072B2" stroke="#FFFFFF" stroke-width="1.00"/>
+<text x="449.00" y="124.00" fill="#FFFFFF" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="600" text-anchor="middle">+79.9*</text>
+<rect x="494.00" y="92.00" width="86.00" height="52.00" fill="#4597C6" stroke="#FFFFFF" stroke-width="1.00"/>
+<text x="537.00" y="124.00" fill="#FFFFFF" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="600" text-anchor="middle">+57.4*</text>
+<rect x="582.00" y="92.00" width="86.00" height="52.00" fill="#83B9D8" stroke="#FFFFFF" stroke-width="1.00"/>
+<text x="625.00" y="124.00" fill="#202124" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="600" text-anchor="middle">+37.1*</text>
+<rect x="670.00" y="92.00" width="86.00" height="52.00" fill="#89BCD9" stroke="#FFFFFF" stroke-width="1.00"/>
+<text x="713.00" y="124.00" fill="#202124" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="600" text-anchor="middle">+34.9*</text>
+<rect x="758.00" y="92.00" width="86.00" height="52.00" fill="#73B0D3" stroke="#FFFFFF" stroke-width="1.00"/>
+<text x="801.00" y="124.00" fill="#202124" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="600" text-anchor="middle">+42.3*</text>
+<text x="130.00" y="179.00" fill="#687078" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="end">Cycle</text>
+<rect x="142.00" y="146.00" width="86.00" height="52.00" fill="#E3EDF3" stroke="#FFFFFF" stroke-width="1.00"/>
+<text x="185.00" y="178.00" fill="#202124" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">+5.7</text>
+<rect x="230.00" y="146.00" width="86.00" height="52.00" fill="#EFF3F7" stroke="#FFFFFF" stroke-width="1.00"/>
+<text x="273.00" y="178.00" fill="#202124" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">+1.6</text>
+<rect x="318.00" y="146.00" width="86.00" height="52.00" fill="#AACEE3" stroke="#FFFFFF" stroke-width="1.00"/>
+<text x="361.00" y="178.00" fill="#202124" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">+24.4</text>
+<rect x="406.00" y="146.00" width="86.00" height="52.00" fill="#AACEE3" stroke="#FFFFFF" stroke-width="1.00"/>
+<text x="449.00" y="178.00" fill="#202124" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">+24.4</text>
+<rect x="494.00" y="146.00" width="86.00" height="52.00" fill="#DD8743" stroke="#FFFFFF" stroke-width="1.00"/>
+<text x="537.00" y="178.00" fill="#202124" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">-7.3</text>
+<rect x="582.00" y="146.00" width="86.00" height="52.00" fill="#90C0DB" stroke="#FFFFFF" stroke-width="1.00"/>
+<text x="625.00" y="178.00" fill="#202124" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="600" text-anchor="middle">+32.7*</text>
+<rect x="670.00" y="146.00" width="86.00" height="52.00" fill="#96C3DD" stroke="#FFFFFF" stroke-width="1.00"/>
+<text x="713.00" y="178.00" fill="#202124" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">+30.9</text>
+<rect x="758.00" y="146.00" width="86.00" height="52.00" fill="#D6E6F0" stroke="#FFFFFF" stroke-width="1.00"/>
+<text x="801.00" y="178.00" fill="#202124" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">+9.7</text>
+<text x="130.00" y="233.00" fill="#687078" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="end">Lehmer</text>
+<rect x="142.00" y="200.00" width="86.00" height="52.00" fill="#E8EFF4" stroke="#FFFFFF" stroke-width="1.00"/>
+<text x="185.00" y="232.00" fill="#202124" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">+4.1</text>
+<rect x="230.00" y="200.00" width="86.00" height="52.00" fill="#EEDBCB" stroke="#FFFFFF" stroke-width="1.00"/>
+<text x="273.00" y="232.00" fill="#202124" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">-1.8</text>
+<rect x="318.00" y="200.00" width="86.00" height="52.00" fill="#D3E4EF" stroke="#FFFFFF" stroke-width="1.00"/>
+<text x="361.00" y="232.00" fill="#202124" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">+10.7</text>
+<rect x="406.00" y="200.00" width="86.00" height="52.00" fill="#AED0E4" stroke="#FFFFFF" stroke-width="1.00"/>
+<text x="449.00" y="232.00" fill="#202124" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">+23.1</text>
+<rect x="494.00" y="200.00" width="86.00" height="52.00" fill="#D9701E" stroke="#FFFFFF" stroke-width="1.00"/>
+<text x="537.00" y="232.00" fill="#202124" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">-8.8</text>
+<rect x="582.00" y="200.00" width="86.00" height="52.00" fill="#75B1D4" stroke="#FFFFFF" stroke-width="1.00"/>
+<text x="625.00" y="232.00" fill="#202124" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="600" text-anchor="middle">+41.6*</text>
+<rect x="670.00" y="200.00" width="86.00" height="52.00" fill="#90C0DB" stroke="#FFFFFF" stroke-width="1.00"/>
+<text x="713.00" y="232.00" fill="#202124" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">+32.8</text>
+<rect x="758.00" y="200.00" width="86.00" height="52.00" fill="#D5E5EF" stroke="#FFFFFF" stroke-width="1.00"/>
+<text x="801.00" y="232.00" fill="#202124" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">+10.0</text>
+<text x="130.00" y="287.00" fill="#687078" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="end">Inv. vector</text>
+<rect x="142.00" y="254.00" width="86.00" height="52.00" fill="#E8F0F5" stroke="#FFFFFF" stroke-width="1.00"/>
+<text x="185.00" y="286.00" fill="#202124" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">+3.8</text>
+<rect x="230.00" y="254.00" width="86.00" height="52.00" fill="#EEF3F6" stroke="#FFFFFF" stroke-width="1.00"/>
+<text x="273.00" y="286.00" fill="#202124" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">+2.0</text>
+<rect x="318.00" y="254.00" width="86.00" height="52.00" fill="#CEE1ED" stroke="#FFFFFF" stroke-width="1.00"/>
+<text x="361.00" y="286.00" fill="#202124" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">+12.6</text>
+<rect x="406.00" y="254.00" width="86.00" height="52.00" fill="#B0D1E5" stroke="#FFFFFF" stroke-width="1.00"/>
+<text x="449.00" y="286.00" fill="#202124" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">+22.2</text>
+<rect x="494.00" y="254.00" width="86.00" height="52.00" fill="#E6AF84" stroke="#FFFFFF" stroke-width="1.00"/>
+<text x="537.00" y="286.00" fill="#202124" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">-4.7</text>
+<rect x="582.00" y="254.00" width="86.00" height="52.00" fill="#85BAD8" stroke="#FFFFFF" stroke-width="1.00"/>
+<text x="625.00" y="286.00" fill="#202124" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="600" text-anchor="middle">+36.3*</text>
+<rect x="670.00" y="254.00" width="86.00" height="52.00" fill="#88BCD9" stroke="#FFFFFF" stroke-width="1.00"/>
+<text x="713.00" y="286.00" fill="#202124" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">+35.3</text>
+<rect x="758.00" y="254.00" width="86.00" height="52.00" fill="#D6E6EF" stroke="#FFFFFF" stroke-width="1.00"/>
+<text x="801.00" y="286.00" fill="#202124" font-size="10.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">+9.9</text>
+<rect x="250.00" y="338.00" width="62.00" height="14.00" fill="#D55E00" stroke="none" stroke-width="0.00"/>
+<text x="281.00" y="368.00" fill="#687078" font-size="8.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">-10</text>
+<rect x="314.00" y="338.00" width="62.00" height="14.00" fill="#F4F6F8" stroke="none" stroke-width="0.00"/>
+<text x="345.00" y="368.00" fill="#687078" font-size="8.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">+0</text>
+<rect x="378.00" y="338.00" width="62.00" height="14.00" fill="#B7D5E6" stroke="none" stroke-width="0.00"/>
+<text x="409.00" y="368.00" fill="#687078" font-size="8.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">+20</text>
+<rect x="442.00" y="338.00" width="62.00" height="14.00" fill="#7AB4D5" stroke="none" stroke-width="0.00"/>
+<text x="473.00" y="368.00" fill="#687078" font-size="8.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">+40</text>
+<rect x="506.00" y="338.00" width="62.00" height="14.00" fill="#3D93C4" stroke="none" stroke-width="0.00"/>
+<text x="537.00" y="368.00" fill="#687078" font-size="8.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">+60</text>
+<rect x="570.00" y="338.00" width="62.00" height="14.00" fill="#0072B2" stroke="none" stroke-width="0.00"/>
+<text x="601.00" y="368.00" fill="#687078" font-size="8.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">+80</text>
+<text x="450.00" y="330.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">Exact accuracy minus majority baseline (percentage points)</text>
+<text x="450.00" y="405.00" fill="#687078" font-size="9.00" font-family="DejaVu Sans,Arial,sans-serif" font-weight="400" text-anchor="middle">* Trained cell. Values are means over three jointly trained Transformer seeds; the other 21 cells were held out from gradients.</text>
+</svg>

@@ -7,8 +7,9 @@
     "results/property32-zero-overlap/linear-probing/opposite_pool_summary.csv": "ec2cdea209e63e1be3896d2dcf61223d2f7614eb8b5543d4bfbee79c34d5bfda",
     "results/property32-zero-overlap/linear-probing/random_baseline_summary.csv": "bbdb695d2c006ae44a1c6396f8a8271d3a3c3c753e79a6c2962b46f7c9a17f1b",
     "results/property32-zero-overlap/replicates/behavior_summary.csv": "74689033bfb3c6c8cf55a8d87a95063c6efc306d605402c478e7a7ed9dfb4616",
-    "results/property32-zero-overlap/replicates/cka_replicates.csv": "cc377234cbb518b0d669accb73603674b492537e2382e89ccd8045d8d9844f80",
-    "results/property32-zero-overlap/replicates/cka_summary.csv": "6c123157c7d191706a1f1b8a733ef9c7124c477b78d63f5141f4a98ea0701415",
+    "results/property32-zero-overlap/subset-replicates/cka_replicates.csv": "cef8e192ba15784d148ae2a1a6d5c2abd291a87602c4186a6f8c0a2cba8074fc",
+    "results/property32-zero-overlap/subset-replicates/cka_summary.csv": "23f12061563cf366de1c1d16c13d988bf457b0db290a56aaca9b235c3cc2c3c2",
+    "results/representation-transfer/CELL_SUMMARY.csv": "1937f6196040b6d7afc6dcdd27a8fd60009d94346b672e18845cf2262e5dcab1",
     "results/v3/linear-probing/category/paired_random_contrasts.csv": "b9567439a932c9a7b67164e918c4030f9b4695e866b3c836d41ea82f8f451818",
     "results/v3/scaling/k16/summary.csv": "346d509d5ec5bfa2208ae3b9cf29292962917f11fb0eb66d8e0fc75461588488"
   },
@@ -26,12 +27,12 @@
       "sha256": "8b8034941535876393b896de6f908ec1b84233fc1e03208ba903bb991743538b"
     },
     "figure2_task_geometry.png": {
-      "bytes": 62739,
-      "sha256": "fa6327bbc94876b2a2c628e1287988e73c198475c6ffa5be79d817be33241313"
+      "bytes": 62708,
+      "sha256": "84d772079a43d886dde8db64809af289dc69d34a430a6e9dda76de923e75ce75"
     },
     "figure2_task_geometry.svg": {
       "bytes": 20912,
-      "sha256": "9cca3fda208990a175ac48b91d6dd55f31afc380edd6a5a1a6ffbc9650896e4a"
+      "sha256": "c3e3594997f5e3214519194db0b930b1f1f0cabba96b4c747f64db867698c1db"
     },
     "figureS1_scaling_diagnostics.png": {
       "bytes": 41199,
@@ -48,11 +49,20 @@
     "figureS2_category_linear_probes.svg": {
       "bytes": 17159,
       "sha256": "bbcdfd6bad8e8979f6cb3ffc419f94866206581e0ed0fe08853f2308d19e0006"
+    },
+    "figureS3_representation_transfer.png": {
+      "bytes": 63428,
+      "sha256": "d1f1831454ac4d2a8c404f0d7d2173b4a5ee3d82391999515c9bda6ba1bd6a84"
+    },
+    "figureS3_representation_transfer.svg": {
+      "bytes": 12818,
+      "sha256": "4ec52c9fb5cb3103a57c4af571f29a747162a7293c4bc530ba9614a5850583ff"
     }
   },
   "status": "completed",
   "supplementary_figures": [
     "figureS1_scaling_diagnostics",
-    "figureS2_category_linear_probes"
+    "figureS2_category_linear_probes",
+    "figureS3_representation_transfer"
   ]
 }
