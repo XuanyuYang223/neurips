@@ -364,6 +364,50 @@ def test_valid_formal_checkpoint_passes_while_other_runs_are_incomplete(
     assert all(value["status"] == "passed" for value in summary["manifests"].values())
 
 
+def test_repository_contained_absolute_experiment_path_is_canonicalized(
+    tmp_path: Path,
+) -> None:
+    fixture = _make_fixture(tmp_path)
+    run, checkpoint, marker = _write_completed_run(fixture)
+
+    def use_absolute_path(value: dict[str, Any]) -> None:
+        value["config"]["experiment_config"] = str(fixture.config_path)
+
+    _rewrite_checkpoint(
+        checkpoint,
+        marker,
+        use_absolute_path,
+        refresh_config_digest=True,
+    )
+    result = _run_result(audit_experiment(fixture.config_path), run)
+
+    assert result["status"] == "passed"
+    assert not result["issues"]
+
+
+def test_absolute_experiment_path_outside_repository_is_rejected(
+    tmp_path: Path,
+) -> None:
+    fixture = _make_fixture(tmp_path)
+    outside = tmp_path / "outside.toml"
+    outside.write_bytes(fixture.config_path.read_bytes())
+    run, checkpoint, marker = _write_completed_run(fixture)
+
+    def escape_repository(value: dict[str, Any]) -> None:
+        value["config"]["experiment_config"] = str(outside)
+
+    _rewrite_checkpoint(
+        checkpoint,
+        marker,
+        escape_repository,
+        refresh_config_digest=True,
+    )
+    result = _run_result(audit_experiment(fixture.config_path), run)
+
+    assert result["status"] == "failed"
+    assert "checkpoint_config_path_invalid" in _codes(result)
+
+
 def test_revised_v3_audit_accepts_schema_aware_manifests_and_plan(
     tmp_path: Path,
 ) -> None:

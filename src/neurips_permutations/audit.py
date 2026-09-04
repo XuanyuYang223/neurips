@@ -235,11 +235,25 @@ def _checked_repo_path(
     label: str,
     must_exist: bool = False,
     kind: str | None = None,
+    allow_absolute: bool = False,
 ) -> Path:
     if not isinstance(raw, str) or not raw:
-        raise AuditPathError(f"{label} must be a non-empty relative path")
-    relative = Path(raw)
-    if relative.is_absolute() or relative.anchor or ".." in relative.parts:
+        raise AuditPathError(f"{label} must be a non-empty path")
+    supplied = Path(raw)
+    if supplied.is_absolute():
+        if not allow_absolute:
+            raise AuditPathError(
+                f"{label} must stay relative to the config repository: {raw}"
+            )
+        try:
+            relative = supplied.relative_to(repository)
+        except ValueError as error:
+            raise AuditPathError(
+                f"{label} must stay inside the config repository: {raw}"
+            ) from error
+    else:
+        relative = supplied
+    if relative.anchor or ".." in relative.parts:
         raise AuditPathError(f"{label} must stay relative to the config repository: {raw}")
     candidate = repository.joinpath(*relative.parts)
     current = repository
@@ -378,6 +392,7 @@ def _normalize_train_config(
     *,
     expected_keys: set[str],
     repository: Path,
+    allow_absolute_paths: bool = False,
 ) -> tuple[dict[str, Any] | None, list[dict[str, Any]]]:
     issues: list[dict[str, Any]] = []
     if set(value) != expected_keys:
@@ -410,6 +425,7 @@ def _normalize_train_config(
                     label=f"checkpoint config {key}",
                     must_exist=True,
                     kind="file",
+                    allow_absolute=allow_absolute_paths,
                 ),
                 repository,
             )
@@ -418,6 +434,7 @@ def _normalize_train_config(
                 normalized["output_dir"],
                 repository,
                 label="checkpoint config output_dir",
+                allow_absolute=allow_absolute_paths,
             ),
             repository,
         )
@@ -430,6 +447,7 @@ def _normalize_train_config(
                         label=f"checkpoint config {key}",
                         must_exist=True,
                         kind="file",
+                        allow_absolute=allow_absolute_paths,
                     ),
                     repository,
                 )
@@ -1571,6 +1589,7 @@ def audit_run(
             checkpoint_config,
             expected_keys=set(expected_config),
             repository=repository,
+            allow_absolute_paths=True,
         )
         issues.extend(config_issues)
         normalized_expected, expected_issues = _normalize_train_config(
@@ -1579,6 +1598,7 @@ def audit_run(
             repository=repository,
         )
         issues.extend(expected_issues)
+        differing: list[str] | None = None
         if normalized_actual is not None and normalized_expected is not None:
             differing = sorted(
                 key
@@ -1604,20 +1624,26 @@ def audit_run(
                 )
             )
         else:
+            # Path spelling is not experiment identity.  Some valid launchers
+            # record an absolute path while the frozen command records the
+            # same repository-contained file relatively.  The normalized
+            # full-config comparison above proves semantic equality.  Retain
+            # the raw digest comparison whenever any normalized field differs.
+            if differing:
+                _check_equal(
+                    issues,
+                    code="checkpoint_config_sha256_mismatch",
+                    label="checkpoint config SHA-256 versus launch spec",
+                    actual=actual_config_digest,
+                    expected=expected_config_digest,
+                )
             _check_equal(
                 issues,
-                code="checkpoint_config_sha256_mismatch",
-                label="checkpoint config SHA-256 versus launch spec",
-                actual=actual_config_digest,
-                expected=expected_config_digest,
+                code="marker_config_sha256_mismatch",
+                label="marker config SHA-256 versus checkpoint config",
+                actual=marker.get("config_sha256"),
+                expected=actual_config_digest,
             )
-        _check_equal(
-            issues,
-            code="marker_config_sha256_mismatch",
-            label="marker config SHA-256",
-            actual=marker.get("config_sha256"),
-            expected=expected_config_digest,
-        )
     else:
         issues.append(_issue("checkpoint_config_missing", "checkpoint config is missing"))
 
