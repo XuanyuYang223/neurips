@@ -62,7 +62,7 @@ def test_derived_record_recomputes_truth() -> None:
     }
     record = _record(source, "lehmer")
     assert record["answer"] == ops.inversion_count((3, 1, 4, 2)) == 3
-    assert record["id"] == 7 * 4 + 2
+    assert record["id"] == 7 * 32 + FULL_COMBINATIONS.index("lehmer:length")
     assert record["task"] == "lehmer:length"
     assert "<LEHMER_START>" in record["tokens"]
 

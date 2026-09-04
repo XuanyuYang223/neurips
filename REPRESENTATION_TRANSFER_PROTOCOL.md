@@ -31,6 +31,10 @@ Every training cell contains 490,000 records; every validation and test cell
 contains 5,000 records. The derived training corpus therefore has 5,390,000
 rows, and each evaluation split has 160,000 rows.
 
+Derived record IDs are globally unique within a split and are defined as
+`source_id × 32 + cell_index` using the frozen row-major grid order. The
+original source ID is retained separately for matched-input audits.
+
 All cells use the same 163-token permutation vocabulary, base-100 tokenizer,
 and scalar answer grammar. The 25 Property32-only tokens are not included in
 the models merely because the source permutations came from that corpus. Only

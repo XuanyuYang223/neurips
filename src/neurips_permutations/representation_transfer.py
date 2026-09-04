@@ -152,12 +152,13 @@ def _record(
     primary = tuple(int(value) for value in source["inputs"]["primary"])
     answer = int(TASK_FUNCTIONS[task](primary))
     tokens = passage_tokens(task, primary, answer, representation=representation)
-    representation_index = REPRESENTATIONS.index(representation)
+    combination = f"{representation}:{task}"
+    combination_index = FULL_COMBINATIONS.index(combination)
     return {
         "schema_version": SCHEMA_VERSION,
-        "id": int(source["id"]) * len(REPRESENTATIONS) + representation_index,
+        "id": int(source["id"]) * len(FULL_COMBINATIONS) + combination_index,
         "source_id": int(source["id"]),
-        "task": f"{representation}:{task}",
+        "task": combination,
         "base_task": task,
         "representation": representation,
         "n": len(primary),
@@ -352,7 +353,8 @@ def verify_manifest(path: Path, *, full: bool = True) -> dict[str, Any]:
                     raise ValueError("stored answer differs from mathematical truth")
                 if value.get("tokens") != list(tokens) or value.get("canonical_text") != " ".join(tokens):
                     raise ValueError("stored Passage Math sequence is not canonical")
-                if value.get("id") != int(value["source_id"]) * 4 + REPRESENTATIONS.index(representation):
+                expected_id = int(value["source_id"]) * len(FULL_COMBINATIONS) + FULL_COMBINATIONS.index(combination)
+                if value.get("id") != expected_id:
                     raise ValueError("derived record ID is invalid")
                 shard_counts[combination] += 1
                 shard_records += 1
