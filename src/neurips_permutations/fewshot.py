@@ -39,6 +39,11 @@ DEFAULT_CONFIG = Path("configs/henry_permutation_fewshot.toml")
 FORMAT_VERSION = "henry-permutation-fewshot/v1"
 SUPPORT_FORMAT_VERSION = "henry-permutation-fewshot-support/v1"
 TEST_FORMAT_VERSION = "henry-permutation-fewshot-test/v1"
+SHOT_CURVE_FORMAT_VERSION = "henry-permutation-fewshot-shot-curve/v1"
+SHOT_CURVE_SUPPORT_FORMAT_VERSION = (
+    "henry-permutation-fewshot-shot-curve-support/v1"
+)
+SHOT_CURVE_TEST_FORMAT_VERSION = "henry-permutation-fewshot-shot-curve-test/v1"
 
 
 def _sha256(path: Path) -> str:
@@ -153,6 +158,11 @@ class FewshotSpec:
     expected_validation_examples: int
     expected_test_examples: int
     expected_runs: int
+    protocol_version: str = FORMAT_VERSION
+    support_format_version: str = SUPPORT_FORMAT_VERSION
+    test_format_version: str = TEST_FORMAT_VERSION
+    anchor_support_artifact: Path | None = None
+    anchor_support_sha256: str | None = None
 
 
 def load_spec(config_path: Path = DEFAULT_CONFIG) -> FewshotSpec:
@@ -167,6 +177,20 @@ def load_spec(config_path: Path = DEFAULT_CONFIG) -> FewshotSpec:
     fine = config["fine_tuning"]
     evaluation = config["evaluation"]
     matrix = config["matrix"]
+    protocol_version = str(config.get("protocol_version"))
+    if protocol_version == FORMAT_VERSION:
+        support_format_version = SUPPORT_FORMAT_VERSION
+        test_format_version = TEST_FORMAT_VERSION
+        anchor_support_artifact = None
+        anchor_support_sha256 = None
+    elif protocol_version == SHOT_CURVE_FORMAT_VERSION:
+        support_format_version = SHOT_CURVE_SUPPORT_FORMAT_VERSION
+        test_format_version = SHOT_CURVE_TEST_FORMAT_VERSION
+        anchor_support_artifact = path("anchor_support_artifact")
+        anchor_support_sha256 = str(config["anchor_support_sha256"])
+    else:
+        raise ValueError("unsupported few-shot protocol version")
+
     spec = FewshotSpec(
         repository=repository,
         config_path=config_path,
@@ -199,15 +223,20 @@ def load_spec(config_path: Path = DEFAULT_CONFIG) -> FewshotSpec:
         expected_validation_examples=int(evaluation["validation_examples_per_task"]),
         expected_test_examples=int(evaluation["test_examples_per_task"]),
         expected_runs=int(matrix["total_runs"]),
+        protocol_version=protocol_version,
+        support_format_version=support_format_version,
+        test_format_version=test_format_version,
+        anchor_support_artifact=anchor_support_artifact,
+        anchor_support_sha256=anchor_support_sha256,
     )
-    if config.get("protocol_version") != FORMAT_VERSION:
-        raise ValueError("unsupported few-shot protocol version")
     if len(spec.holdout_tasks) != 4 or len(set(spec.holdout_tasks)) != 4:
         raise ValueError("few-shot protocol requires four distinct holdout tasks")
     if len(spec.model_seeds) != 3 or len(set(spec.model_seeds)) != 3:
         raise ValueError("few-shot protocol requires three distinct model seeds")
-    if spec.shots != 20:
+    if spec.protocol_version == FORMAT_VERSION and spec.shots != 20:
         raise ValueError("Henry's primary few-shot protocol is frozen at 20 shots")
+    if spec.protocol_version == SHOT_CURVE_FORMAT_VERSION and spec.shots not in {5, 100}:
+        raise ValueError("shot-curve extensions are frozen at 5 or 100 shots")
     for value in (
         spec.max_steps,
         spec.batch_size,
@@ -236,6 +265,9 @@ def load_spec(config_path: Path = DEFAULT_CONFIG) -> FewshotSpec:
     ):
         if _sha256(manifest) != expected:
             raise ValueError(f"manifest differs from frozen few-shot spec: {manifest}")
+    if spec.anchor_support_artifact is not None:
+        if _sha256(spec.anchor_support_artifact) != spec.anchor_support_sha256:
+            raise ValueError("anchor support artifact differs from the frozen spec")
     return spec
 
 
@@ -243,8 +275,78 @@ def _support_key(task: str, seed: int) -> str:
     return f"{task}:seed{seed}"
 
 
+def _anchor_support_lookup(spec: FewshotSpec) -> dict[tuple[str, int], list[dict[str, Any]]]:
+    if spec.anchor_support_artifact is None:
+        return {}
+    anchor_spec = load_spec(spec.repository / DEFAULT_CONFIG)
+    if anchor_spec.support_artifact != spec.anchor_support_artifact:
+        raise ValueError("shot-curve anchor is not the frozen primary 20-shot artifact")
+    if _sha256(anchor_spec.support_artifact) != spec.anchor_support_sha256:
+        raise ValueError("shot-curve anchor support hash mismatch")
+    return _support_lookup(load_support_artifact(anchor_spec))
+
+
+def _select_support_ids(
+    spec: FewshotSpec,
+    *,
+    task_names: Sequence[str],
+    task_counts: Mapping[str, int],
+) -> dict[str, list[int]]:
+    """Select deterministic IDs, with strict 5 subset 20 subset 100 nesting."""
+
+    task_count = len(task_names)
+    task_indices = {task: index for index, task in enumerate(task_names)}
+    anchor = _anchor_support_lookup(spec)
+    reserved_anchor_ids = {
+        int(record["id"])
+        for records in anchor.values()
+        for record in records
+    }
+    selected: dict[str, list[int]] = {}
+    used: set[int] = set()
+    for seed in spec.model_seeds:
+        for task in spec.holdout_tasks:
+            key = _support_key(task, seed)
+            if spec.protocol_version == FORMAT_VERSION:
+                available = int(task_counts[task])
+                rng = random.Random(_stable_seed(FORMAT_VERSION, "support", task, seed))
+                occurrences = sorted(rng.sample(range(available), spec.shots))
+                ids = [task_indices[task] + task_count * value for value in occurrences]
+            else:
+                anchor_ids = [int(record["id"]) for record in anchor[(task, seed)]]
+                if len(anchor_ids) != 20:
+                    raise ValueError("shot-curve anchor must contain exactly 20 records")
+                ids = anchor_ids[: min(spec.shots, 20)]
+                if spec.shots > 20:
+                    available = int(task_counts[task])
+                    rng = random.Random(
+                        _stable_seed(
+                            SHOT_CURVE_FORMAT_VERSION,
+                            "support-extension",
+                            task,
+                            seed,
+                        )
+                    )
+                    while len(ids) < spec.shots:
+                        occurrence = rng.randrange(available)
+                        candidate = task_indices[task] + task_count * occurrence
+                        if (
+                            candidate not in used
+                            and candidate not in ids
+                            and candidate not in reserved_anchor_ids
+                        ):
+                            ids.append(candidate)
+            if len(ids) != spec.shots or len(set(ids)) != spec.shots:
+                raise ValueError("support selection produced duplicate or missing IDs")
+            if used.intersection(ids):
+                raise ValueError("support sample collision")
+            used.update(ids)
+            selected[key] = ids
+    return selected
+
+
 def build_support_artifact(spec: FewshotSpec, *, overwrite: bool = False) -> dict[str, Any]:
-    """Select paired 20-shot support sets from train shards only."""
+    """Select paired support sets from train shards only."""
 
     if spec.support_artifact.exists() and not overwrite:
         return load_support_artifact(spec)
@@ -254,21 +356,15 @@ def build_support_artifact(spec: FewshotSpec, *, overwrite: bool = False) -> dic
         raise ValueError("holdout tasks are absent from the training manifest")
     if manifest.get("count") != 9_800_000 or len(manifest.get("shards", ())) != 98:
         raise ValueError("support examples must come from the frozen 9.8M train split")
-    task_count = len(task_names)
     desired: dict[int, tuple[str, int]] = {}
-    set_ids: dict[str, list[int]] = {}
+    set_ids = _select_support_ids(
+        spec,
+        task_names=task_names,
+        task_counts={key: int(value) for key, value in manifest["task_counts"].items()},
+    )
     for seed in spec.model_seeds:
         for task in spec.holdout_tasks:
-            available = int(manifest["task_counts"][task])
-            rng = random.Random(_stable_seed(FORMAT_VERSION, "support", task, seed))
-            occurrences = sorted(rng.sample(range(available), spec.shots))
-            task_index = task_names.index(task)
-            ids = [task_index + task_count * occurrence for occurrence in occurrences]
-            key = _support_key(task, seed)
-            set_ids[key] = ids
-            for record_id in ids:
-                if record_id in desired:
-                    raise ValueError("support sample collision")
+            for record_id in set_ids[_support_key(task, seed)]:
                 desired[record_id] = (task, seed)
 
     found: dict[int, dict[str, Any]] = {}
@@ -312,11 +408,18 @@ def build_support_artifact(spec: FewshotSpec, *, overwrite: bool = False) -> dic
                     "records": [found[record_id] for record_id in ids],
                 }
             )
+    selection_method = (
+        "seeded_uniform_occurrence_without_replacement/v1"
+        if spec.protocol_version == FORMAT_VERSION
+        else "nested_prefix_of_frozen_20_shot_support/v1"
+        if spec.shots == 5
+        else "frozen_20_shot_anchor_plus_seeded_extension/v1"
+    )
     artifact = {
-        "format_version": SUPPORT_FORMAT_VERSION,
+        "format_version": spec.support_format_version,
         "fewshot_config_sha256": spec.config_sha256,
         "train_manifest_sha256": spec.train_manifest_sha256,
-        "selection_method": "seeded_uniform_occurrence_without_replacement/v1",
+        "selection_method": selection_method,
         "shots": spec.shots,
         "tasks": list(spec.holdout_tasks),
         "seeds": list(spec.model_seeds),
@@ -324,6 +427,8 @@ def build_support_artifact(spec: FewshotSpec, *, overwrite: bool = False) -> dic
         "record_count": sum(len(item["records"]) for item in sets),
         "sets": sets,
     }
+    if spec.anchor_support_sha256 is not None:
+        artifact["anchor_support_sha256"] = spec.anchor_support_sha256
     _atomic_json(artifact, spec.support_artifact)
     return artifact
 
@@ -331,7 +436,7 @@ def build_support_artifact(spec: FewshotSpec, *, overwrite: bool = False) -> dic
 def load_support_artifact(spec: FewshotSpec) -> dict[str, Any]:
     artifact = json.loads(spec.support_artifact.read_text(encoding="utf-8"))
     expected = {
-        "format_version": SUPPORT_FORMAT_VERSION,
+        "format_version": spec.support_format_version,
         "fewshot_config_sha256": spec.config_sha256,
         "train_manifest_sha256": spec.train_manifest_sha256,
         "shots": spec.shots,
@@ -340,6 +445,8 @@ def load_support_artifact(spec: FewshotSpec) -> dict[str, Any]:
         "set_count": len(spec.holdout_tasks) * len(spec.model_seeds),
         "record_count": spec.shots * len(spec.holdout_tasks) * len(spec.model_seeds),
     }
+    if spec.anchor_support_sha256 is not None:
+        expected["anchor_support_sha256"] = spec.anchor_support_sha256
     if any(artifact.get(key) != value for key, value in expected.items()):
         raise ValueError("support artifact identity differs from the frozen spec")
     seen_ids: set[int] = set()
@@ -435,8 +542,9 @@ def _run_identity(
     support_sha256: str,
     support_ids: Sequence[int],
     implementation_commit: str,
-    format_version: str = FORMAT_VERSION,
+    format_version: str | None = None,
 ) -> dict[str, Any]:
+    format_version = format_version or spec.protocol_version
     identity = {
         "format_version": format_version,
         "run_id": run["run_id"],
@@ -510,19 +618,20 @@ def _train_one(
     support_sha256: str,
     implementation_commit: str,
     device: torch.device,
-    format_version: str = FORMAT_VERSION,
+    format_version: str | None = None,
 ) -> dict[str, Any]:
     run_dir = spec.output_dir / str(run["run_id"])
     checkpoint_path = run_dir / "checkpoint.pt"
     marker_path = run_dir / "completed.json"
     support_ids = [int(record["id"]) for record in support_records]
+    identity_format_version = format_version or spec.protocol_version
     identity = _run_identity(
         spec,
         run,
         support_sha256=support_sha256,
         support_ids=support_ids,
         implementation_commit=implementation_commit,
-        format_version=format_version,
+        format_version=identity_format_version,
     )
     if _completion_valid(marker_path, identity, checkpoint_path):
         return json.loads(marker_path.read_text(encoding="utf-8"))
@@ -538,16 +647,21 @@ def _train_one(
         raise ValueError("model-configuration source checkpoint changed")
     source = torch.load(source_checkpoint, map_location="cpu", weights_only=True)
     base_config = TrainConfig.from_value(source["config"])
+    seed_namespace = (
+        FORMAT_VERSION
+        if spec.protocol_version == SHOT_CURVE_FORMAT_VERSION
+        else identity_format_version
+    )
     if "replicate_id" in run or "model_pool" in run:
         adaptation_seed = _stable_seed(
-            format_version,
+            seed_namespace,
             run.get("replicate_id", ""),
             run.get("model_pool", ""),
             run["task"],
             run["seed"],
         )
     else:
-        adaptation_seed = _stable_seed(format_version, run["task"], run["seed"])
+        adaptation_seed = _stable_seed(seed_namespace, run["task"], run["seed"])
     _seed_everything(adaptation_seed)
     model = _default_model_factory(base_config)
     if run["initialization"] == "pretrained":
@@ -704,7 +818,7 @@ def run_all(config_path: Path = DEFAULT_CONFIG, *, device_name: str | None = Non
                 )
             )
         summary = {
-            "format_version": FORMAT_VERSION,
+            "format_version": spec.protocol_version,
             "status": "completed",
             "implementation_commit": implementation_commit,
             "fewshot_config_sha256": spec.config_sha256,
@@ -835,7 +949,7 @@ def audit_all(config_path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
         for path in spec.output_dir.rglob("*.tmp")
     ) if spec.output_dir.exists() else []
     return {
-        "format_version": FORMAT_VERSION,
+        "format_version": spec.protocol_version,
         "status": "passed" if len(passed) == spec.expected_runs and not failed else "incomplete" if not failed else "failed",
         "ok": len(passed) == spec.expected_runs and not failed and not partials,
         "expected_run_count": spec.expected_runs,
@@ -854,9 +968,10 @@ def _test_identity(
     *,
     test_manifest_sha256: str,
     evaluator_commit: str,
+    test_format_version: str = TEST_FORMAT_VERSION,
 ) -> dict[str, Any]:
     return {
-        "format_version": TEST_FORMAT_VERSION,
+        "format_version": test_format_version,
         "run_id": marker["run_id"],
         "initialization": marker["initialization"],
         "architecture": marker["architecture"],
@@ -899,6 +1014,7 @@ def evaluate_test(
                 marker,
                 test_manifest_sha256=spec.test_manifest_sha256,
                 evaluator_commit=evaluator_commit,
+                test_format_version=spec.test_format_version,
             )
             output_path = spec.evaluation_dir / "per-run" / f"{marker['run_id']}.json"
             if output_path.is_file():
@@ -955,7 +1071,7 @@ def evaluate_test(
             if device.type == "cuda":
                 torch.cuda.empty_cache()
         manifest = {
-            "format_version": TEST_FORMAT_VERSION,
+            "format_version": spec.test_format_version,
             "status": "completed",
             "evaluator_commit": evaluator_commit,
             "fewshot_config_sha256": spec.config_sha256,

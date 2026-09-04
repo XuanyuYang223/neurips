@@ -1,0 +1,56 @@
+# Post-hoc 5-shot endpoint for the nested 5/20/100-shot adaptation curve.
+# The support set is a strict subset of the frozen primary 20-shot set.
+
+protocol_version = "henry-permutation-fewshot-shot-curve/v1"
+base_experiment_config = "configs/henry_permutation_revised.toml"
+base_experiment_config_sha256 = "dd75f31277e42f554ed681beda44bb53f2d4f65089fd9583540b9e645c4f1b40"
+train_manifest = "data/permutation-10m-v3/train_manifest.json"
+train_manifest_sha256 = "7ad40c63a7559c52640d233a5398125d14160d83acadfa30637de291292893fa"
+validation_manifest = "data/permutation-10m-v3/validation_manifest.json"
+validation_manifest_sha256 = "90e88845f3f58947f317c67144c83bc5e38c27b248227e311632af834d2fd068"
+test_manifest = "data/permutation-10m-v3/test_manifest.json"
+test_manifest_sha256 = "3ca12e6b6eeb29fc0ddd441b9c44c80d7a160faaf7e832eb55007f4c6a3ab52b"
+anchor_support_artifact = "manifests/permutation-v3-fewshot-support.json"
+anchor_support_sha256 = "a9463d6402dde0425048ff156f94a32e6d2115cc4cbed3788398333ae3aedc0a"
+support_artifact = "manifests/permutation-v3-fewshot-support-shot05.json"
+output_dir = "runs/henry-permutation-v3-fewshot-shot05"
+evaluation_dir = "results/v3/fewshot/shot-curve/shot05/evaluation"
+holdout_tasks = ["to_reduced_word", "compose", "parity", "to_lehmer"]
+model_seeds = [17, 42, 314159]
+shots = 5
+
+[support_selection]
+method = "nested_prefix_of_frozen_20_shot_support/v1"
+pair_by_model_seed = true
+source_split = "train_shards_000_097"
+
+[fine_tuning]
+initialize = ["pretrained", "random"]
+train_all_parameters = true
+max_steps = 200
+micro_batch_size = 4
+gradient_accumulation_steps = 1
+max_tokens_per_batch = 4096
+learning_rate = 0.00001
+random_init_learning_rate = 0.0003
+min_learning_rate_ratio = 0.1
+weight_decay = 0.01
+warmup_steps = 20
+gradient_clip_norm = 1.0
+precision = "bf16"
+
+[evaluation]
+validation_examples_per_task = 5000
+test_examples_per_task = 5000
+primary_metric = "sequence_accuracy"
+secondary_metrics = ["loss", "token_accuracy"]
+
+[matrix]
+pretrained_base_models = 30
+holdouts_per_base_model = 4
+pretrained_adaptations = 120
+random_architectures = 2
+random_tasks = 4
+random_seeds = 3
+random_baselines = 24
+total_runs = 144

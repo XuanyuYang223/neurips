@@ -11,14 +11,19 @@ import torch
 
 from neurips_permutations.fewshot import (
     FORMAT_VERSION,
+    SHOT_CURVE_FORMAT_VERSION,
+    SHOT_CURVE_SUPPORT_FORMAT_VERSION,
     SUPPORT_FORMAT_VERSION,
     FewshotSpec,
     _completion_valid,
+    _run_identity,
+    _select_support_ids,
     _sha256,
     _train_one,
     build_plan,
     load_support_artifact,
 )
+import neurips_permutations.fewshot as fewshot_module
 from neurips_permutations.training import TrainConfig, _default_model_factory
 
 
@@ -153,6 +158,63 @@ def test_support_artifact_rejects_duplicate_or_wrong_task_records(tmp_path: Path
     spec.support_artifact.write_text(json.dumps(artifact), encoding="utf-8")
     with pytest.raises(ValueError, match="invalid records or IDs"):
         load_support_artifact(spec)
+
+
+def test_shot_curve_support_is_strictly_nested_and_deterministic(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    tasks = ("to_reduced_word", "compose", "parity", "to_lehmer")
+    seeds = (17, 42, 314159)
+    anchor: dict[tuple[str, int], list[dict[str, int]]] = {}
+    for seed_index, seed in enumerate(seeds):
+        for task_index, task in enumerate(tasks):
+            start = 1_000 * (seed_index * len(tasks) + task_index)
+            anchor[(task, seed)] = [
+                {"id": task_index + len(tasks) * (start + offset)}
+                for offset in range(20)
+            ]
+    monkeypatch.setattr(fewshot_module, "_anchor_support_lookup", lambda spec: anchor)
+    common = {
+        "protocol_version": SHOT_CURVE_FORMAT_VERSION,
+        "support_format_version": SHOT_CURVE_SUPPORT_FORMAT_VERSION,
+        "anchor_support_artifact": tmp_path / "anchor.json",
+        "anchor_support_sha256": "a" * 64,
+    }
+    spec5 = _spec(tmp_path, shots=5, **common)
+    spec100 = _spec(tmp_path, shots=100, **common)
+    counts = {task: 100_000 for task in tasks}
+    selected5 = _select_support_ids(spec5, task_names=tasks, task_counts=counts)
+    selected100 = _select_support_ids(spec100, task_names=tasks, task_counts=counts)
+    assert selected100 == _select_support_ids(
+        spec100, task_names=tasks, task_counts=counts
+    )
+    for seed in seeds:
+        for task in tasks:
+            key = f"{task}:seed{seed}"
+            anchor_ids = [record["id"] for record in anchor[(task, seed)]]
+            assert selected5[key] == anchor_ids[:5]
+            assert selected100[key][:20] == anchor_ids
+            assert len(set(selected100[key])) == 100
+    assert len({item for values in selected100.values() for item in values}) == 1200
+
+
+def test_shot_curve_run_identity_uses_protocol_from_spec(tmp_path: Path) -> None:
+    spec = _spec(
+        tmp_path,
+        shots=5,
+        protocol_version=SHOT_CURVE_FORMAT_VERSION,
+        support_format_version=SHOT_CURVE_SUPPORT_FORMAT_VERSION,
+    )
+    run = build_plan(spec, _audited_runs(tmp_path))[0]
+    identity = _run_identity(
+        spec,
+        run,
+        support_sha256="a" * 64,
+        support_ids=range(5),
+        implementation_commit="c" * 40,
+    )
+    assert identity["format_version"] == SHOT_CURVE_FORMAT_VERSION
+    assert identity["shots"] == 5
 
 
 def test_one_adaptation_warm_starts_trains_and_validates(tmp_path: Path) -> None:

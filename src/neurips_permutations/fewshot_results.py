@@ -11,7 +11,7 @@ import statistics
 import tempfile
 from typing import Any, Iterable, Mapping, Sequence
 
-from .fewshot import DEFAULT_CONFIG, TEST_FORMAT_VERSION, _sha256, audit_all, load_spec
+from .fewshot import DEFAULT_CONFIG, _sha256, audit_all, load_spec
 
 
 RAW_FIELDS = (
@@ -109,7 +109,7 @@ def load_rows(
     manifest_path = spec.evaluation_dir / "manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     expected_manifest = {
-        "format_version": TEST_FORMAT_VERSION,
+        "format_version": spec.test_format_version,
         "status": "completed",
         "fewshot_config_sha256": spec.config_sha256,
         "support_artifact_sha256": _sha256(spec.support_artifact),
