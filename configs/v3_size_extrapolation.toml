@@ -1,0 +1,18 @@
+# Post-hoc length extrapolation for the completed v3 nested model matrix.
+
+protocol_version = "v3-size-extrapolation/v1"
+base_experiment_config = "configs/henry_permutation_revised.toml"
+base_experiment_config_sha256 = "dd75f31277e42f554ed681beda44bb53f2d4f65089fd9583540b9e645c4f1b40"
+data_manifest = "data/permutation-size-extrapolation-v1/manifest.json"
+data_manifest_sha256 = "0634aa08c114ae0aa705ffe97f71202fca4145729c00bf13b3606afbd9081aa3"
+output_dir = "results/v3/size-extrapolation/evaluation"
+in_domain_evaluation_dir = "results/v3/evaluation"
+min_entries = 31
+max_entries = 40
+records = 20000
+examples_per_task = 1000
+model_count = 30
+excluded_tasks = ["to_reduced_word"]
+exclusion_reason = "Some n > 30 reduced words exceed the frozen 1024-token model context."
+max_examples_per_batch = 32
+max_padded_tokens = 8192
