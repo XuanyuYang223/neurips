@@ -1,0 +1,188 @@
+{
+  "evaluator_commit": "2e337c9cea19c04d4b090e775dcf5b39320011b9",
+  "examples_per_run": 100000,
+  "examples_per_task": 5000,
+  "format_version": "permutation-scaling-k16-test/v1",
+  "full_verification": {
+    "full": true,
+    "ok": true,
+    "record_count": 100000,
+    "shard_count": 1,
+    "split": "test",
+    "task_counts": {
+      "bruhat_leq": 5000,
+      "compose": 5000,
+      "cycle_type": 5000,
+      "descents": 5000,
+      "exceedances": 5000,
+      "fixed_points": 5000,
+      "inverse": 5000,
+      "lds_length": 5000,
+      "length": 5000,
+      "lis_length": 5000,
+      "parity": 5000,
+      "pattern_avoidance": 5000,
+      "peaks": 5000,
+      "recoils": 5000,
+      "right_multiply_simple": 5000,
+      "rsk_shape": 5000,
+      "to_cycle": 5000,
+      "to_inversion_vector": 5000,
+      "to_lehmer": 5000,
+      "to_reduced_word": 5000
+    },
+    "total_bytes": 11405137,
+    "workers": 1
+  },
+  "protocol_sha256": "39f3156cd4d9903d39385641c03e26e26b4643e446a82b7f07554119f1fdecab",
+  "run_count": 24,
+  "runs": [
+    {
+      "checkpoint_sha256": "935734ef2df27dd9a48e65306c4128142db0501c5718673c80edb5fc2051a5ef",
+      "condition": "baseline",
+      "result_file": "per-run/baseline--transformer-tasks16-seed17.json",
+      "run_id": "transformer-tasks16-seed17"
+    },
+    {
+      "checkpoint_sha256": "8cdeb4078e13a22efeb6700c02a8be97793c5e7ba60052e3579f923e036977d7",
+      "condition": "baseline",
+      "result_file": "per-run/baseline--transformer-tasks16-seed42.json",
+      "run_id": "transformer-tasks16-seed42"
+    },
+    {
+      "checkpoint_sha256": "e1121547778afcadb972a243cae1b3f4b78d255752c3bef968c49db1b47b493b",
+      "condition": "baseline",
+      "result_file": "per-run/baseline--transformer-tasks16-seed314159.json",
+      "run_id": "transformer-tasks16-seed314159"
+    },
+    {
+      "checkpoint_sha256": "faf0ed56a7f122461d835b3c583199546480909c667b284756f45a139e6bca45",
+      "condition": "baseline",
+      "result_file": "per-run/baseline--mlp-tasks16-seed17.json",
+      "run_id": "mlp-tasks16-seed17"
+    },
+    {
+      "checkpoint_sha256": "f2ba156b4f20077f8d105842a86e27f0e333941bfc738fb25251838646ee5482",
+      "condition": "baseline",
+      "result_file": "per-run/baseline--mlp-tasks16-seed42.json",
+      "run_id": "mlp-tasks16-seed42"
+    },
+    {
+      "checkpoint_sha256": "49e64484885178675f1c119f3f0686ef81e9c4c195de122867a5a72a8789487c",
+      "condition": "baseline",
+      "result_file": "per-run/baseline--mlp-tasks16-seed314159.json",
+      "run_id": "mlp-tasks16-seed314159"
+    },
+    {
+      "checkpoint_sha256": "ca52e2222556b4bf006795efd1b3798d6bd1b26aa5b7289f1fa43a3fffb72208",
+      "condition": "data10x_model1x",
+      "result_file": "per-run/data10x_model1x--transformer-tasks16-seed17.json",
+      "run_id": "transformer-tasks16-seed17"
+    },
+    {
+      "checkpoint_sha256": "785ec22e9a965956404df8d51fbce4d0bf87d1547332906bbf8aac1626e0a9d1",
+      "condition": "data10x_model1x",
+      "result_file": "per-run/data10x_model1x--transformer-tasks16-seed42.json",
+      "run_id": "transformer-tasks16-seed42"
+    },
+    {
+      "checkpoint_sha256": "376a5d4bfc94b314ddd63377e29cb8acddf68ceda29ba49617fddd606ec06610",
+      "condition": "data10x_model1x",
+      "result_file": "per-run/data10x_model1x--transformer-tasks16-seed314159.json",
+      "run_id": "transformer-tasks16-seed314159"
+    },
+    {
+      "checkpoint_sha256": "244d7b713cd36217698e881837dd18909f6a07826bd2a4dc225e7d5ce3654b40",
+      "condition": "data10x_model1x",
+      "result_file": "per-run/data10x_model1x--mlp-tasks16-seed17.json",
+      "run_id": "mlp-tasks16-seed17"
+    },
+    {
+      "checkpoint_sha256": "6b1e208686eef949014612951cabe595de08cfd2dab7a6bd919b3e6ebd800e27",
+      "condition": "data10x_model1x",
+      "result_file": "per-run/data10x_model1x--mlp-tasks16-seed42.json",
+      "run_id": "mlp-tasks16-seed42"
+    },
+    {
+      "checkpoint_sha256": "f23e0dc55a63ac30e610eaf980956db66a01520bd14a9d6b58e647f169d68119",
+      "condition": "data10x_model1x",
+      "result_file": "per-run/data10x_model1x--mlp-tasks16-seed314159.json",
+      "run_id": "mlp-tasks16-seed314159"
+    },
+    {
+      "checkpoint_sha256": "851c9cd54344f3a5320c9b438328a82fb4d229b4989aa74577a20c59066f1be2",
+      "condition": "data1x_model2x",
+      "result_file": "per-run/data1x_model2x--transformer-tasks16-seed17.json",
+      "run_id": "transformer-tasks16-seed17"
+    },
+    {
+      "checkpoint_sha256": "c61e1580f9d5a6b4372e0c524edaedb50e59fe984fbf733f8525db7778d9f185",
+      "condition": "data1x_model2x",
+      "result_file": "per-run/data1x_model2x--transformer-tasks16-seed42.json",
+      "run_id": "transformer-tasks16-seed42"
+    },
+    {
+      "checkpoint_sha256": "08c0b7c95b6f7029ecdac8c53cda8ab01c1a07fc45bf451767f51b6a0f16c16f",
+      "condition": "data1x_model2x",
+      "result_file": "per-run/data1x_model2x--transformer-tasks16-seed314159.json",
+      "run_id": "transformer-tasks16-seed314159"
+    },
+    {
+      "checkpoint_sha256": "ddc354be95744c63f0b11d230d9afc0737bfb3570c927bfe78331f4394a4f80e",
+      "condition": "data1x_model2x",
+      "result_file": "per-run/data1x_model2x--mlp-tasks16-seed17.json",
+      "run_id": "mlp-tasks16-seed17"
+    },
+    {
+      "checkpoint_sha256": "37e987798ca5ea85567f2ab2cbca1a47ccf9f37eab0a8206af4c5db6cb43884f",
+      "condition": "data1x_model2x",
+      "result_file": "per-run/data1x_model2x--mlp-tasks16-seed42.json",
+      "run_id": "mlp-tasks16-seed42"
+    },
+    {
+      "checkpoint_sha256": "8aeab5f2f6263d2a34970ebe15fbf01afd438cb6c8bab905bb26897e1e7aa556",
+      "condition": "data1x_model2x",
+      "result_file": "per-run/data1x_model2x--mlp-tasks16-seed314159.json",
+      "run_id": "mlp-tasks16-seed314159"
+    },
+    {
+      "checkpoint_sha256": "b27e3dedaec75a2a03b625a12a1ff412385103edda9b46fec7816fb4404839f1",
+      "condition": "data10x_model2x",
+      "result_file": "per-run/data10x_model2x--transformer-tasks16-seed17.json",
+      "run_id": "transformer-tasks16-seed17"
+    },
+    {
+      "checkpoint_sha256": "4b5c9711ca96df06a48081b370e2a711bf42a52e7eab41e335bae7dfdd55fc89",
+      "condition": "data10x_model2x",
+      "result_file": "per-run/data10x_model2x--transformer-tasks16-seed42.json",
+      "run_id": "transformer-tasks16-seed42"
+    },
+    {
+      "checkpoint_sha256": "d710df5dfffd99c44afafcb58c776101d1cb26135c3b99b951dc6d11644e2f80",
+      "condition": "data10x_model2x",
+      "result_file": "per-run/data10x_model2x--transformer-tasks16-seed314159.json",
+      "run_id": "transformer-tasks16-seed314159"
+    },
+    {
+      "checkpoint_sha256": "1d6ea387c7ba0da5f8fc828b5bd592b5672db3800c33b9dfa21f79718b4b06b4",
+      "condition": "data10x_model2x",
+      "result_file": "per-run/data10x_model2x--mlp-tasks16-seed17.json",
+      "run_id": "mlp-tasks16-seed17"
+    },
+    {
+      "checkpoint_sha256": "b9fa5405beb7f3230da68be6ef0f26849dcf33a6c15a8f93b1ca1e85b90b74c4",
+      "condition": "data10x_model2x",
+      "result_file": "per-run/data10x_model2x--mlp-tasks16-seed42.json",
+      "run_id": "mlp-tasks16-seed42"
+    },
+    {
+      "checkpoint_sha256": "68794cb10911510b47a5b56c375a20488f25ba35a074bf2cfd7b829136165e61",
+      "condition": "data10x_model2x",
+      "result_file": "per-run/data10x_model2x--mlp-tasks16-seed314159.json",
+      "run_id": "mlp-tasks16-seed314159"
+    }
+  ],
+  "status": "completed",
+  "test_manifest_sha256": "3ca12e6b6eeb29fc0ddd441b9c44c80d7a160faaf7e832eb55007f4c6a3ab52b",
+  "total_model_examples": 2400000
+}

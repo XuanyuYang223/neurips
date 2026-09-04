@@ -1,0 +1,16 @@
+{
+  "artifacts": {
+    "PAPER_SECTION.md": "0a3af9663f3751b374f0278d91b9aaf49746c676885870b1eabe79026718fcb4",
+    "README.md": "f2955a38a2a05acd4d00c9b47e523522b05935194a8400fc69117716b61f434e",
+    "factorial_effects.csv": "fd0d007b25948d07bbf9a5e41e55ed6b128ad3f7a0ea19a7f82e5d3aa6414f8b",
+    "model_results.csv": "c766c298c8684e0617d89a5415fe86a65e254bb1402d605414ac2d8aea9ff0d4",
+    "structured_exact_accuracy.svg": "965c92c9308a6f1f7175af0c613f792c3a5f0268066de85dcddc01ee74fd6414",
+    "summary.csv": "346d509d5ec5bfa2208ae3b9cf29292962917f11fb0eb66d8e0fc75461588488"
+  },
+  "evaluation_manifest_sha256": "23dbcef3ce705b69400ecd0f3da3748d9e32ce41445acc9e641b09be661ead63",
+  "format_version": "permutation-scaling-k16-results/v1",
+  "protocol_sha256": "39f3156cd4d9903d39385641c03e26e26b4643e446a82b7f07554119f1fdecab",
+  "row_count": 24,
+  "status": "completed",
+  "summary_row_count": 8
+}

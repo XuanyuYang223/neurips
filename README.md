@@ -45,6 +45,9 @@ The shareable result packages are separated by protocol version:
   including all 288 endpoints and paired learning-rate interactions;
 - [deadline-scoped k=16 scaling protocol](SCALING_K16.md), a three-seed 2x2
   data-by-depth factorial using both architectures;
+- [completed k=16 scaling results](results/v3/scaling/k16/README.md), including
+  all 24 model endpoints, paired factorial contrasts, error bars, and the
+  frozen-test evaluation provenance;
 - [relation-controlled CKA protocol](PROPERTY32_RELATION_CONTROLLED.md), which
   removes co-selected natural duals and crosses three low-correlation task
   selections with three model seeds;
@@ -122,6 +125,17 @@ contrast changes from -0.36 to only +2.96 points and is non-monotonic between
 the endpoints. Progressive low-rate adaptation therefore survives a matched
 comparison, but its magnitude is learning-rate dependent; this post-hoc result
 uses validation only and is not a second confirmatory test result.
+
+The completed [k=16 data-by-depth factorial](results/v3/scaling/k16/README.md)
+finds that additional scale does not rescue hard zero-shot execution. Across
+all 24 architecture-condition-seed endpoints, exact accuracy is 0% on each of
+the three structured training holdouts: reduced-word translation,
+composition, and Lehmer-code translation. Tenfold training exposure, doubled
+depth, and their combination therefore all have a 0.000 +/- 0.000 percentage
+point effect on the primary exact-accuracy macro. Secondary token accuracy and
+loss move in different directions across architectures, so they do not
+support a general scaling improvement. Boolean parity remains low and
+variable and is reported separately from the structured macro.
 
 The [combinatorial task-geometry study](results/property-task-geometry/cka/README.md)
 provides a more controlled answer. Across single-task specialists, eight
@@ -202,6 +216,8 @@ are in [PROTOCOL.md](PROTOCOL.md).
   the frozen exploratory protocol for separating initialization from learning rate;
 - [Property32 matched-learning-rate results](results/property32-zero-overlap/fewshot/lr-sensitivity/README.md):
   288 validation endpoints, matched contrasts, and interaction effects;
+- [k=16 scaling results](results/v3/scaling/k16/README.md): 24 independently
+  evaluated endpoints from the three-seed 2x2 exposure-by-depth factorial;
 - [relation-controlled protocol](PROPERTY32_RELATION_CONTROLLED.md): the
   72-cell/60-model low-correlation 3x3 CKA follow-up;
 - [property-pair CKA protocol](PROPERTY_PAIR_CKA.md): the controlled

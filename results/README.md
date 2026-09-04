@@ -22,6 +22,9 @@ validation results, not an untouched final test evaluation.
 - [Disjoint-category CKA follow-up](v3/cka/category/README.md)
 - [Data and model scaling protocol](v3/SCALING_PROTOCOL.md)
 - [Deadline-scoped k=16 scaling protocol](../SCALING_K16.md)
+- [Completed k=16 scaling results](v3/scaling/k16/README.md)
+- [All 24 unaveraged scaling endpoints](v3/scaling/k16/model_results.csv)
+- [Paired exposure, depth, and interaction contrasts](v3/scaling/k16/factorial_effects.csv)
 - [All 960 independent-test model-task rows](v3/test_model_task_accuracies.csv)
 - [Nested generalization only](v3/test_nested_generalization.csv)
 - [Category generalization only](v3/test_category_generalization.csv)
@@ -39,6 +42,13 @@ compare hidden-state geometry across the 30 nested base models. It contains
 285 pairwise layer comparisons, summary statistics, random-initialization
 controls, exact probe IDs, and checkpoint/data provenance. It does not read or
 reuse final test predictions.
+
+The completed k=16 scaling package crosses 1x versus 10x training exposure
+with 1x versus 2x depth for both architectures and three paired seeds. Its 24
+models were each evaluated on all 100,000 frozen test records. Exact accuracy
+is zero for all three structured holdouts in every endpoint; neither exposure,
+depth, nor their interaction rescues hard zero-shot execution. The package
+retains loss and teacher-forced token accuracy as secondary diagnostics.
 
 The two `*_generalization.csv` files intentionally exclude tasks used to train
 the evaluated model. The other summary files retain seen-task metrics for

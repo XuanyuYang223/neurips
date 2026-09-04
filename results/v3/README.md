@@ -238,13 +238,17 @@ and the full operational history is in
 The test split is independent at the example level but follows the same
 `n=2..30` distribution. These results do not establish size extrapolation,
 cross-representation input transfer, or learned-representation similarity.
-CKA and linear probing remain separate future analyses.
+CKA and linear probing are reported as separate analyses.
 
-A preregistered two-by-two follow-up will test whether the negative result is
-limited by data or model capacity. See the
-[data and model scaling protocol](SCALING_PROTOCOL.md) for the three additional
-10x-data and/or 2x-depth matrices. These scaling runs are not part of the
-completed results reported on this page.
+The preregistered deadline-scoped two-by-two scaling follow-up is complete. It
+crosses 1x versus 10x training exposure with 1x versus 2x depth at `k=16`, for
+both architectures and three paired seeds. All three structured holdouts have
+0% exact accuracy in every one of the 24 endpoints, so neither additional
+exposure, additional depth, nor their interaction rescues hard zero-shot
+execution. See the [scaling results](scaling/k16/README.md) for every endpoint,
+paired contrasts, error bars, and frozen-test provenance. The broader
+[90-model extension](SCALING_PROTOCOL.md) remains outside the deadline-scoped
+study.
 
 The few-shot component is complete as a separate 20-example adaptation
 follow-up. Its [protocol](FEW_SHOT_PROTOCOL.md) and

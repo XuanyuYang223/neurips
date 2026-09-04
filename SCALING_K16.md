@@ -43,3 +43,18 @@ The machine-readable protocol is
 [`configs/permutation_scaling_k16.toml`](configs/permutation_scaling_k16.toml).
 Training, audit, one-time evaluation, and aggregation are controlled by
 `permutation-scaling-k16`.
+
+## Completed result
+
+All 24 endpoints completed training and passed strict checkpoint audit. Each
+model was evaluated once on the same frozen 100,000-record v3 test split, with
+5,000 examples per task. Exact accuracy on each primary structured holdout
+(`to_reduced_word`, `compose`, and `to_lehmer`) is 0% for every architecture,
+condition, and seed. Consequently, all paired effects on the primary exact
+macro are 0.000 +/- 0.000 percentage points. Loss and teacher-forced token
+accuracy vary by architecture and condition but do not provide evidence of
+successful operation-level transfer.
+
+The complete results, error-bar figure, unaveraged endpoints, paired contrasts,
+and paper-ready text are in
+[`results/v3/scaling/k16/`](results/v3/scaling/k16/README.md).

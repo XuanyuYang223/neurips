@@ -1,0 +1,181 @@
+{
+  "amp_dtype": "bfloat16",
+  "architecture": "mlp",
+  "checkpoint_sha256": "ddc354be95744c63f0b11d230d9afc0737bfb3570c927bfe78331f4394a4f80e",
+  "condition": "data1x_model2x",
+  "device_type": "cuda",
+  "elapsed_seconds": 10.949107505963184,
+  "evaluator_commit": "2e337c9cea19c04d4b090e775dcf5b39320011b9",
+  "examples": 100000,
+  "experiment_config_sha256": "2ab87b8e668d57ab3226c1786fbc25fec83a1f01c6b8f52a8f2c08efb7c2cc74",
+  "format_version": "v3-test-evaluation/v1",
+  "matrix": "scaling_k16",
+  "max_examples_per_batch": 32,
+  "max_padded_tokens": 8192,
+  "metrics": {
+    "bruhat_leq": {
+      "examples": 5000,
+      "loss": 0.12860542135238648,
+      "sequence_accuracy": 0.8728,
+      "token_accuracy": 0.9364,
+      "tokens": 10000
+    },
+    "compose": {
+      "examples": 5000,
+      "loss": 14.901893023646622,
+      "sequence_accuracy": 0.0,
+      "token_accuracy": 0.07495375770214069,
+      "tokens": 169758
+    },
+    "cycle_type": {
+      "examples": 5000,
+      "loss": 0.7463897626312312,
+      "sequence_accuracy": 0.0994,
+      "token_accuracy": 0.6999381511965365,
+      "tokens": 42038
+    },
+    "descents": {
+      "examples": 5000,
+      "loss": 0.6942538130760193,
+      "sequence_accuracy": 0.4092,
+      "token_accuracy": 0.7046,
+      "tokens": 10000
+    },
+    "exceedances": {
+      "examples": 5000,
+      "loss": 0.5559064275741578,
+      "sequence_accuracy": 0.5122,
+      "token_accuracy": 0.7561,
+      "tokens": 10000
+    },
+    "fixed_points": {
+      "examples": 5000,
+      "loss": 0.5364986072540283,
+      "sequence_accuracy": 0.5126,
+      "token_accuracy": 0.7563,
+      "tokens": 10000
+    },
+    "inverse": {
+      "examples": 5000,
+      "loss": 1.1439276066921102,
+      "sequence_accuracy": 0.0938,
+      "token_accuracy": 0.6339389002998324,
+      "tokens": 169428
+    },
+    "lds_length": {
+      "examples": 5000,
+      "loss": 0.5289893005371094,
+      "sequence_accuracy": 0.542,
+      "token_accuracy": 0.771,
+      "tokens": 10000
+    },
+    "length": {
+      "examples": 5000,
+      "loss": 0.7398295121111677,
+      "sequence_accuracy": 0.2916,
+      "token_accuracy": 0.7552470557273505,
+      "tokens": 15199
+    },
+    "lis_length": {
+      "examples": 5000,
+      "loss": 0.5334002335548401,
+      "sequence_accuracy": 0.5392,
+      "token_accuracy": 0.7696,
+      "tokens": 10000
+    },
+    "parity": {
+      "examples": 5000,
+      "loss": 4.0688998306274415,
+      "sequence_accuracy": 0.065,
+      "token_accuracy": 0.5325,
+      "tokens": 10000
+    },
+    "pattern_avoidance": {
+      "examples": 5000,
+      "loss": 0.32984728755950926,
+      "sequence_accuracy": 0.6302,
+      "token_accuracy": 0.8151,
+      "tokens": 10000
+    },
+    "peaks": {
+      "examples": 5000,
+      "loss": 0.5805592979431152,
+      "sequence_accuracy": 0.4938,
+      "token_accuracy": 0.7469,
+      "tokens": 10000
+    },
+    "recoils": {
+      "examples": 5000,
+      "loss": 0.6874623676300049,
+      "sequence_accuracy": 0.4192,
+      "token_accuracy": 0.7096,
+      "tokens": 10000
+    },
+    "right_multiply_simple": {
+      "examples": 5000,
+      "loss": 0.9400595416759581,
+      "sequence_accuracy": 0.0468,
+      "token_accuracy": 0.6909701395994308,
+      "tokens": 170058
+    },
+    "rsk_shape": {
+      "examples": 5000,
+      "loss": 0.41086009406833524,
+      "sequence_accuracy": 0.1522,
+      "token_accuracy": 0.8141891891891891,
+      "tokens": 65416
+    },
+    "to_cycle": {
+      "examples": 5000,
+      "loss": 1.223461484841485,
+      "sequence_accuracy": 0.0796,
+      "token_accuracy": 0.5951641473783656,
+      "tokens": 169360
+    },
+    "to_inversion_vector": {
+      "examples": 5000,
+      "loss": 0.9102249325448506,
+      "sequence_accuracy": 0.1294,
+      "token_accuracy": 0.6603256661624043,
+      "tokens": 167902
+    },
+    "to_lehmer": {
+      "examples": 5000,
+      "loss": 2.9000139778056218,
+      "sequence_accuracy": 0.0,
+      "token_accuracy": 0.5314613039974775,
+      "tokens": 171258
+    },
+    "to_reduced_word": {
+      "examples": 5000,
+      "loss": 8.534542369181956,
+      "sequence_accuracy": 0.0,
+      "token_accuracy": 0.21387876097577016,
+      "tokens": 790719
+    }
+  },
+  "run_id": "mlp-tasks16-seed17",
+  "seed": 17,
+  "status": "completed",
+  "test_manifest_sha256": "3ca12e6b6eeb29fc0ddd441b9c44c80d7a160faaf7e832eb55007f4c6a3ab52b",
+  "test_shards": "099",
+  "trained_task_count": 16,
+  "trained_tasks": [
+    "recoils",
+    "lis_length",
+    "fixed_points",
+    "to_inversion_vector",
+    "pattern_avoidance",
+    "lds_length",
+    "right_multiply_simple",
+    "inverse",
+    "to_cycle",
+    "descents",
+    "length",
+    "rsk_shape",
+    "peaks",
+    "cycle_type",
+    "bruhat_leq",
+    "exceedances"
+  ]
+}

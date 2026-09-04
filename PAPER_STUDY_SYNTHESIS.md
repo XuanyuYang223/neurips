@@ -45,9 +45,11 @@ experiments.
   stronger alignment than identity or incorrect-transform controls. Merely
   adding related tasks at a fixed task count did not yield a monotonic CKA dose
   response.
-- A three-seed `k=16` 2x2 data-by-model-depth factorial is in progress to test
-  whether the weak structured-holdout result is limited by data, depth, or their
-  interaction.
+- The completed three-seed `k=16` 2x2 data-by-model-depth factorial finds 0%
+  exact accuracy on reduced-word translation, composition, and Lehmer-code
+  translation in every one of its 24 model endpoints. Tenfold exposure,
+  doubled depth, and their combination do not rescue hard zero-shot execution;
+  their effects on token accuracy and loss are architecture dependent.
 
 ## Integer evidence
 
@@ -111,10 +113,9 @@ The manuscript should follow these rules.
 7. Describe CKA as representation alignment, not automatically as better
    representations or better generalization.
 
-## Deadline-scoped remaining work
+## Deadline status
 
-1. Finish, audit, and test the 12 missing permutation scaling models.
-2. Export the scaling factorial effects with all raw model endpoints.
-3. Add final figures and paper-ready Methods, Results, and Limitations text.
-4. On the integer side, repeat the most informative twenty-shot comparisons for
-   seeds 42 and 314159 before reporting error bars.
+The planned permutation scaling models, strict audit, frozen-test evaluation,
+factorial contrasts, figure, and paper-ready text are complete. On the integer
+side, the most informative twenty-shot comparisons still need seeds 42 and
+314159 before they can support error bars.
