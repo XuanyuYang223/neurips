@@ -23,11 +23,13 @@ specialists.
 
 ## Data and controls
 
-The data are deterministically derived from the fully verified 16-million-row
-Property32 corpus. The train, validation, and test source splits remain
-separate. Every training cell contains 490,000 records; every validation and
-test cell contains 5,000 records. The derived training corpus therefore has
-5,390,000 rows, and each evaluation split has 160,000 rows.
+The data are deterministically derived from the descents records in the fully
+verified 16-million-row Property32 corpus. Each source permutation is expanded
+over the relevant grid, so all representation-task cells use exactly matched
+permutations. The train, validation, and test source splits remain separate.
+Every training cell contains 490,000 records; every validation and test cell
+contains 5,000 records. The derived training corpus therefore has 5,390,000
+rows, and each evaluation split has 160,000 rows.
 
 All cells use the same base-100 tokenizer and scalar answer grammar. Only the
 representation boundary and body tokens change. Three standard decoder-only

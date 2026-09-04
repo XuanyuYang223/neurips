@@ -65,6 +65,13 @@ def test_derived_record_recomputes_truth() -> None:
     assert record["task"] == "lehmer:length"
     assert "<LEHMER_START>" in record["tokens"]
 
+    # The same descents-source permutation can be relabeled with another
+    # frozen task, which is how every grid cell receives matched inputs.
+    source["task"] = "descents"
+    relabeled = _record(source, "cycle", "parity")
+    assert relabeled["task"] == "cycle:parity"
+    assert relabeled["answer"] == ops.parity((3, 1, 4, 2))
+
 
 def test_full_verifier_rejects_a_consistently_wrong_answer(tmp_path: Path) -> None:
     source = {

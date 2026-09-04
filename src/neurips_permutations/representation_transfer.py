@@ -143,16 +143,12 @@ def combinations_for_split(split: str) -> tuple[str, ...]:
     return TRAIN_COMBINATIONS if split == "train" else FULL_COMBINATIONS
 
 
-def _representations_for_record(split: str, task: str) -> tuple[str, ...]:
-    if split != "train":
-        return REPRESENTATIONS
-    if task == ANCHOR_TASK:
-        return REPRESENTATIONS
-    return (ANCHOR_REPRESENTATION,)
-
-
-def _record(source: Mapping[str, Any], representation: str) -> dict[str, Any]:
-    task = str(source["task"])
+def _record(
+    source: Mapping[str, Any], representation: str, base_task: str | None = None
+) -> dict[str, Any]:
+    task = str(base_task or source["task"])
+    if task not in BASE_TASKS:
+        raise ValueError(f"task {task!r} is outside the representation grid")
     primary = tuple(int(value) for value in source["inputs"]["primary"])
     answer = int(TASK_FUNCTIONS[task](primary))
     tokens = passage_tokens(task, primary, answer, representation=representation)
@@ -201,11 +197,15 @@ def _derive_shard(job: _DeriveJob) -> dict[str, Any]:
                     with gzip.open(job.source_path, "rt", encoding="utf-8") as source:
                         for line in source:
                             value = json.loads(line)
-                            task = value.get("task")
-                            if task not in BASE_TASKS:
+                            # One matched set of permutations is expanded over
+                            # the complete grid.  This prevents permutation
+                            # sampling differences from confounding cells.
+                            if value.get("task") != ANCHOR_TASK:
                                 continue
-                            for representation in _representations_for_record(job.split, task):
-                                record = _record(value, representation)
+                            allowed = combinations_for_split(job.split)
+                            for combination in allowed:
+                                representation, task = combination.split(":", 1)
+                                record = _record(value, representation, task)
                                 output.write(json.dumps(record, sort_keys=True, separators=(",", ":")))
                                 output.write("\n")
                                 record_id = int(record["id"])
