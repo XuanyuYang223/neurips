@@ -15,8 +15,10 @@ the NeurIPS workshop project:
   fixed-four-task models, designed to separate mathematical correspondence
   from task count and test whether CKA recovers eight known relations.
 
-All public documentation and result tables are in English. The large generated
-datasets and model checkpoints remain local research artifacts; the repository
+All public documentation and result tables are in English. The generated
+datasets and formal model checkpoints are published as versioned GitHub Release
+assets; see [Datasets and model checkpoints](ARTIFACTS.md) for download,
+checksum-verification, and extraction instructions. The repository also
 contains their manifests, verification reports, complete metrics, and
 reproducible aggregation code.
 
