@@ -73,6 +73,9 @@ The shareable result packages are separated by protocol version:
   integer and permutation evidence without pooling incompatible metrics.
 - [four-page paper figure set](paper/FIGURES.md), with two main-text composite
   figures, three supplementary diagnostics, captions, and LaTeX snippets.
+- [current permutation-section figures](paper/PERMUTATION_SECTION_FIGURES.md),
+  with five standalone plots, copy-ready captions, source provenance, and
+  deterministic PNG/SVG regeneration.
 - [final paper tables](paper/TABLES.md), with the selected main-text trend
   table, supplementary extension summary, and copy-ready LaTeX.
 - [v3 category-model linear probes](results/v3/linear-probing/category/README.md),
@@ -138,12 +141,17 @@ replicable than strict monotonicity. Opposite-pool exact accuracy remains
 below the majority baseline at every `k`.
 
 Henry's [linear-probing follow-up](results/property32-zero-overlap/linear-probing/README.md)
-finds a clearer but still non-monotonic internal signal. Final-layer
-length-conditioned R2 on the 16 opposite-pool properties is 0.198, 0.245,
-0.271, 0.307, and 0.297 for `k = 1, 2, 4, 8, 16`; a random Transformer reaches
-0.215. All three replicates improve from `k=1` to `k=8`, but two decline at
-`k=16`. The result supports progressive linear decodability through `k=8`,
-not reliable hard zero-shot execution or a monotonic scaling law.
+finds a clearer but still non-monotonic internal signal. On the original
+checkpoints, final-layer length-conditioned R2 on the 16 opposite-pool
+properties is 0.198, 0.245, 0.271, 0.307, and 0.297 for
+`k = 1, 2, 4, 8, 16`; a random Transformer reaches 0.215. An independent
+four-layer retraining used for the current manuscript figures gives 0.207,
+0.259, 0.272, 0.308, and 0.301 and preserves the same best task count
+(`k=8`) and rank trend (Spearman rho 1.00 between the two mean curves). The
+result supports progressive linear decodability through `k=8`, not reliable
+hard zero-shot execution or a monotonic scaling law. The two result sources
+and their provenance are kept separate in the
+[figure guide](paper/PERMUTATION_SECTION_FIGURES.md).
 
 Henry's [Property32 twenty-shot follow-up](results/property32-zero-overlap/fewshot/README.md)
 finds a stronger progressive adaptation signal. Exact accuracy after 20-shot
@@ -280,7 +288,7 @@ are in [PROTOCOL.md](PROTOCOL.md).
 ```bash
 python -m venv .venv
 . .venv/bin/activate
-pip install -e '.[test]'
+pip install -e '.[test,train,figures]'
 pytest
 
 # Small deterministic smoke corpus.
@@ -332,8 +340,12 @@ permutation-scaling-k16 evaluate --config configs/permutation_scaling_k16.toml -
 permutation-scaling-k16 results --config configs/permutation_scaling_k16.toml
 
 # Regenerate the compact paper figure set from committed result CSVs.
-pip install -e '.[figures]'
 permutation-paper-figures --repository . --output-dir paper/figures
+
+# Regenerate the five standalone figures used by the current permutation text.
+permutation-manuscript-figures \
+  --repository . \
+  --output-dir paper/figures/permutation-section
 ```
 
 Production data shards and checkpoints are intentionally ignored by Git. The

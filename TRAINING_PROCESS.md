@@ -833,30 +833,21 @@ python -m neurips_permutations.audit \
 
 ## 14. Repository and Artifact Policy
 
-The public GitHub repository stores:
+The public GitHub repository stores in ordinary Git history:
 
 - source code.
 - frozen configs.
 - tests and CI.
 - protocol, experiment, and results documents.
 
-GitHub does not store:
-
-- 1.29 GB v2 production dataset.
-- 1,139,175,228-byte v3 production dataset.
-- 1.15 GB v2 formal checkpoints and 1,844,025,024 bytes of v3 checkpoints.
-- pilot/checkpoint runtime directories.
-
-Local paths:
-
-```text
-/home/yangx/neurips/data/permutation-10m-v2
-/home/yangx/neurips/data/permutation-10m-v3
-/home/yangx/neurips/runs/henry-permutation
-/home/yangx/neurips/runs/henry-permutation-v3
-```
-
-To share these artifacts, use object storage, dataset hosting, GitHub Release assets, or a dedicated model registry rather than ordinary Git blobs.
+Large production datasets and formal checkpoints are not ordinary Git blobs.
+They are published as versioned GitHub Release assets, including the v2 and
+v3 corpora, Property32 and scaling corpora, and the formal model checkpoints.
+Each archive restores repository-relative `data/...` or `runs/...` paths and
+has a published SHA-256 checksum. See [ARTIFACTS.md](ARTIFACTS.md) for the
+release links, complete inventory, download commands, checksum verification,
+and extraction instructions. Temporary controller state, aborted duplicate
+runs, and smoke-only runs are intentionally excluded.
 
 ## 15. Known Limitations and Next Steps
 

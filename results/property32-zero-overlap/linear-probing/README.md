@@ -5,6 +5,14 @@ Linear ridge probes read task-free `<ONE_END>` activations from the
 on 4,096 validation permutations and evaluated once
 on 4,096 independent test permutations.
 
+> **Result-set scope.** The CSVs in this directory report the original
+> checkpoint analysis summarized below. The current manuscript's Figures 2
+> and 3 use a separate, independent four-layer retraining. Its frozen plotting
+> snapshot and exact upstream commit are documented in the
+> [permutation-section figure guide](../../../paper/PERMUTATION_SECTION_FIGURES.md).
+> The two runs agree on the qualitative trend but should not be mixed within a
+> single table or error bar.
+
 ## Opposite-pool final-layer results
 
 Each value first macro-averages the 16 unseen opposite-pool properties

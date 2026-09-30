@@ -1,5 +1,11 @@
 # Four-page paper figure set
 
+This document describes the compact composite figure set. The five standalone
+plots referenced by the current permutation-section draft are documented
+separately in
+[`PERMUTATION_SECTION_FIGURES.md`](PERMUTATION_SECTION_FIGURES.md); the two
+sets are generated from explicitly labeled result sources.
+
 The permutation contribution is compressed into two main-text composite
 figures and three supplementary diagnostics. Do not add separate plots for each
 experiment: they would repeat the same task-count axis and leave too little

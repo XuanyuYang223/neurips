@@ -59,6 +59,14 @@ probes use task-free `<ONE_END>` activations to predict all 32 properties. The
 primary score macro-averages the 16 opposite-pool properties that the base
 model never trained on.
 
+The table below is the original-checkpoint result. A separate independent
+four-layer retraining used in the current manuscript figures reports
+`0.207, 0.259, 0.272, 0.308, 0.301` for the same five task counts. It preserves
+the `k=8` peak and overall rank trend. Its source commit, frozen plotting data,
+and captions are recorded in the
+[permutation-section figure guide](../../paper/PERMUTATION_SECTION_FIGURES.md);
+the two result sets are intentionally labeled separately.
+
 | k | Final-layer length-conditioned R2 | Rounded exact accuracy |
 |---:|---:|---:|
 | 1 | 0.1978 +/- 0.0770 | 45.49% +/- 2.75% |

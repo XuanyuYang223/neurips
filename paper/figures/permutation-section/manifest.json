@@ -1,0 +1,85 @@
+{
+  "format_version": 1,
+  "inputs": {
+    "paper/figure_data/property32_l4_retrained_probe_summary.csv": {
+      "bytes": 2356,
+      "sha256": "521fdb5d0407f5241baa750989aaf3ea4a4517237b3ee50371512a86e7df2ab9"
+    },
+    "results/property-task-geometry/cka/bundle_cell_cka.csv": {
+      "bytes": 35720,
+      "sha256": "ec4f7998b482c61d26e02d81736695e38caca154f49bf290f448ab4b83b7a5b5"
+    },
+    "results/property-task-geometry/cka/bundle_summary.csv": {
+      "bytes": 447,
+      "sha256": "f8f710a09e42687e90c52b8cc0f12fd6896d4e23942067376a6ee46395439dcd"
+    },
+    "results/property-task-geometry/cka/specialist_group_summary.csv": {
+      "bytes": 404,
+      "sha256": "5efff28f9d597681a9dc06693e7f888593579d67990ead11fc1bc9fb392cad54"
+    },
+    "results/property-task-geometry/cka/specialist_pair_summary.csv": {
+      "bytes": 12087,
+      "sha256": "8503c9b75718a51b203cbad2bd31c4493fec5a8031db4f35afc27a9808bf3a38"
+    },
+    "results/property-task-geometry/cka/symmetry_summary.csv": {
+      "bytes": 1723,
+      "sha256": "41e1e510b1195dde486d77be2f8c1f247739b683122da9e4770c507d41f8b271"
+    },
+    "results/property32-zero-overlap/replicates/behavior_replicates.csv": {
+      "bytes": 1477,
+      "sha256": "e7569a184a31efae98550abba14b4da14a899f9c66f663a3a30221ddd5c2a423"
+    },
+    "results/property32-zero-overlap/replicates/behavior_summary.csv": {
+      "bytes": 1402,
+      "sha256": "74689033bfb3c6c8cf55a8d87a95063c6efc306d605402c478e7a7ed9dfb4616"
+    }
+  },
+  "l4_retraining_source": {
+    "commit": "b6a9d6eac4ec94263b29edba4611d70277c2bfb0",
+    "path": "camera-ready-2026-09/permutation/results/property32-zero-overlap/linear-probing-reproduction-full",
+    "repository": "https://github.com/uw-math-ai/PermuFormer2"
+  },
+  "outputs": {
+    "permutation_fig1_zero_shot.png": {
+      "bytes": 44557,
+      "sha256": "aa59c8af789c81a08554bc50a9823d1e5e52cdab54443d42d6dc825510b885b1"
+    },
+    "permutation_fig1_zero_shot.svg": {
+      "bytes": 9823,
+      "sha256": "524c66e509d9d79c7ba0b0102b767d5161eb21f18a747d9515e4d93f88119d04"
+    },
+    "permutation_fig2_linear_probe.png": {
+      "bytes": 43076,
+      "sha256": "bac0c11a1a346beba801e75f3916b550c72cfade0b93bc6bcdadec3784d71351"
+    },
+    "permutation_fig2_linear_probe.svg": {
+      "bytes": 6884,
+      "sha256": "5288a0587d05908e8217e51ba8a5fe688665f957496058a428f82493f828b15c"
+    },
+    "permutation_fig3_layerwise_probe.png": {
+      "bytes": 44105,
+      "sha256": "1fed3cb1c14c22557439690dac7b282995e1ba3a0944e68cb26d673148f7efd0"
+    },
+    "permutation_fig3_layerwise_probe.svg": {
+      "bytes": 10855,
+      "sha256": "c52a51cb62b21ee6037d4ae086d6f6813cc93fa6c33ee620d8f9cdf90b90706c"
+    },
+    "permutation_fig4_task_relations.png": {
+      "bytes": 72945,
+      "sha256": "5e6b5992505182df1ae30adcf82cee3bc7ce09a312d52ddab964fbc472f21154"
+    },
+    "permutation_fig4_task_relations.svg": {
+      "bytes": 26089,
+      "sha256": "356e144c32d77f6f5b2bf0bb166fd307c426bd55abac79e41d45e6d7ffc84dbb"
+    },
+    "permutation_fig5_related_pair_count.png": {
+      "bytes": 57444,
+      "sha256": "9e6228700bfb0c82bc05e86a4193e8c8bb25d1d8cbe576cce0a2194ea03b33e2"
+    },
+    "permutation_fig5_related_pair_count.svg": {
+      "bytes": 15891,
+      "sha256": "d1c44ffd2839d5cdc677ea04912a7e7c4ca5206962df7e32adb828e9e310d61d"
+    }
+  },
+  "status": "completed"
+}
