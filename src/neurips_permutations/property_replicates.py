@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
-import tomllib
+from ._compat import tomllib
 from typing import Any, Sequence
 
 from .math_ops import PROPERTY32_TASK_NAMES
@@ -203,4 +203,3 @@ __all__ = [
     "main",
     "validate_replicate_design",
 ]
-

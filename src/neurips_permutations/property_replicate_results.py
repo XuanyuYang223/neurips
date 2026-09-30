@@ -7,7 +7,7 @@ import csv
 import json
 from pathlib import Path
 import statistics
-import tomllib
+from ._compat import tomllib
 from typing import Any, Mapping, Sequence
 
 import torch

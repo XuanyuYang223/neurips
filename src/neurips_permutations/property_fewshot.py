@@ -11,7 +11,7 @@ import math
 import os
 from pathlib import Path
 import random
-import tomllib
+from ._compat import tomllib
 from typing import Any, Mapping, Sequence
 
 import torch

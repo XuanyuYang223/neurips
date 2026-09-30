@@ -11,7 +11,7 @@ import os
 from pathlib import Path
 import statistics
 import tempfile
-import tomllib
+from ._compat import tomllib
 from typing import Any, Iterable, Mapping, Sequence
 
 from .audit import audit_experiment

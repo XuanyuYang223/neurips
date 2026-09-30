@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 import random
 import re
-import tomllib
+from neurips_permutations._compat import tomllib
 from typing import Any, Callable
 
 import pytest

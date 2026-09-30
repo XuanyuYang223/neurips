@@ -21,7 +21,7 @@ from pathlib import Path
 import random
 import re
 import stat
-import tomllib
+from ._compat import tomllib
 from typing import Any
 
 import torch

@@ -24,7 +24,7 @@ import statistics
 import sys
 import tempfile
 import time
-import tomllib
+from ._compat import tomllib
 from typing import Any, Iterable, Mapping, Sequence
 
 import torch

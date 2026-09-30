@@ -10,7 +10,7 @@ from pathlib import Path
 import re
 import subprocess
 import sys
-import tomllib
+from ._compat import tomllib
 from typing import Any, Iterable, Literal
 
 from .generate import V2_SCHEMA_VERSION, task_names_for_schema

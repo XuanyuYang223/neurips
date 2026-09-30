@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-import tomllib
+from neurips_permutations._compat import tomllib
 
 from neurips_permutations.math_ops import PROPERTY32_TASK_NAMES
 from neurips_permutations.property_experiments import build_property_matrix

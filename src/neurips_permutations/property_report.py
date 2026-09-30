@@ -8,7 +8,7 @@ import gzip
 import json
 from pathlib import Path
 import statistics
-import tomllib
+from ._compat import tomllib
 from typing import Any, Mapping, Sequence
 
 from .cka import _atomic_csv, _atomic_json, _atomic_text, _git_commit, _sha256

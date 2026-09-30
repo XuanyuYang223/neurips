@@ -3,7 +3,7 @@ from __future__ import annotations
 import csv
 import json
 from pathlib import Path
-import tomllib
+from neurips_permutations._compat import tomllib
 
 from neurips_permutations.experiments import build_experiment_matrix
 from neurips_permutations.results import (

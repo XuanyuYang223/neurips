@@ -11,7 +11,7 @@ import json
 from pathlib import Path
 import subprocess
 import sys
-import tomllib
+from ._compat import tomllib
 from typing import Any, Mapping, Sequence
 
 from .generate import PROPERTY32_SCHEMA_VERSION
