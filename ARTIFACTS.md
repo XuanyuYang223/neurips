@@ -3,6 +3,9 @@
 The synthetic datasets and formal model checkpoints are distributed as GitHub
 Release assets rather than ordinary Git objects. This keeps normal clones small
 while making the artifacts public, versioned, and independently verifiable.
+The small dataset manifests are checked into `data/` so protocol validation and
+the default test suite work in a clean clone; the corresponding JSONL shards
+remain Release-only.
 
 The initial artifact snapshot is tied to source commit
 `efe755b4251826c263379ebbace0cb667ddb10ae`.

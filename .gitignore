@@ -18,8 +18,6 @@ results/v3/linear-probing/category/cache/
 data/**/*.jsonl
 data/**/*.jsonl.gz
 data/**/*.partial
-data/**/manifest.json
-data/**/*_manifest.json
 !data/.gitkeep
 !data/sample.jsonl
 !data/sample_manifest.json

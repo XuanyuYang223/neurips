@@ -837,6 +837,7 @@ The public GitHub repository stores in ordinary Git history:
 
 - source code.
 - frozen configs.
+- dataset manifests and checksums, but not the JSONL shards themselves.
 - tests and CI.
 - protocol, experiment, and results documents.
 
