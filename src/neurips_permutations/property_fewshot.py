@@ -335,6 +335,31 @@ def _support_lookup(artifact: Mapping[str, Any]) -> dict[tuple[str, str, str], l
     }
 
 
+def _base_run_design(spec: PropertyFewshotSpec) -> list[dict[str, Any]]:
+    """Return the frozen 30-model design without requiring local checkpoints."""
+
+    result: list[dict[str, Any]] = []
+    for replicate_id in REPLICATE_IDS:
+        for run in build_property_matrix(spec.replicate_configs[replicate_id]):
+            result.append(
+                {
+                    "status": "design_only",
+                    "replicate_id": replicate_id,
+                    "model_pool": run.pool,
+                    "run_id": run.run_id,
+                    "architecture": run.architecture,
+                    "task_count": run.task_count,
+                    "tasks": list(run.tasks),
+                    "seed": run.seed,
+                    "checkpoint_path": str(Path(run.output_dir) / "checkpoint.pt"),
+                    "checkpoint_sha256": "design_only",
+                }
+            )
+    if len(result) != 30 or len({run["run_id"] for run in result}) != 30:
+        raise ValueError("base Property32 design must contain 30 unique models")
+    return result
+
+
 def _base_runs(spec: PropertyFewshotSpec, *, strict: bool = True) -> list[dict[str, Any]]:
     result: list[dict[str, Any]] = []
     for replicate_id in REPLICATE_IDS:
@@ -383,7 +408,12 @@ def _base_runs(spec: PropertyFewshotSpec, *, strict: bool = True) -> list[dict[s
     return result
 
 
-def build_plan(spec: PropertyFewshotSpec, base_runs: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
+def build_plan(
+    spec: PropertyFewshotSpec,
+    base_runs: Sequence[Mapping[str, Any]],
+    *,
+    require_authenticated: bool = True,
+) -> list[dict[str, Any]]:
     if len(base_runs) != 30:
         raise ValueError("Property32 few-shot plan requires 30 base models")
     plan: list[dict[str, Any]] = []
@@ -396,7 +426,7 @@ def build_plan(spec: PropertyFewshotSpec, base_runs: Sequence[Mapping[str, Any]]
         ),
     )
     for run in ordered:
-        if run.get("status") != "passed":
+        if require_authenticated and run.get("status") != "passed":
             raise ValueError("Property32 base run did not pass authentication")
         targets = spec.target_sets[(str(run["replicate_id"]), str(run["model_pool"]))]
         if set(targets) & set(run["tasks"]):
@@ -780,7 +810,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         artifact = build_support_artifact(spec, overwrite=args.overwrite_support)
         output: Mapping[str, Any] = {"status": "completed", "set_count": artifact["set_count"], "record_count": artifact["record_count"]}
     elif args.command == "plan":
-        plan = build_plan(spec, _base_runs(spec))
+        plan = build_plan(
+            spec,
+            _base_run_design(spec),
+            require_authenticated=False,
+        )
         output = {
             "status": "planned",
             "run_count": len(plan),

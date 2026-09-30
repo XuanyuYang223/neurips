@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from neurips_permutations.fewshot import _run_identity
-from neurips_permutations.property_fewshot import _base_runs, build_plan
+from neurips_permutations.property_fewshot import _base_run_design, build_plan
 from neurips_permutations.property_fewshot_lr_sensitivity import _load, plan
 
 
@@ -18,7 +18,11 @@ def test_lr_sensitivity_identity_binds_protocol_and_matched_lr() -> None:
     )
     assert sensitivity.config_sha256 == protocol_sha256
     assert sensitivity.config_sha256 != base.config_sha256
-    runs = build_plan(base, _base_runs(base, strict=False))
+    runs = build_plan(
+        base,
+        _base_run_design(base),
+        require_authenticated=False,
+    )
     pretrained = next(run for run in runs if run["initialization"] == "pretrained")
     random = next(run for run in runs if run["initialization"] == "random")
     common = {

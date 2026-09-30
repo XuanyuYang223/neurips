@@ -1,5 +1,6 @@
 import pytest
 
+from neurips_permutations._compat import tomllib
 from neurips_permutations.property_experiments import build_property_matrix
 from neurips_permutations.property_report import summarize_rows, task_status
 
@@ -7,7 +8,6 @@ from neurips_permutations.property_report import summarize_rows, task_status
 def test_task_status_separates_seen_and_two_unseen_groups():
     runs = build_property_matrix()
     a4 = next(run for run in runs if run.pool == "a" and run.task_count == 4)
-    import tomllib
     from pathlib import Path
 
     config = tomllib.loads(

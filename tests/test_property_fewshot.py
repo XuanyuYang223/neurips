@@ -6,7 +6,7 @@ import pytest
 
 from neurips_permutations.property_fewshot import (
     REPLICATE_IDS,
-    _base_runs,
+    _base_run_design,
     _family,
     _support_specs,
     build_plan,
@@ -41,8 +41,8 @@ def test_frozen_property_fewshot_design_is_balanced_and_uses_shard199() -> None:
 
 def test_property_fewshot_plan_has_120_unseen_warm_starts_and_24_controls() -> None:
     spec = load_spec()
-    base = _base_runs(spec, strict=False)
-    plan = build_plan(spec, base)
+    base = _base_run_design(spec)
+    plan = build_plan(spec, base, require_authenticated=False)
     assert len(plan) == len({run["run_id"] for run in plan}) == 144
     counts = Counter(run["initialization"] for run in plan)
     assert counts == {"pretrained": 120, "random": 24}

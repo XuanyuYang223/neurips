@@ -22,6 +22,7 @@ from .property_fewshot import (
     FORMAT_VERSION as BASE_FORMAT,
     REPLICATE_IDS,
     TASK_COUNTS,
+    _base_run_design,
     _base_runs,
     _support_lookup,
     audit_all as audit_primary,
@@ -78,7 +79,11 @@ def _load(config_path: Path = DEFAULT_CONFIG):
 
 def plan(config_path: Path = DEFAULT_CONFIG) -> dict[str, Any]:
     _, _, digest, base, sensitivity = _load(config_path)
-    runs = build_plan(base, _base_runs(base, strict=False))
+    runs = build_plan(
+        base,
+        _base_run_design(base),
+        require_authenticated=False,
+    )
     return {
         "protocol_sha256": digest,
         "run_count": len(runs),
